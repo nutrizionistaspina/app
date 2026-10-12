@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2E5E45">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>La tua app del percorso · Dott. Federico Spina</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Il mio percorso">
+</head>
+<body>
+
+<style>
+/* Layout: app per telefono a colonna unica (max 560px), barra delle schede fissa in basso; su schermi larghi resta centrata come un telefono */
+:root{
+  --bg:#F2F5F1; --surface:#FFFFFF; --surface-2:#E8EEE7; --line:#D5DFD4; --ink:#16251D; --muted:#5C6E63;
+  --brand:#2E5E45; --brand-ink:#FFFFFF; --leaf:#7FB069; --sun:#E3A33B; --warn:#B4532A; --ok:#2F7D50;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r:18px; --shadow:0 1px 2px rgba(22,37,29,.06),0 8px 24px rgba(22,37,29,.06);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1612; --surface:#17211B; --surface-2:#1F2B24; --line:#2B3A31; --ink:#E4EDE6; --muted:#9AAEA1;
+  --brand:#7CC79B; --brand-ink:#0F1612; --leaf:#9BCB84; --sun:#EDB65A; --warn:#E48A62; --ok:#6FCB94; --shadow:0 1px 2px rgba(0,0,0,.35); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0F1612; --surface:#17211B; --surface-2:#1F2B24; --line:#2B3A31; --ink:#E4EDE6; --muted:#9AAEA1;
+  --brand:#7CC79B; --brand-ink:#0F1612; --leaf:#9BCB84; --sun:#EDB65A; --warn:#E48A62; --ok:#6FCB94; --shadow:0 1px 2px rgba(0,0,0,.35); color-scheme:dark }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--brand)}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:8px}
+.shell{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:14px 112px;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.1}h2{font-size:21px}h3{font-size:17px}
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}.small{font-size:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brandmark{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:15px}
+.leafdot{width:30px;height:30px;border-radius:50% 50% 50% 8px;background:var(--brand);display:grid;place-items:center;color:var(--brand-ink);transform:rotate(-8deg)}
+.leafdot svg{width:16px;height:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;border-radius:999px;padding:4px 10px;background:var(--surface-2);color:var(--muted)}
+.chip.demo{background:color-mix(in srgb,var(--sun) 22%,var(--surface));color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);min-width:0}
+.next{background:var(--brand);color:var(--brand-ink);border:0}
+.next .muted{color:color-mix(in srgb,var(--brand-ink) 78%,transparent)}
+.next h2{font-size:25px}
+.when{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.daynum{font-family:var(--f-display);font-size:44px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 14px;font-weight:700;font-size:15px;text-decoration:none;color:var(--ink);min-height:44px}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.next .btn{background:color-mix(in srgb,var(--brand-ink) 14%,transparent);border-color:color-mix(in srgb,var(--brand-ink) 30%,transparent);color:var(--brand-ink)}
+.btn.ghost{border-color:transparent;background:transparent}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs nav{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;font-size:12px;font-weight:700;color:var(--muted)}
+.tabs button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-current="page"]{color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent)}
+.meal{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;padding-block:12px;border-top:1px solid var(--line)}
+.meal:first-of-type{border-top:0;padding-top:2px}
+.mtime{font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--brand);font-variant-numeric:tabular-nums;min-width:48px;padding-top:2px}
+.mname{font-weight:700}
+.mbody{min-width:0;display:flex;flex-direction:column;gap:6px}
+.opt{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
+.slot{display:flex;flex-direction:column;gap:2px}
+.alts{font-size:14.5px;color:var(--muted)}
+.alts b{font-weight:400;color:var(--ink)}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.days button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 0;font-weight:700;font-size:14px}
+.days button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.tip{display:flex;flex-direction:column;gap:4px;padding-block:10px;border-top:1px solid var(--line)}
+.tip:first-of-type{border-top:0;padding-top:0}
+.vis{display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:start;padding-block:12px;border-top:1px solid var(--line)}
+.vis:first-of-type{border-top:0}
+.vdate{background:var(--surface-2);border-radius:14px;text-align:center;padding:8px 4px;font-variant-numeric:tabular-nums}
+.vdate b{display:block;font-family:var(--f-display);font-size:24px;line-height:1}
+.vdate span{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-body);fill:var(--muted);font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--surface-2);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--muted)}
+.sup{display:flex;flex-direction:column;gap:4px;padding-block:12px;border-top:1px solid var(--line)}
+.sup:first-of-type{border-top:0;padding-top:0}
+.dose{display:inline-flex;align-self:flex-start;font-size:13.5px;font-weight:700;background:color-mix(in srgb,var(--leaf) 22%,var(--surface));border-radius:8px;padding:2px 8px}
+.alert{border-left:4px solid var(--warn);padding:8px 12px;background:color-mix(in srgb,var(--warn) 9%,var(--surface));border-radius:0 12px 12px 0;font-size:15px}
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--brand);color:var(--brand-ink);border-bottom-right-radius:5px}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg .row{margin-top:8px}
+.ask{display:flex;gap:8px;position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.ask input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;font-size:16px}
+.sugg{display:flex;gap:6px;flex-wrap:wrap}
+.sugg button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px}
+.lock{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:18px;max-width:420px;margin:0 auto;padding-inline:16px;padding-block:24px}
+.pin{display:flex;gap:8px;justify-content:center}
+.pin input{width:100%;max-width:240px;text-align:center;font-family:var(--f-display);font-size:30px;letter-spacing:.35em;border:1.5px solid var(--line);border-radius:16px;padding:12px;background:var(--surface)}
+.err{color:var(--warn);font-weight:700;font-size:15px;min-height:1.4em}
+.check{display:flex;gap:8px;align-items:center;font-size:15px}
+textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--surface);font-size:13px}
+.edoc{border-top:1px solid var(--line);padding-block:10px}.edoc:first-of-type{border-top:0}.edoc summary{cursor:pointer;font-size:16px;padding-block:4px}.edoc h3{margin-top:12px;font-size:16px}.edoc p{margin:4px 0 0}
+.foot{font-size:13px;color:var(--muted);text-align:center;padding-top:6px}
+.mat{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--ink);padding:10px 0;border-top:1px solid var(--line)}.mat:first-of-type{border-top:0}.mat span{display:flex;flex-direction:column;min-width:0}
+.matic{flex:none;width:42px;height:48px;border-radius:8px;background:color-mix(in srgb,var(--warn) 14%,var(--surface));color:var(--warn);font-weight:700;font-size:12px;display:grid!important;place-items:center}
+.scale{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}.scale button{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;min-height:44px;font-size:16px;font-weight:700;padding:0}
+.scale button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand);color:#fff}.scale button.zone{border-color:color-mix(in srgb,var(--brand) 45%,var(--line))}
+.scalel{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:4px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tags button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:15px;min-height:40px}.tags button[aria-pressed="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface));font-weight:700}
+.dline{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}.dline:last-child{border-bottom:0}
+.mnote{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink)}
+.qopts{display:flex;flex-direction:column;gap:6px}
+.qopts button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-size:16px;min-height:46px}
+.qopts button[aria-checked="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface));font-weight:700}
+.qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
+</style>
+
+<div id="root"></div>
+
+<script>
+/* ===================================================== App paziente NutriLab
+   I dati arrivano da NutriLab come «pacchetto» cifrato (AES-GCM, chiave da PIN con PBKDF2) dentro il link personale o incollato come codice.
+   La pagina non contiene dati di pazienti reali: senza pacchetto mostra un esempio dichiarato. Nulla viene inviato a un server. */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const LS={get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },del(k){ try{ localStorage.removeItem(k); }catch(e){} }};
+const DAYS=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+const MESI=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addDays=(n)=>{ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d); };
+
+/* ---- esempio dichiarato: persona inventata, valori plausibili */
+const DEMO={v:1,demo:1,mind:1,gen:ymd(new Date()),st:{n:'Dott. Federico Spina',ph:'+39 351 879 7908',web:'https://nutrizionistaspina.it'},
+ pz:{n:'Martina',full:'Martina (esempio)'},
+ ap:[{s:addDays(9)+'T17:00',t:'Incontro di supporto',dur:40,sd:'Pisa',str:'Centro Le Mura',ind:'Via Emanuele Filiberto 5, 56127 Pisa',on:0},
+     {s:addDays(37)+'T16:20',t:'Valutazione della composizione corporea',dur:20,sd:'Online',str:'',ind:'',on:1}],
+ past:[{d:addDays(-26),t:'Prima visita'},{d:addDays(-54),t:'Incontro di orientamento'}],
+ pl:{n:'Piano mediterraneo · 1600 kcal',d:[0,1,2,3,4,5,6].map(i=>[DAYS[i],[
+   ['Colazione','07:30',[[['Yogurt greco bianco 150 g','Kefir 200 g'],['Fiocchi d\'avena 30 g','Pane integrale 40 g'],['Frutti di bosco 100 g','Kiwi 100 g']]]],
+   ['Spuntino','10:30',[[['Mandorle 15 g','Noci 15 g']]]],
+   ['Pranzo','13:00',[[[i%2?'Riso integrale 70 g':'Pasta integrale 70 g','Farro 70 g'],[i%3?'Lenticchie secche 50 g':'Ceci secchi 50 g','Petto di pollo 120 g'],['Verdure di stagione 200 g'],['Olio extravergine di oliva 10 g']]]],
+   ['Merenda','16:30',[[['Mela 150 g','Pera 150 g']]]],
+   ['Cena','20:00',[[[i%2?'Salmone 130 g':'Merluzzo 150 g','Uova 2'],['Patate 200 g','Pane integrale 60 g'],['Verdure cotte 250 g'],['Olio extravergine di oliva 10 g']]]]]]),
+   note:'Bevi 1,5-2 litri di acqua al giorno. Il sale aggiunto va tenuto sotto i 5 g al giorno: usa erbe, spezie e limone.'},
+ edu:[['Le verdure all\'inizio del pasto','Mangiare prima la verdura aiuta a sentirsi sazi prima e rende più stabile la glicemia.'],
+      ['Pasti fuori casa','Al ristorante scegli un primo o un secondo con contorno di verdure; il pane resta fuori se c\'è già un carboidrato.'],
+      ['Movimento','Cammina almeno 30 minuti al giorno: anche spezzati in tre camminate da 10 minuti contano.']],
+ sup:[{n:'Vitamina D3',d:'1000 UI al giorno',w:'a pranzo, con il pasto',why:'valori bassi agli ultimi esami'},{n:'Magnesio citrato',d:'300 mg',w:'la sera',why:'crampi e sonno'}],
+ int:[{m:'Levotiroxina',a:'Prendila a stomaco vuoto, 30-60 minuti prima della colazione; caffè, latte, soia e integratori di calcio o ferro almeno 4 ore dopo.'}],
+ ms:[{d:addDays(-54),w:74.2,wc:88},{d:addDays(-26),w:72.6,wc:86},{d:addDays(-5),w:71.4,wc:84.5}],
+ ref:[{d:addDays(-26),x:'Composizione corporea nella norma per idratazione; massa grassa in lieve calo. Si conferma il piano con più verdure a cena e camminate quotidiane.'}],
+ scr:[{k:'medas14',name:'MEDAS-14 · Aderenza alla dieta mediterranea',intro:'Rispondi pensando alle ultime settimane.',items:[{t:'Usa l\'olio d\'oliva come principale grasso da cucina?',o:['Sì','No']},{t:'Quante porzioni di verdura consuma al giorno?',o:['2 o più','Meno di 2']},{t:'Quante porzioni di frutta consuma al giorno?',o:['3 o più','Meno di 3']}]}],
+ mat:[{t:'Tabella delle sostituzioni',d:'Cosa scambiare con cosa, e in che quantità.',u:'https://drive.google.com/file/d/1whlw4_ZaXdIc3lZAvypPGmQp9CVInU8j/view'},{t:'Insalatone proteiche e bilanciate',d:'Pranzi da portare al lavoro o fuori casa.',u:'https://drive.google.com/file/d/1SZnibrsX-3Mj9UFs8H-Dyh33_5oL2RCE/view'}],
+ inv:[{pro:'Personal trainer laureato in scienze motorie',why:'attività fisica sotto le raccomandazioni OMS',st:'consigliato',urg:'media'}]};
+
+/* ---- decifratura del pacchetto */
+const b64u={dec(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; const b=atob(s), u=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return u; }};
+async function inflate(u){ const ds=new DecompressionStream('deflate-raw'); const r=new Blob([u]).stream().pipeThrough(ds); return new Uint8Array(await new Response(r).arrayBuffer()); }
+async function openPack(code,pin){ const raw=b64u.dec(code.replace(/^p/,'')); if(raw[0]!==1) throw new Error('versione');
+  const salt=raw.slice(1,17), iv=raw.slice(17,29), data=raw.slice(29);
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv},key,data));
+  const json=plain[0]===1?new TextDecoder().decode(await inflate(plain.slice(1))):new TextDecoder().decode(plain.slice(1));
+  return JSON.parse(json); }
+
+/* ---- risposte ai questionari: cifrate con lo stesso PIN, il Dottore le importa in NutriLab */
+const b64e=u=>{ let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); };
+const cat=(...a)=>{ const n=a.reduce((s,x)=>s+x.length,0), o=new Uint8Array(n); let k=0; for(const x of a){ o.set(x,k); k+=x.length; } return o; };
+async function seal(obj,pin){ const json=new TextEncoder().encode(JSON.stringify(obj)); let body;
+  try{ body=cat(new Uint8Array([1]),new Uint8Array(await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer())); }catch(e){ body=cat(new Uint8Array([0]),json); }
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt']);
+  return 'r'+b64e(cat(new Uint8Array([1]),salt,iv,new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,body)))); }
+
+/* ---- stato */
+const A={P:null,tab:'oggi',day:(new Date().getDay()+6)%7,chat:[],code:null,ai:null,busy:false,pin:'',q:null,ans:{},out:''};
+const ansKey=()=>'nlp_ans_'+(A.P?.gen||'')+'_'+norm(A.P?.pz?.full||'');
+const loadAns=()=>{ try{ A.ans=JSON.parse(LS.get(ansKey())||'{}')||{}; }catch(e){ A.ans={}; } };
+const saveAns=()=>LS.set(ansKey(),JSON.stringify(A.ans));
+const scrDone=q=>q.items.every((it,i)=>A.ans[q.k]?.[i]!=null&&A.ans[q.k][i]!=='');
+const hashCode=()=>{ const h=decodeURIComponent((location.hash||'').slice(1)); return /^p[A-Za-z0-9_-]{60,}$/.test(h)?h:null; };
+
+const ICON={oggi:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>',
+ piano:'<svg viewBox="0 0 24 24"><path d="M4 14h16a8 8 0 0 1-16 0z"/><path d="M8 10c0-2 1.5-2.5 1.5-4.5M12 10c0-2 1.5-2.5 1.5-4.5"/></svg>',
+ visite:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+ integr:'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-35 12 12.5)"/><path d="M9.3 8.2l5.4 7.6"/></svg>',
+ chiedi:'<svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></svg>'};
+const LEAF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l8-8"/></svg>';
+
+/* ---- utilità sugli appuntamenti */
+const apDate=a=>new Date(a.s);
+const upcoming=()=>(A.P.ap||[]).filter(a=>apDate(a)>new Date(Date.now()-36e5)).sort((x,y)=>x.s.localeCompare(y.s));
+const longDay=a=>apDate(a).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+const hm=a=>a.s.slice(11,16);
+const daysTo=a=>{ const d0=new Date(); d0.setHours(0,0,0,0); const d1=apDate(a); d1.setHours(0,0,0,0); return Math.round((d1-d0)/864e5); };
+const where=a=>a.on||a.sd==='Online'?'In videochiamata':[a.str,a.ind].filter(Boolean).join(', ')||a.sd||'';
+const waNum=()=>String(A.P.st?.ph||'').replace(/[^\d]/g,'').replace(/^(?!39)(\d{9,10})$/,'39$1');
+const wa=t=>waNum()?`https://wa.me/${waNum()}?text=${encodeURIComponent(t)}`:'';
+/* ---- regole di Ambrogio (manuale dello studio): logistica, costi, cosa portare, canali. Il pacchetto del Dottore può aggiornarle (st.amb) */
+const AMB_DEF={prezzi:[['Prima visita','120 €'],['Incontro di supporto','60 €'],['Incontro di orientamento','90 €'],['Guida alla spesa online','70 €'],['Valutazione della composizione corporea','50 €']],
+  sedi:[['Cecina','Clinica De Medici','c\'è una lista d\'attesa: conviene chiamare direttamente la struttura'],['Pisa','Centro Le Mura','si richiede la visita dal sito nutrizionistaspina.it/prenota, quando ci sono orari liberi; altrimenti chiama il centro per la lista d\'attesa'],['Sesto Fiorentino','NaturSana','si richiede la visita dal sito nutrizionistaspina.it/prenota, poi il Dottore ti chiama per confermare'],['Online','videochiamata','per chi non può venire in studio, dopo aver inviato i documenti richiesti; si richiede dal sito']],
+  portare:['analisi del sangue recenti (non più vecchie di 6 mesi)','eventuali referti specialistici (endocrinologo, gastroenterologo…)','elenco completo di farmaci e integratori','anamnesi e consensi già compilati (online nell\'area riservata del sito o firmati via email)'],
+  pagamenti:'le modalità te le spiega il Dottore nella chiamata conoscitiva o in visita',detrazione:'Tutte le prestazioni sono detraibili come spese sanitarie nella dichiarazione dei redditi.',
+  followup:'La chiamata di controllo la fai tu, nel giorno e all\'ora concordati in visita: non è il Dottore a chiamarti.',
+  minori:'Per i minorenni servono le firme di entrambi i genitori sui moduli di consenso.',
+  parcheggio:'Le sedi hanno in genere parcheggi nelle vicinanze o dedicati.',
+  canali:'Per domande sul piano scrivi al Dottore per email; WhatsApp è solo per urgenze logistiche (per esempio un ritardo il giorno della visita).',
+  disdette:'Le visite non si spostano né si annullano dall\'app: lo decide il Dottore, scrivigli.'};
+const AMB=()=>({...AMB_DEF,...(A.P?.st?.amb||{})});
+const stEmail=()=>A.P?.st?.em||'info@nutrizionistaspina.it';
+const mailFromWa=u=>{ let body=''; try{ body=new URL(u).searchParams.get('text')||''; }catch(e){} return `mailto:${stEmail()}?subject=${encodeURIComponent('Domanda dall\'app del percorso')}&body=${encodeURIComponent(body)}`; };
+function ambText(){ const a=AMB(); return `Prezzi: ${a.prezzi.map(p=>p.join(' ')).join('; ')}. Sedi: ${a.sedi.map(s=>`${s[0]} (${s[1]}): ${s[2]}`).join('; ')}. Da portare in visita: ${a.portare.join('; ')}. Pagamenti: ${a.pagamenti} (non dare dettagli su metodi, rate o link). ${a.detrazione} ${a.followup} ${a.minori} ${a.parcheggio} ${a.canali} ${a.disdette}`; }
+function gcal(a){ const s=apDate(a), e=new Date(s.getTime()+(a.dur||40)*6e4), f=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(a.t+' · '+(A.P.st?.n||''))}&dates=${f(s)}/${f(e)}&ctz=Europe/Rome&location=${encodeURIComponent(where(a))}`; }
+function mapLink(a){ return a.ind?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((a.str?a.str+', ':'')+a.ind)}`:''; }
+
+/* ---- schermate */
+function head(sub){ return `<div class="top"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>${esc(A.P.st?.n||'Il tuo nutrizionista')}</span></div>${A.P.demo?'<span class="chip demo">Esempio</span>':''}</div>${sub||''}`; }
+function nextCard(){ const n=upcoming()[0]; if(!n) return `<section class="card"><span class="eyebrow">Prossima visita</span><p>Nessuna visita in programma. Quando vuoi fissarla, scrivi al Dottore.</p>${wa('Buongiorno, vorrei fissare il prossimo appuntamento.')?`<div class="row"><a class="btn primary" href="${wa('Buongiorno, vorrei fissare il prossimo appuntamento.')}" target="_blank" rel="noopener">Scrivi su WhatsApp</a></div>`:''}</section>`;
+  const d=daysTo(n), dd=apDate(n), rel=d===0?'oggi':d===1?'domani':`tra ${d} giorni`;
+  return `<section class="card next" aria-label="Prossima visita"><span class="eyebrow muted">Prossima visita · ${rel}</span>
+   <div class="when"><span class="daynum">${dd.getDate()}</span><div><h2>${esc(dd.toLocaleDateString('it-IT',{weekday:'long'}))}, ore ${hm(n)}</h2><div class="muted">${esc(MESI[dd.getMonth()])} ${dd.getFullYear()} · ${esc(n.t)} · ${n.dur||''} min</div></div></div>
+   <div>${esc(where(n))}</div>
+   <div class="row"><a class="btn" href="${gcal(n)}" target="_blank" rel="noopener">Aggiungi al calendario</a>${mapLink(n)?`<a class="btn" href="${mapLink(n)}" target="_blank" rel="noopener">Indicazioni</a>`:''}${wa('')?`<a class="btn" href="${wa(`Buongiorno, confermo la visita di ${longDay(n)} alle ${hm(n)}. ${A.P.pz?.full||''}`)}" target="_blank" rel="noopener">Confermo</a><a class="btn" href="${wa(`Buongiorno, purtroppo devo spostare la visita di ${longDay(n)} alle ${hm(n)}. Quali altre date sono disponibili? ${A.P.pz?.full||''}`)}" target="_blank" rel="noopener">Devo spostarla</a>`:''}</div></section>`; }
+function mealHTML(m){ const [label,time,groups]=m;
+  return `<div class="meal"><span class="mtime">${esc(time||'')}</span><div class="mbody"><span class="mname">${esc(label)}</span>${groups.map((g,gi)=>`${groups.length>1?`<span class="opt">Opzione ${gi+1}</span>`:''}${g.map(sl=>`<div class="slot"><span>${esc(sl[0])}</span>${sl.length>1?`<span class="alts">oppure ${sl.slice(1).map(x=>`<b>${esc(x)}</b>`).join(', ')}</span>`:''}</div>`).join('')}`).join('')}</div></div>`; }
+const dayPlan=i=>{ const d=A.P.pl?.d||[]; return d.length?d[Math.min(i,d.length-1)]:null; };
+function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), now=new Date(), hh=pad(now.getHours())+':'+pad(now.getMinutes());
+  const meals=dp?dp[1]:[], nextMeal=meals.find(m=>(m[1]||'99')>=hh)||null;
+  const tip=(A.P.edu||[])[new Date().getDate()%Math.max(1,(A.P.edu||[]).length)];
+  return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
+   ${nextCard()}
+   ${scrCard()}
+   ${mindCard()}
+   ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(mealHTML).join('')}</section>`:''}
+   ${tip?`<section class="card"><span class="eyebrow">Consiglio del giorno</span><h3>${esc(tip[0])}</h3><p class="small">${esc(tip[1])}</p></section>`:''}
+   ${A.P.pl?.note?`<section class="card"><span class="eyebrow">Ricorda</span><p class="small">${esc(A.P.pl.note)}</p></section>`:''}
+   ${newsCard()}`; }
+function scrCard(){ const L=A.P.scr||[]; if(!L.length) return ''; const todo=L.filter(q=>!scrDone(q)).length;
+  return `<section class="card"><span class="eyebrow">Questionari dal Dottore</span><h3>${todo?`${todo} ${todo===1?'questionario da compilare':'questionari da compilare'}`:'Questionari compilati: inviali al Dottore'}</h3><p class="small muted">Servono a preparare la prossima visita. Ci vogliono pochi minuti.</p><div class="row"><button class="btn primary" data-go="quest">${todo?'Compila':'Invia le risposte'}</button></div></section>`; }
+function scrQuest(){ const L=A.P.scr||[]; const q=A.q&&L.find(x=>x.k===A.q);
+  if(q){ const a=A.ans[q.k]||{}, n=q.items.filter((_,i)=>a[i]!=null&&a[i]!=='').length, safe=q.safe!=null&&+a[q.safe]>0;
+    return `${head(`<div><div class="eyebrow">Questionario · ${n} di ${q.items.length}</div><h1>${esc(q.name.split(' · ')[1]||q.name)}</h1></div>`)}
+     ${q.intro?`<p class="small muted">${esc(q.intro)}</p>`:''}
+     ${safe?`<div class="alert" role="alert"><b>Se hai pensieri di farti del male, non restare solo/a.</b> Parlane subito con qualcuno di cui ti fidi o chiama il 112. Puoi anche chiamare Telefono Amico allo 02 2327 2327. Avvisa il Dottore e il tuo medico.</div>`:''}
+     ${q.items.map((it,i)=>`<section class="card qitem"><span class="eyebrow">Domanda ${i+1}</span><h3>${esc(it.t)}</h3>${it.h?`<span class="small muted">${esc(it.h)}</span>`:''}
+       ${it.o?`<div class="qopts" role="radiogroup" aria-label="Domanda ${i+1}">${it.o.map((o,j)=>`<button type="button" role="radio" aria-checked="${String(a[i])===String(j)}" data-qa="${i}" data-v="${j}">${esc(o)}</button>`).join('')}</div>${q.safe===i&&+a[i]>0?`<div class="alert" role="alert">Grazie per averlo scritto. Se hai pensieri di farti del male parlane subito con qualcuno di cui ti fidi o chiama il 112; Telefono Amico risponde allo 02 2327 2327. Scrivi anche al Dottore.</div>`:''}`
+        :`<label class="small muted" for="qn${i}">${it.n==='minutes'?'Minuti':'Valore'}</label><input class="qnum" id="qn${i}" inputmode="decimal" data-qn="${i}" value="${esc(a[i]??'')}">`}</section>`).join('')}
+     <div class="row"><button class="btn" data-go="quest">Torna all'elenco</button></div>`; }
+  const all=L.every(scrDone);
+  return `${head(`<div><div class="eyebrow">Prima della prossima visita</div><h1>Questionari</h1></div>`)}
+   <section class="card">${L.map(x=>{ const a=A.ans[x.k]||{}, n=x.items.filter((_,i)=>a[i]!=null&&a[i]!=='').length; return `<div class="sup"><h3>${esc(x.name)}</h3><span class="small muted">${n===x.items.length?'Completato':`${n} di ${x.items.length} risposte`}</span><div class="row"><button class="btn" data-qopen="${x.k}">${n?'Riprendi':'Inizia'}</button></div></div>`; }).join('')}</section>
+   <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':all?`<p class="small">Le risposte partono come codice cifrato in un messaggio WhatsApp: solo il Dottore può leggerle.</p><div class="row"><button class="btn primary" id="qsend">Prepara il messaggio</button></div>${A.out?`<div class="row"><a class="btn primary" href="${wa(A.out)}" target="_blank" rel="noopener">Apri WhatsApp</a><button class="btn" id="qcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.out)}</textarea>`:''}`:'<p class="small muted">Completa tutti i questionari per inviarli.</p>'}</section>`; }
+
+/* ---- diario della fame e della sazietà (mindful eating): scala 0 molto pieno · 10 fame estrema */
+const MEMO=['calma','fretta','stress','noia','stanchezza','tristezza','solitudine','gioia','rabbia'];
+const MMEAL=[['col','Colazione'],['pra','Pranzo'],['cen','Cena'],['spu','Spuntino'],['fuori','Fuori pasto']];
+const SCALE_TXT=['Molto pieno, a disagio','Troppo pieno','Troppo pieno','Soddisfatto','Soddisfatto','Né fame né pieno','Inizio ad avere fame','Ho fame','Molta fame','Molta fame','Fame estrema'];
+const mKey=()=>'nlp_mind_'+(A.P?.pz?.full?norm(A.P.pz.full):'demo');
+const mLoad=()=>{ try{ return JSON.parse(LS.get(mKey())||'[]')||[]; }catch(e){ return []; } };
+const mSave=L=>LS.set(mKey(),JSON.stringify(L.slice(-300)));
+const mNew=()=>({m:(()=>{ const h=new Date().getHours(); return h<10?'col':h<15?'pra':h<19?'spu':'cen'; })(),pre:null,post:null,emo:[],scr:false,fr:false,n:''});
+function mindCard(){ if(!A.P.mind) return ''; const L=mLoad(), t=ymd(new Date()), n=L.filter(e=>e.at.slice(0,10)===t).length, unsent=L.filter(e=>!e.sent).length;
+  return `<section class="card"><span class="eyebrow">Diario della fame</span><h3>${n?`Oggi hai annotato ${n} ${n===1?'pasto':'pasti'}`:'Come arrivi al prossimo pasto?'}</h3><p class="small muted">Prima e dopo aver mangiato: quanta fame hai, che cosa provi. Ci vogliono venti secondi e aiutano a riconoscere la fame fisica da quella emotiva.</p><div class="row"><button class="btn primary" data-go="diario">Annota un pasto</button>${unsent?`<button class="btn" data-go="diario">${unsent} da inviare</button>`:''}</div></section>`; }
+function scaleHTML(k,v){ return `<div class="scale" role="radiogroup" aria-label="${k==='pre'?'Fame prima di mangiare':'Fame dopo aver mangiato'}">${Array.from({length:11},(_,i)=>`<button type="button" role="radio" aria-pressed="${v===i}" aria-checked="${v===i}" aria-label="${i}: ${SCALE_TXT[i]}" class="${(k==='pre'&&(i===6||i===7))||(k==='post'&&(i===3||i===4))?'zone':''}" data-ms="${k}" data-v="${i}">${i}</button>`).join('')}</div><div class="scalel"><span>0 molto pieno</span><span>${v!=null?esc(SCALE_TXT[v]):''}</span><span>10 fame estrema</span></div>`; }
+function scrDiario(){ const d=A.md||(A.md=mNew()), L=mLoad();
+  const days=7, from=Date.now()-days*864e5, W=L.filter(e=>new Date(e.at).getTime()>=from), avg=a=>a.length?(a.reduce((s,x)=>s+x,0)/a.length).toFixed(1).replace('.',','):'—';
+  return `${head(`<div><div class="eyebrow">Mindful eating</div><h1>Diario della fame</h1></div>`)}
+   <section class="card"><h2>Il pasto</h2><div class="tags">${MMEAL.map(([k,l])=>`<button type="button" aria-pressed="${d.m===k}" data-mm="${k}">${l}</button>`).join('')}</div></section>
+   <section class="card"><h2>Prima di mangiare: quanta fame hai?</h2>${scaleHTML('pre',d.pre)}<p class="small muted">Il momento buono per iniziare è di solito tra 6 e 7: arrivare a 9-10 rende più difficile scegliere con calma.</p></section>
+   <section class="card"><h2>Che cosa provi?</h2><div class="tags">${MEMO.map(e=>`<button type="button" aria-pressed="${d.emo.includes(e)}" data-me="${e}">${e}</button>`).join('')}</div>
+     <div class="tags" style="margin-top:10px"><button type="button" aria-pressed="${d.scr}" data-mx="scr">davanti a uno schermo</button><button type="button" aria-pressed="${d.fr}" data-mx="fr">di fretta o in piedi</button></div></section>
+   <section class="card"><h2>Dopo: quanta fame ti è rimasta?</h2>${scaleHTML('post',d.post)}<p class="small muted">Fermarsi tra 3 e 4 vuol dire essere soddisfatti senza sentirsi pesanti. Puoi compilarlo anche più tardi.</p>
+     <label class="small muted" for="mnote">Una nota, se vuoi (facoltativa)</label><input class="mnote" id="mnote" maxlength="200" value="${esc(d.n)}" placeholder="es. avevo saltato lo spuntino"></section>
+   <div class="row"><button class="btn primary" id="msave"${d.pre==null&&d.post==null?' disabled':''}>Salva il pasto</button></div>
+   <section class="card"><h2>Ultimi 7 giorni</h2>${W.length?`<p class="small">Pasti annotati: <b>${W.length}</b> · fame prima in media <b>${avg(W.filter(e=>e.pre!=null).map(e=>e.pre))}</b> · dopo <b>${avg(W.filter(e=>e.post!=null).map(e=>e.post))}</b> · davanti a uno schermo <b>${W.filter(e=>e.scr).length}</b></p>
+     ${W.slice(-8).reverse().map(e=>`<div class="dline"><span>${esc(new Date(e.at).toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))} · ${esc((MMEAL.find(x=>x[0]===e.m)||['',''])[1])}${e.emo.length?` · ${esc(e.emo.join(', '))}`:''}</span><b>${e.pre??'–'} → ${e.post??'–'}</b></div>`).join('')}`:'<p class="small muted">Ancora nessun pasto annotato.</p>'}</section>
+   <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':L.some(e=>!e.sent)?`<p class="small">${L.filter(e=>!e.sent).length} pasti non ancora inviati. Partono come codice cifrato in un messaggio WhatsApp: solo il Dottore può leggerli.</p><div class="row"><button class="btn primary" id="msend">Prepara il messaggio</button></div>${A.mout?`<div class="row"><a class="btn primary" href="${wa(A.mout)}" target="_blank" rel="noopener" id="mwa">Apri WhatsApp</a><button class="btn" id="mcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.mout)}</textarea>`:''}`:'<p class="small muted">Tutto inviato.</p>'}</section>`; }
+function newsCard(){ const L=(A.P.news||[]).filter(n=>/^https?:\/\//.test(n.u||'')); if(!L.length) return ''; return `<section class="card"><span class="eyebrow">Approfondimenti per il tuo percorso</span><p class="small muted">Articoli del Dottore scelti per te: si aprono sul sito.</p>${L.map(n=>`<a class="mat" href="${esc(n.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(n.t)}</b>${n.d?`<span class="small muted">${esc(n.d)}</span>`:''}</span></a>`).join('')}</section>`; }
+function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card"><h2>Materiali per te</h2><p class="small muted">Scelti dal Dottore per il tuo percorso: si aprono e si scaricano dal Drive.</p>${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
+function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card"><h2>Schede scritte per te</h2>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
+function scrPiano(){ const d=A.P.pl?.d||[]; if(!d.length) return `${head()}<section class="card"><p>Il piano non è ancora stato aggiunto.</p></section>`;
+  const dp=dayPlan(A.day);
+  return `${head(`<div><div class="eyebrow">Il tuo piano</div><h1>${esc(A.P.pl.n||'Piano alimentare')}</h1></div>`)}
+   ${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
+   <section class="card">${d.length>1?`<h2>${esc(dp[0])}</h2>`:''}${dp[1].map(mealHTML).join('')}</section>
+   ${edocCard()}
+   ${matCard()}
+   ${(A.P.edu||[]).length?`<section class="card"><h2>I consigli</h2>${A.P.edu.map(t=>`<div class="tip"><h3>${esc(t[0])}</h3><span class="small">${esc(t[1])}</span></div>`).join('')}</section>`:''}
+   <p class="foot">Le grammature sono a crudo e al netto degli scarti, salvo dove indicato.</p>`; }
+function chartMs(ms){ const pts=ms.filter(x=>x.w>0); if(pts.length<2) return '';
+  const W=320,H=130,pl=34,pr=12,pt=14,pb=24, xs=pts.map((_,i)=>pl+i*(W-pl-pr)/(pts.length-1)), lo=Math.floor(Math.min(...pts.map(p=>p.w))-1), hi=Math.ceil(Math.max(...pts.map(p=>p.w))+1), y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb);
+  const path=pts.map((p,i)=>`${i?'L':'M'}${xs[i].toFixed(1)} ${y(p.w).toFixed(1)}`).join(' ');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Andamento del peso"><line x1="${pl}" x2="${W-pr}" y1="${y(hi)}" y2="${y(hi)}" stroke="var(--line)"/><line x1="${pl}" x2="${W-pr}" y1="${y(lo)}" y2="${y(lo)}" stroke="var(--line)"/>
+   <text x="${pl-6}" y="${y(hi)+4}" text-anchor="end">${hi}</text><text x="${pl-6}" y="${y(lo)+4}" text-anchor="end">${lo}</text>
+   <path d="${path} L${xs.at(-1)} ${y(lo)} L${xs[0]} ${y(lo)} Z" fill="color-mix(in srgb, var(--brand) 12%, transparent)"/><path d="${path}" fill="none" stroke="var(--brand)" stroke-width="2.2"/>
+   ${pts.map((p,i)=>`<circle cx="${xs[i]}" cy="${y(p.w)}" r="${i===pts.length-1?4.5:3}" fill="${i===pts.length-1?'var(--brand)':'var(--surface)'}" stroke="var(--brand)" stroke-width="2"/><text x="${xs[i]}" y="${H-6}" text-anchor="middle">${new Date(p.d).getDate()} ${MESI[new Date(p.d).getMonth()]}</text>`).join('')}</svg>`; }
+function scrVisite(){ const up=upcoming(), ms=A.P.ms||[], last=ms.at(-1), first=ms[0], dl=(k)=>last&&first&&last[k]!=null&&first[k]!=null&&ms.length>1?last[k]-first[k]:null, f=(x,d=1)=>x==null?'—':x.toLocaleString('it-IT',{maximumFractionDigits:d});
+  return `${head(`<div><div class="eyebrow">Visite e misure</div><h1>Il tuo percorso</h1></div>`)}
+   <section class="card"><h2>In programma</h2>${up.length?up.map(a=>{ const d=apDate(a); return `<div class="vis"><div class="vdate"><b>${d.getDate()}</b><span>${MESI[d.getMonth()]}</span></div><div><div class="mname">${esc(a.t)}</div><div class="small muted">${esc(d.toLocaleDateString('it-IT',{weekday:'long'}))} ore ${hm(a)} · ${esc(where(a))}</div><div class="row" style="margin-top:6px"><a class="btn" href="${gcal(a)}" target="_blank" rel="noopener">Calendario</a></div></div></div>`; }).join(''):'<p class="muted">Nessuna visita in programma.</p>'}</section>
+   ${last?`<section class="card"><h2>Le tue misure</h2><div class="stats"><div class="stat"><b>${f(last.w)}</b><span>kg oggi</span></div><div class="stat"><b>${dl('w')==null?'—':(dl('w')>0?'+':'')+f(dl('w'))}</b><span>kg dall'inizio</span></div><div class="stat"><b>${last.wc!=null?f(last.wc):'—'}</b><span>cm di vita</span></div></div>${chartMs(ms)}<p class="small muted">Il peso è solo una delle misure: a ogni visita guardiamo anche circonferenze e composizione corporea.</p></section>`:''}
+   ${invCardApp()}
+   ${(A.P.ref||[]).length?`<section class="card"><h2>Referti delle visite</h2>${A.P.ref.map(r=>`<div class="tip"><span class="eyebrow">${esc(new Date(r.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))}</span><span class="small" style="white-space:pre-wrap">${esc(r.x)}</span></div>`).join('')}</section>`:''}
+   ${(A.P.past||[]).length?`<section class="card"><h3>Visite già fatte</h3>${A.P.past.map(v=>`<div class="small">${esc(new Date(v.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · ${esc(v.t)}</div>`).join('')}</section>`:''}`; }
+function invCardApp(){ const L=A.P.inv||[]; if(!L.length) return ''; return `<section class="card"><h2>Professionisti consigliati</h2>${L.map(x=>`<div class="sup"><h3>${esc(x.pro)}</h3><span class="small">${esc(x.why)}</span><span class="small muted">${x.st==='prenotato'?'Prenotato':'Da prenotare'}${x.urg==='alta'?' · da fare presto':''}</span></div>`).join('')}${wa('x')?`<div class="row"><a class="btn" href="${wa('Buongiorno, le scrivo per la visita consigliata dallo specialista: ')}" target="_blank" rel="noopener">Aggiorna il Dottore</a></div>`:''}</section>`; }
+function scrIntegr(){ const s=A.P.sup||[], it=A.P.int||[];
+  return `${head(`<div><div class="eyebrow">Integratori e farmaci</div><h1>Cosa prendere</h1></div>`)}
+   <section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}</section>
+   ${it.length?`<section class="card"><h2>Attenzione con i farmaci</h2>${it.map(x=>`<div class="alert"><b>${esc(x.m)}</b>${x.w?` con ${esc(x.w)}`:''}: ${esc(x.a)}</div>`).join('')}</section>`:''}
+   <p class="foot">Non iniziare né sospendere farmaci senza il tuo medico. Per dubbi su un nuovo integratore chiedi prima al Dottore.</p>`; }
+const SUGG=['Quando è la prossima visita?','Cosa mangio a cena?','Cosa posso mangiare al posto del pollo?','Quando prendo gli integratori?','Devo spostare la visita'];
+function scrChiedi(){ A.use=usage(); if(!A.chat.length) A.chat.push({b:1,t:`Ciao ${A.P.pz?.n||''}! Posso aiutarti con il tuo piano, le visite e gli integratori. Rispondo solo con le indicazioni del Dottore: per tutto il resto ti metto in contatto con lui.`});
+  return `${head(`<div><div class="eyebrow">Assistente</div><h1>Chiedi</h1></div>`)}
+   <div class="chat" id="chat" aria-live="polite">${A.chat.map(m=>`<div class="msg ${m.b?'bot':'me'}">${esc(m.t)}${m.wa?`<div class="row"><a class="btn" href="${mailFromWa(m.wa)}">Scrivi al Dottore</a>${m.logi?`<a class="btn ghost" href="${m.wa}" target="_blank" rel="noopener">WhatsApp (urgenze)</a>`:''}</div>`:''}</div>`).join('')}${A.busy?'<div class="msg bot muted">Sto cercando nelle indicazioni…</div>':''}</div>
+   <div class="sugg">${SUGG.map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+   <form class="ask" id="askf"><label for="q" class="eyebrow" hidden>Domanda</label><input id="q" autocomplete="off" maxlength="${LIM().len}" placeholder="${limitLeft()?'Scrivi una domanda…':'Domande di oggi esaurite'}" aria-label="Domanda"${limitLeft()?'':' disabled'}><button class="btn primary" type="submit"${limitLeft()?'':' disabled'}>Invia</button></form>
+   <p class="foot">${limitLeft()} di ${LIM().day} domande rimaste oggi · massimo ${LIM().len} caratteri</p>
+   <p class="foot">Non è un servizio per urgenze: in caso di emergenza chiama il 118.${A.ai?' Le risposte libere usano Claude solo sulle tue indicazioni.':''}</p>`; }
+
+/* ---- assistente: risponde solo con i dati del pacchetto; altrimenti rimanda al Dottore */
+function allSlots(){ const out=[]; for(const [dn,meals] of A.P.pl?.d||[]) for(const [ml,,groups] of meals) for(const g of groups) for(const sl of g) out.push({dn,ml,sl}); return out; }
+function answer(q){ const n=norm(q), up=upcoming(), next=up[0];
+  if(/spost|disdic|annull|non riesco a venire|cambiare (la )?(data|visita)/.test(n)) return {t:next?`${AMB().disdette} Ti preparo già il messaggio per la visita di ${longDay(next)} alle ${hm(next)}.`:`${AMB().disdette}`,logi:1,wa:wa(next?`Buongiorno, devo spostare la visita di ${longDay(next)} alle ${hm(next)}. ${A.P.pz?.full||''}`:'Buongiorno, vorrei fissare un appuntamento.')};
+  { const am=AMB();
+    if(/cost|prezz|tariff|quanto (si )?pag|quanto viene/.test(n)) return {t:`${am.prezzi.map(p=>`${p[0]}: ${p[1]}`).join('; ')}. ${am.detrazione}`};
+    if(/pagament|bancomat|carta di credito|contant|come pago|posso pagare/.test(n)) return {t:`Sui pagamenti: ${am.pagamenti}. ${am.detrazione}`};
+    if(/detra|730|dichiarazion|spese sanitarie/.test(n)) return {t:am.detrazione};
+    if(/cosa (devo )?portar|cosa porto|devo portare|portare in visita/.test(n)) return {t:`Porta: ${am.portare.join('; ')}.`};
+    if(/parchegg/.test(n)) return {t:am.parcheggio};
+    if(/minorenn|mio figli|mia figli|bambin|ragazz/.test(n)) return {t:am.minori};
+    if(/follow|telefonat|richiam|chiamata di controllo|mi chiama/.test(n)) return {t:am.followup};
+    if(/lista d.?attesa|come (si )?prenot|prenotare|nuova visita|fissare/.test(n)) return {t:`${am.sedi.map(s=>`${s[0]} (${s[1]}): ${s[2]}`).join('. ')}.`,wa:wa('Buongiorno, vorrei fissare un appuntamento.')};
+    if(/online|videochiam|a distanza/.test(n)) return {t:`Visite online: ${am.sedi.find(s=>s[0]==='Online')?.[2]||''}. Il link della videochiamata arriva per email.`};
+    if(/whatsapp|email|contatt|come (ti|lo|vi) scriv/.test(n)) return {t:am.canali}; }
+  if(/prossim|quando .*visita|appuntament|controllo/.test(n)&&!/integr/.test(n)) return {t:next?`La prossima visita è ${longDay(next)} alle ${hm(next)}: ${next.t.toLowerCase()}, ${where(next).toLowerCase().startsWith('in video')?'in videochiamata':'presso '+where(next)}.`+(up[1]?` La successiva è ${longDay(up[1])} alle ${hm(up[1])}.`:''):'Non hai visite in programma. Vuoi scrivere al Dottore per fissarla?',wa:next?'':wa('Buongiorno, vorrei fissare il prossimo appuntamento.')};
+  if(/dove|indirizz|sede|parchegg|come arriv/.test(n)) return {t:next?`${where(next)}.`+(mapLink(next)?' Trovi le indicazioni nella scheda della visita in Oggi.':''):'Non ho visite in programma da cui prendere l\'indirizzo.'};
+  const meal=[['colazione','Colazione'],['spuntino','Spuntino'],['pranzo','Pranzo'],['merenda','Merenda'],['cena','Cena']].find(([k])=>n.includes(k));
+  const sub=n.match(/(?:al posto (?:del|della|dello|dei|delle|degli|di)|invece (?:del|della|dello|dei|delle|di)|sostituire|sostituisco|alternativ[ae] (?:al|alla|allo|ai|alle|a)|cambiare)\s+(?:il |la |lo |i |le |gli |l')?([a-zà-ù' ]{3,})/);
+  if(sub){ const w=sub[1].trim().split(' ')[0].replace(/i$|e$|a$|o$/,''); const hits=allSlots().filter(x=>x.sl.some(s=>norm(s).includes(w)));
+    if(hits.length){ const h=hits[0], alt=h.sl.filter(s=>!norm(s).includes(w)); return {t:alt.length?`Nel tuo piano, a ${h.ml.toLowerCase()} puoi sostituirlo con: ${alt.join(', ')}. Queste alternative hanno valori simili.`:`Nel piano non c'è un'alternativa indicata per questo alimento a ${h.ml.toLowerCase()}. Chiedi al Dottore prima di cambiarlo.`,wa:alt.length?'':wa(`Buongiorno, nel piano posso sostituire "${hits[0].sl[0]}"? ${A.P.pz?.full||''}`)}; }
+    return {t:'Questo alimento non è nel tuo piano: per sostituzioni diverse da quelle indicate chiedi al Dottore.',wa:wa(`Buongiorno, avrei una domanda sul piano: ${q}`)}; }
+  if(meal||/mangio|mangiare oggi|menu|menù|cosa .*oggi/.test(n)){ const di=/domani/.test(n)?((new Date().getDay())%7):(new Date().getDay()+6)%7, dp=dayPlan(di); if(dp){ const ms=meal?dp[1].filter(m=>norm(m[0]).includes(meal[0])):dp[1];
+      if(ms.length) return {t:ms.map(m=>`${m[0]}${m[1]?' ('+m[1]+')':''}: `+m[2].map((g,gi)=>(m[2].length>1?`opzione ${gi+1}: `:'')+g.map(sl=>sl[0]+(sl.length>1?` (oppure ${sl.slice(1).join(', ')})`:'')).join('; ')).join(' — ')).join('\n')}; } }
+  const sups=A.P.sup||[], sh=sups.find(s=>norm(s.n).split(/\s+/).some(w=>w.length>3&&n.includes(w)));
+  if(/integrator|vitamin|magnesio|omega|probiotic|prendo|assumere/.test(n)||sh){ const list=sh?[sh]:sups; if(list.length) return {t:list.map(s=>`${s.n}: ${[s.d,s.w&&('quando: '+s.w)].filter(Boolean).join(', ')}.`).join('\n')+(sh?'':'\nPer integratori diversi da questi chiedi prima al Dottore.')}; }
+  const it=(A.P.int||[]).find(x=>norm(x.m).split(/\s+/).some(w=>w.length>3&&n.includes(w)));
+  if(it) return {t:`${it.m}: ${it.a}`};
+  if(/farmac|medicin|pillol|interazion/.test(n)) return {t:'Per farmaci e interazioni non indicati qui serve il parere del Dottore o del tuo medico.',wa:wa(`Buongiorno, avrei una domanda su un farmaco: ${q}`)};
+  const words=n.split(/[^a-zà-ù]+/).filter(w=>w.length>4); const tips=[...(A.P.edu||[]).map(t=>t[0]+'. '+t[1]),A.P.pl?.note||''].filter(Boolean);
+  let best=null,score=0; for(const t of tips){ const s=words.filter(w=>norm(t).includes(w.slice(0,-1))).length; if(s>score){ score=s; best=t; } }
+  if(best) return {t:`Tra le indicazioni del Dottore: ${best}`};
+  return null; }
+/* ---- limiti dell'assistente: domande al giorno, risposte con Claude al giorno, lunghezza massima, una domanda ogni pochi secondi.
+   I limiti li fissa il Dottore in NutriLab (pacchetto «lim»); il conteggio è sul telefono e si azzera a mezzanotte */
+const LIM=()=>({day:10,ai:5,len:300,gap:8,...(A.P?.lim||{})});
+const usage=()=>{ const k='nlp_use_'+ymd(new Date()); let u; try{ u=JSON.parse(LS.get(k)||'null'); }catch(e){} return u||{k,q:0,ai:0,last:0}; };
+const useSave=u=>{ LS.set(u.k,JSON.stringify(u)); A.use=u; };
+function limitLeft(){ const L=LIM(), u=A.use||usage(); return Math.max(0,L.day-u.q); }
+async function ask(q){ q=q.trim(); if(!q) return; const L=LIM(), u=A.use||usage(), now=Date.now();
+  if(u.q>=L.day){ A.chat.push({b:1,t:`Hai usato le ${L.day} domande di oggi: l'assistente torna disponibile domani. Per qualcosa che non può aspettare scrivi al Dottore.`,wa:wa('Buongiorno, avrei una domanda: '+q.slice(0,L.len))}); render(); return; }
+  if(now-u.last<L.gap*1000){ A.chat.push({b:1,t:`Un attimo: puoi fare una nuova domanda tra ${Math.ceil((L.gap*1000-(now-u.last))/1000)} secondi.`}); render(); return; }
+  if(q.length>L.len){ A.chat.push({b:1,t:`La domanda è troppo lunga (massimo ${L.len} caratteri). Prova a scriverla in breve, oppure scrivi direttamente al Dottore.`,wa:wa('Buongiorno, avrei una domanda: '+q)}); render(); return; }
+  u.q++; u.last=now; useSave(u); A.chat.push({t:q}); let r=answer(q);
+  if(!r&&A.ai&&u.ai<L.ai){ u.ai++; useSave(u); A.busy=true; render();
+    try{ const ctx=JSON.stringify({piano:A.P.pl,consigli:A.P.edu,integratori:A.P.sup,farmaci:A.P.int,visite:upcoming()}).slice(0,20000);
+      const out=await A.ai(`Sei l'assistente dell'app del Dr. Federico Spina, biologo nutrizionista: l'evoluzione di Ambrogio, il chatbot dello studio. Rispondi in italiano, dando del tu, con tono cortese e professionale, in massimo 3 frasi, usando SOLO le indicazioni del Dottore e le REGOLE DELLO STUDIO qui sotto. Se la risposta non c'è, o la domanda riguarda sintomi, diagnosi, farmaci nuovi, dosi o cambi del piano, rispondi solo: "Questa domanda è da fare al Dottore." Non dare mai consigli medici, non promettere risultati, non usare toni pubblicitari, non proporre sconti o rate. Le visite non si spostano né si annullano dall'app: invita a scrivere al Dottore. Per domande sul piano il canale è l'email; WhatsApp solo per urgenze logistiche.\n\nREGOLE DELLO STUDIO: ${ambText()}\n\nINDICAZIONI DEL DOTTORE: ${ctx}\n\nDOMANDA: ${q}`,{modelTier:'quick'});
+      const t=(out?.text||'').trim(); r={t:t||'Questa domanda è da fare al Dottore.',wa:/dottore/i.test(t)?wa(`Buongiorno, avrei una domanda: ${q}`):''}; }
+    catch(e){ r=null; } A.busy=false; }
+  A.chat.push({b:1,...(r||{t:'Su questo non ho indicazioni dal Dottore. Ti preparo un messaggio per chiederlo a lui.',wa:wa(`Buongiorno, avrei una domanda: ${q}`)})}); render(); setTimeout(()=>{ const c=$('#chat'); c?.lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'}); },30); }
+
+/* ---- accesso */
+function lockScreen(msg){ const saved=LS.get('nlp_code')||LS.get('nlp_sid')||A.sid;
+  $('#root').innerHTML=`<main class="lock screen"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>NutriLab</span></div>
+   <div><h1>La tua app del percorso</h1><p class="muted">Inserisci il codice di 6 cifre che ti ha dato il Dottore.</p></div>
+   <form id="pinf" style="display:flex;flex-direction:column;gap:14px"><div class="pin"><label for="pin" hidden>Codice</label><input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" aria-label="Codice di 6 cifre"></div>
+   <label class="check"><input type="checkbox" id="rem"> Ricorda su questo telefono</label>
+   <div class="err" id="perr">${esc(msg||'')}</div><button class="btn primary" type="submit">Apri</button></form>
+   ${!A.code&&!saved?'':`<button class="btn ghost" id="other">Usa un altro codice di accesso</button>`}
+   <button class="btn ghost" id="demo">Guarda l'esempio</button></main>`;
+  setTimeout(()=>$('#pin')?.focus(),50); }
+function pasteScreen(msg){ $('#root').innerHTML=`<main class="lock screen"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>NutriLab</span></div>
+   <div><h1>La tua app del percorso</h1><p class="muted">${HOSTED?'Scrivi il <b>codice dell\'app</b> che trovi nel messaggio del Dottore: 8 lettere e numeri, per esempio ABCD-EF23.':'Incolla il <b>codice</b> che trovi nel messaggio del Dottore (la riga lunga che inizia con la lettera p): va bene anche incollare tutto il messaggio.'} Serve solo la prima volta se poi scegli «Ricorda su questo telefono».</p></div>
+   <label for="pcode" class="eyebrow">Codice dell'app</label><input id="pcode" class="code" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Scrivi o incolla qui il codice" style="font-size:18px;text-align:center">
+   <div class="err" id="cerr">${esc(msg||'')}</div>
+   <div class="row"><button class="btn primary" id="usecode">Continua</button><button class="btn ghost" id="demo">Guarda l'esempio</button></div></main>`; }
+/* codice breve dell'app: il pacchetto cifrato sta sul server dello studio e si scarica a ogni apertura (sempre aggiornato);
+   senza il PIN di 6 cifre resta illeggibile. Se la rete non risponde si usa l'ultima copia salvata sul telefono. */
+const HOSTED=/(^|\.)nutrizionistaspina\.(it|com)$|github\.io$/.test(location.hostname);
+const SUPA='https://uqpijskisejctcltmpdv.supabase.co', ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcGlqc2tpc2VqY3RjbHRtcGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1OTU2NDIsImV4cCI6MjA4NTE3MTY0Mn0.zyLlaaYgTfoDQvWfggCdUV-QVa8PCYxq04Po7sMDW9g';
+const sidOf=v=>{ const m=String(v||'').match(/(?:^|[^A-Za-z0-9])([A-Za-z2-9]{4})[-\s]?([A-Za-z2-9]{4})(?![A-Za-z0-9])/); return m?(m[1]+m[2]).toLowerCase():null; };
+async function fetchPack(sid){ const r=await fetch(SUPA+'/rest/v1/rpc/nl_app_get',{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify({p_id:sid})});
+  if(!r.ok) throw new Error('rete'); const t=await r.json(); if(!t) throw new Error('nf'); return String(t); }
+async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||LS.get('nlp_sid'));
+  if(sid){ try{ code=await fetchPack(sid); }catch(e){ if(e.message==='nf'){ LS.del('nlp_sid'); pasteScreen('Codice dell\'app non trovato: controlla le 8 lettere e numeri del messaggio.'); return; } code=LS.get('nlp_code'); if(!code){ A.sid=null; pasteScreen('Questo codice breve non funziona ancora da qui: incolla il codice lungo che ti ha mandato il Dottore (inizia con la lettera p).'); return; } } }
+  if(!code) code=LS.get('nlp_code'); if(!code){ pasteScreen(); return; }
+  try{ const P=await openPack(code,pin); A.P=P; A.pin=pin; loadAns(); A.day=(new Date().getDay()+6)%7; LS.set('nlp_code',code); if(sid) LS.set('nlp_sid',sid); if(rem) LS.set('nlp_pin',pin); else LS.del('nlp_pin'); render(); }
+  catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
+
+function render(){ if(!A.P) return; const scr={oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,chiedi:scrChiedi,quest:scrQuest,diario:scrDiario}[A.tab]();
+  $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:`<p class="foot">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · i dati restano sul tuo telefono · <button class="btn ghost small" id="logout">Esci</button></p>`}</main>
+   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Visite'],['integr','Integratori'],['chiedi','Chiedi']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>`; }
+
+document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]'); if(!t) return;
+  if(t.dataset.tab){ A.tab=t.dataset.tab; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.go){ A.tab=t.dataset.go; if(t.dataset.go==='quest') A.q=null; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.qopen){ A.q=t.dataset.qopen; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.qa!=null){ const k=A.q; (A.ans[k]||={})[t.dataset.qa]=t.dataset.v; A.out=''; saveAns(); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.id==='qsend'){ (async()=>{ const L=A.P.scr||[]; const code=await seal({v:1,pz:A.P.pz?.full||'',at:new Date().toISOString(),r:L.map(q=>({k:q.k,a:A.ans[q.k]||{}}))},A.pin);
+      A.out=`Buongiorno, ho compilato i questionari (${L.map(q=>q.name.split(' · ')[0]).join(', ')}). Codice delle risposte per NutriLab: ${code}`; render(); })(); return; }
+  if(t.dataset.mm){ (A.md||=mNew()).m=t.dataset.mm; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.ms){ const d=(A.md||=mNew()), v=+t.dataset.v; d[t.dataset.ms]=d[t.dataset.ms]===v?null:v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.me){ const d=(A.md||=mNew()); d.emo=d.emo.includes(t.dataset.me)?d.emo.filter(x=>x!==t.dataset.me):[...d.emo,t.dataset.me]; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.mx){ const d=(A.md||=mNew()); d[t.dataset.mx]=!d[t.dataset.mx]; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.id==='msave'){ const d=A.md; if(!d||(d.pre==null&&d.post==null)) return; const L=mLoad(); L.push({at:new Date().toISOString(),m:d.m,pre:d.pre,post:d.post,emo:d.emo,scr:d.scr,fr:d.fr,n:(d.n||'').trim().slice(0,200)}); mSave(L); A.md=mNew(); A.mout=''; render(); window.scrollTo(0,0); return; }
+  if(t.id==='msend'){ (async()=>{ const L=mLoad(), U=L.filter(e=>!e.sent); if(!U.length) return; const code=await seal({v:1,pz:A.P.pz?.full||'',at:new Date().toISOString(),r:[],mind:U.map(({sent,...e})=>e)},A.pin);
+      A.mout=`Buongiorno, le mando il diario della fame (${U.length} pasti). Codice per NutriLab: ${code}`; A.mpend=U.map(e=>e.at); render(); })(); return; }
+  if(t.id==='mcopy'){ navigator.clipboard?.writeText(A.mout).then(()=>{ t.textContent='Copiato'; mMark(); },()=>{ document.querySelector('textarea.code')?.select(); }); return; }
+  if(t.id==='qcopy'){ navigator.clipboard?.writeText(A.out).then(()=>{ t.textContent='Copiato'; },()=>{ const ta=document.querySelector('textarea.code'); ta?.select(); }); return; }
+  if(t.dataset.day){ A.day=+t.dataset.day; render(); return; }
+  if(t.dataset.q){ ask(t.dataset.q); return; }
+  if(t.id==='demo'){ A.P=DEMO; loadAns(); A.tab='oggi'; render(); return; }
+  if(t.id==='tolock'){ A.P=null; if(A.code||A.sid||LS.get('nlp_code')||LS.get('nlp_sid')) lockScreen(); else pasteScreen(); return; }
+  if(t.id==='other'){ LS.del('nlp_code'); LS.del('nlp_pin'); LS.del('nlp_sid'); A.code=null; A.sid=null; pasteScreen(); return; }
+  if(t.id==='logout'){ LS.del('nlp_pin'); A.P=null; lockScreen(); return; }
+  if(t.id==='usecode'){ const raw=($('#pcode').value||'').trim(), v=raw.match(/p[A-Za-z0-9_-]{60,}/), sid=!v&&sidOf(raw); if(v){ A.code=v[0]; A.sid=null; lockScreen(); } else if(sid){ A.sid=sid; A.code=null; lockScreen(); } else { const c=$('#cerr'); if(c) c.textContent='Non trovo il codice: copia dal messaggio del Dottore la riga lunga che inizia con la lettera p.'; } return; } });
+const mMark=()=>{ if(!A.mpend) return; const L=mLoad(); for(const e of L) if(A.mpend.includes(e.at)) e.sent=1; mSave(L); A.mpend=null; };
+document.addEventListener('click',e=>{ if(e.target.closest?.('#mwa')) setTimeout(mMark,300); });
+document.addEventListener('input',e=>{ const t=e.target; if(t.id==='mnote'){ (A.md||=mNew()).n=t.value; return; } if(t.dataset?.qn!=null){ (A.ans[A.q]||={})[t.dataset.qn]=t.value.replace(',','.'); A.out=''; saveAns(); } });
+document.addEventListener('submit',e=>{ e.preventDefault();
+  if(e.target.id==='pinf'){ const pin=($('#pin').value||'').replace(/\D/g,''); if(pin.length!==6){ $('#perr').textContent='Il codice ha 6 cifre.'; return; } tryPin(pin,$('#rem').checked); }
+  if(e.target.id==='askf'){ const q=$('#q').value; ask(q); } });
+document.addEventListener('paste',e=>{ if(e.target.id==='pcode') setTimeout(()=>{ const v=(e.target.value||'').match(/p[A-Za-z0-9_-]{60,}/); if(v){ A.code=v[0]; lockScreen(); } },20); });
+
+(async()=>{ A.code=hashCode();
+  /* sul dominio dello studio il link porta il codice breve: https://app.nutrizionistaspina.it/#ABCD-EF23 */
+  if(!A.code&&HOSTED){ const hs=sidOf(' '+decodeURIComponent((location.hash||'').slice(1))); if(hs){ if(hs!==LS.get('nlp_sid')){ LS.del('nlp_pin'); LS.del('nlp_code'); } A.sid=hs; LS.set('nlp_sid',hs); } }
+  const saved=LS.get('nlp_code')||LS.get('nlp_sid'), pin=LS.get('nlp_pin');
+  if(A.code&&saved&&A.code!==LS.get('nlp_code')){ LS.del('nlp_pin'); LS.del('nlp_sid'); }
+  if(!A.code&&saved&&pin){ await tryPin(pin,true); }
+  else if(A.code||saved) lockScreen(); else pasteScreen();
+  try{ const s=await window.claude?.use?.('sample'); if(s){ A.ai=s; if(A.P&&A.tab==='chiedi') render(); } }catch(e){} })();
+</script>
+
+</body>
+</html>
