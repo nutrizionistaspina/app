@@ -37,7 +37,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 a{color:var(--brand)}
 :focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:8px}
-.shell{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:14px 112px;display:flex;flex-direction:column;gap:16px}
+.shell{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:14px 160px;display:flex;flex-direction:column;gap:16px}
 h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;text-wrap:balance;margin:0}
 h1{font-size:30px;line-height:1.1}h2{font-size:21px}h3{font-size:17px}
 .eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
@@ -122,6 +122,17 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .qopts button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-size:16px;min-height:46px}
 .qopts button[aria-checked="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface));font-weight:700}
 .qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
+/* piano compatto */
+.h1s{font-size:24px}
+.seg{display:flex;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px}.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 6px;font-weight:700;font-size:14.5px;color:var(--muted)}.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.meal2{padding:12px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.meal2:first-child{border-top:0}
+.mh{display:flex;align-items:baseline;gap:10px}.mh .mname{flex:1}.mh .mtime{min-width:44px;font-size:14px}
+.altb{border:0;background:transparent;color:var(--brand);font-weight:700;font-size:13.5px;padding:2px 0}
+.optc{display:flex;gap:6px;padding-left:54px}.optc button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:13px}.optc button[aria-pressed="true"]{border-color:var(--brand);color:var(--brand);font-weight:700}
+.mlist{list-style:none;margin:0;padding:0 0 0 54px;display:flex;flex-direction:column;gap:3px;font-size:15.5px}.mlist .alts{display:block;font-size:14px;color:var(--muted)}
+details.tip2>summary{cursor:pointer;font-weight:700;list-style:none;padding:12px 0}details.tip2>summary::-webkit-details-marker{display:none}details.tip2>summary::after{content:"+";float:right;color:var(--muted);font-weight:400}details.tip2[open]>summary::after{content:"−"}
+.card.tight details.tip2{border-top:1px solid var(--line)}.card.tight details.tip2:first-child{border-top:0}details.tip2 p{margin:0 0 12px}
+details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 0}details.card.tip2 .eyebrow{font-weight:700}
 /* pulsante tondo dell'assistente e pannello */
 .fab{position:fixed;right:max(16px,calc(50vw - 264px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:12;width:58px;height:58px;border-radius:50%;border:0;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;box-shadow:0 10px 24px rgba(22,37,29,.28)}
 .fab svg,.fabic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -251,8 +262,11 @@ function nextCard(){ const n=upcoming()[0], pend=bkPend()[0]; if(!n) return `<se
    <div class="when"><span class="daynum">${dd.getDate()}</span><div><h2>${esc(dd.toLocaleDateString('it-IT',{weekday:'long'}))}, ore ${hm(n)}</h2><div class="muted">${esc(n.t)}</div></div></div>
    <div class="small">${esc(where(n))}</div>
    <div class="row"><a class="btn" href="${gcal(n)}" target="_blank" rel="noopener">Calendario</a>${mapLink(n)?`<a class="btn" href="${mapLink(n)}" target="_blank" rel="noopener">Indicazioni</a>`:''}</div></section>`; }
-function mealHTML(m){ const [label,time,groups]=m;
-  return `<div class="meal"><span class="mtime">${esc(time||'')}</span><div class="mbody"><span class="mname">${esc(label)}</span>${groups.map((g,gi)=>`${groups.length>1?`<span class="opt">Opzione ${gi+1}</span>`:''}${g.map(sl=>`<div class="slot"><span>${esc(sl[0])}</span>${sl.length>1?`<span class="alts">oppure ${sl.slice(1).map(x=>`<b>${esc(x)}</b>`).join(', ')}</span>`:''}</div>`).join('')}`).join('')}</div></div>`; }
+A.alt=new Set(); A.opt={};
+function mealHTML(m,key){ const [label,time,groups]=m; key=key||label; const oi=Math.min(A.opt[key]||0,groups.length-1), g=groups[oi]||[], nAlt=g.filter(sl=>sl.length>1).length, open=A.alt.has(key);
+  return `<div class="meal2"><div class="mh"><span class="mtime">${esc(time||'')}</span><b class="mname">${esc(label)}</b>${nAlt?`<button class="altb" data-alt="${esc(key)}" aria-expanded="${open}">${open?'Chiudi':'Alternative'}</button>`:''}</div>
+   ${groups.length>1?`<div class="optc" role="group" aria-label="Opzioni">${groups.map((_,i)=>`<button data-opt="${esc(key)}" data-v="${i}" aria-pressed="${i===oi}">Opzione ${i+1}</button>`).join('')}</div>`:''}
+   <ul class="mlist">${g.map(sl=>`<li>${esc(sl[0])}${open&&sl.length>1?`<span class="alts">oppure ${sl.slice(1).map(x=>esc(x)).join(' · ')}</span>`:''}</li>`).join('')}</ul></div>`; }
 const dayPlan=i=>{ const d=A.P.pl?.d||[]; return d.length?d[Math.min(i,d.length-1)]:null; };
 function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), now=new Date(), hh=pad(now.getHours())+':'+pad(now.getMinutes());
   const meals=dp?dp[1]:[], nextMeal=meals.find(m=>(m[1]||'99')>=hh)||null;
@@ -260,8 +274,8 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
    ${nextCard()}
    ${todoCard()}
-   ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(mealHTML).join('')}</section>`:''}
-   ${tip?`<section class="card"><span class="eyebrow">Consiglio del giorno</span><b>${esc(tip[0])}</b><span class="small muted">${esc(tip[1])}</span></section>`:''}
+   ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0])).join('')}</section>`:''}
+   ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}
    ${newsCard()}`; }
 function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).length;
   if(q.length) L.push(`<div class="todo"><span><b>Questionari</b><small>${todo?`${todo} da compilare`:'pronti da inviare'}</small></span><button class="btn sm primary" data-go="quest">${todo?'Compila':'Invia'}</button></div>`);
@@ -309,18 +323,21 @@ function scrDiario(){ const d=A.md||(A.md=mNew()), L=mLoad();
      ${W.slice(-8).reverse().map(e=>`<div class="dline"><span>${esc(new Date(e.at).toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))} · ${esc((MMEAL.find(x=>x[0]===e.m)||['',''])[1])}${e.emo.length?` · ${esc(e.emo.join(', '))}`:''}</span><b>${e.pre??'–'} → ${e.post??'–'}</b></div>`).join('')}`:'<p class="small muted">Ancora nessun pasto annotato.</p>'}</section>
    <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':L.some(e=>!e.sent)?`<p class="small">${L.filter(e=>!e.sent).length} pasti non ancora inviati. Partono come codice cifrato in un messaggio WhatsApp: solo il Dottore può leggerli.</p><div class="row"><button class="btn primary" id="msend">Prepara il messaggio</button></div>${A.mout?`<div class="row"><a class="btn primary" href="${wa(A.mout)}" target="_blank" rel="noopener" id="mwa">Apri WhatsApp</a><button class="btn" id="mcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.mout)}</textarea>`:''}`:'<p class="small muted">Tutto inviato.</p>'}</section>`; }
 function newsCard(){ const L=(A.P.news||[]).filter(n=>/^https?:\/\//.test(n.u||'')); if(!L.length) return ''; return `<section class="card"><span class="eyebrow">Da leggere</span>${L.map(n=>`<a class="mat" href="${esc(n.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(n.t)}</b>${n.d?`<span class="small muted">${esc(n.d)}</span>`:''}</span></a>`).join('')}</section>`; }
-function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card"><h2>Materiali</h2>${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
-function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card"><h2>Schede scritte per te</h2>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
-function scrPiano(){ const d=A.P.pl?.d||[]; if(!d.length) return `${head()}<section class="card"><p>Il piano non è ancora stato aggiunto.</p></section>`;
+function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card tight">${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
+function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Schede per te</span>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
+function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc||[]).length, hasM=(A.P.mat||[]).length;
+  const subs=[['piano','Piano'],...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
+  const seg=subs.length>1?`<div class="seg" role="tablist">${subs.map(([k,l])=>`<button role="tab" data-psub="${k}" aria-selected="${A.psub===k}">${l}</button>`).join('')}</div>`:'';
+  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):A.psub==='consigli'?'Consigli':'Materiali')}</h1>`)+seg;
+  if(A.psub==='consigli') return `${top}${(A.P.edu||[]).length?`<section class="card tight">${A.P.edu.map(t=>`<details class="tip2"><summary>${esc(t[0])}</summary><p class="small">${esc(t[1])}</p></details>`).join('')}</section>`:''}${edocCard()}`;
+  if(A.psub==='mat') return `${top}${matCard()}`;
+  if(!d.length) return `${top}<section class="card"><p>Il piano non è ancora stato aggiunto.</p></section>`;
   const dp=dayPlan(A.day);
-  return `${head(`<div><div class="eyebrow">Il tuo piano</div><h1>${esc(A.P.pl.n||'Piano alimentare')}</h1></div>`)}
+  return `${top}
    ${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
-   <section class="card">${d.length>1?`<h2>${esc(dp[0])}</h2>`:''}${dp[1].map(mealHTML).join('')}</section>
-   ${A.P.pl?.note?`<section class="card"><span class="eyebrow">Ricorda</span><span class="small">${esc(A.P.pl.note)}</span></section>`:''}
-   ${edocCard()}
-   ${matCard()}
-   ${(A.P.edu||[]).length?`<section class="card"><h2>I consigli</h2>${A.P.edu.map(t=>`<div class="tip"><h3>${esc(t[0])}</h3><span class="small">${esc(t[1])}</span></div>`).join('')}</section>`:''}
-   <p class="foot">Le grammature sono a crudo e al netto degli scarti, salvo dove indicato.</p>`; }
+   <section class="card tight">${dp[1].map((m,i)=>mealHTML(m,A.day+'-'+i)).join('')}</section>
+   ${A.P.pl?.note?`<details class="card tip2 note"><summary>Ricorda</summary><p class="small">${esc(A.P.pl.note)}</p></details>`:''}
+   <p class="foot">Grammature a crudo e al netto degli scarti.</p>`; }
 function chartMs(ms){ const pts=ms.filter(x=>x.w>0); if(pts.length<2) return '';
   const W=320,H=130,pl=34,pr=12,pt=14,pb=24, xs=pts.map((_,i)=>pl+i*(W-pl-pr)/(pts.length-1)), lo=Math.floor(Math.min(...pts.map(p=>p.w))-1), hi=Math.ceil(Math.max(...pts.map(p=>p.w))+1), y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb);
   const path=pts.map((p,i)=>`${i?'L':'M'}${xs[i].toFixed(1)} ${y(p.w).toFixed(1)}`).join(' ');
@@ -503,6 +520,9 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='mcopy'){ navigator.clipboard?.writeText(A.mout).then(()=>{ t.textContent='Copiato'; mMark(); },()=>{ document.querySelector('textarea.code')?.select(); }); return; }
   if(t.id==='qcopy'){ navigator.clipboard?.writeText(A.out).then(()=>{ t.textContent='Copiato'; },()=>{ const ta=document.querySelector('textarea.code'); ta?.select(); }); return; }
   if(t.dataset.day){ A.day=+t.dataset.day; render(); return; }
+  if(t.dataset.psub){ A.psub=t.dataset.psub; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.alt!=null){ const k=t.dataset.alt; A.alt.has(k)?A.alt.delete(k):A.alt.add(k); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.opt!=null){ A.opt[t.dataset.opt]=+t.dataset.v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.q){ ask(t.dataset.q); return; }
   if(t.id==='demo'){ A.P=DEMO; loadAns(); A.tab='oggi'; render(); return; }
   if(t.id==='tolock'){ A.P=null; if(A.code||A.sid||LS.get('nlp_code')||LS.get('nlp_sid')) lockScreen(); else pasteScreen(); return; }
