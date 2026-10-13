@@ -1,0 +1,40 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pagamento visita · Dott. Federico Spina</title><meta name="robots" content="noindex">
+<link rel="icon" href="icon.svg">
+<style>
+:root{--bg:#F2F5F1;--surface:#FFFFFF;--line:#D5DFD4;--ink:#16251D;--muted:#5C6E63;--brand:#2E5E45;--sun:#E3A33B}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.c{background:var(--surface);border:1px solid var(--line);border-radius:18px;max-width:440px;width:100%;padding:28px 22px;text-align:center}
+.m{width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font:700 18px Georgia,serif}
+h1{font:700 22px/1.25 Georgia,serif;margin:14px 0 6px}p{margin:8px 0;color:var(--muted)}
+.v{background:var(--bg);border-radius:12px;padding:12px;margin:14px 0;text-align:left;font-size:15px}.v b{color:var(--ink)}
+.btn{display:inline-block;background:var(--brand);color:#fff;border:0;border-radius:999px;padding:12px 22px;font:600 16px system-ui,sans-serif;text-decoration:none;cursor:pointer;margin-top:8px}
+.ok{color:var(--brand);font-size:40px;line-height:1}.sp{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:r 1s linear infinite;margin:14px auto}@keyframes r{to{transform:rotate(360deg)}}
+small{display:block;margin-top:18px;color:var(--muted);font-size:13px}
+</style></head><body><main class="c"><div class="m">FS</div><div id="o"><div class="sp"></div><p>Un momento…</p></div>
+<small>Dott. Federico Spina · Biologo Nutrizionista · 351 879 7908 · nutrizionista.spina@gmail.com<br>Pagamento gestito da SumUp: i dati della carta non passano dallo studio.</small></main>
+<script>
+const F='https://uqpijskisejctcltmpdv.supabase.co/functions/v1/', K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcGlqc2tpc2VqY3RjbHRtcGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1OTU2NDIsImV4cCI6MjA4NTE3MTY0Mn0.zyLlaaYgTfoDQvWfggCdUV-QVa8PCYxq04Po7sMDW9g';
+const q=new URLSearchParams(location.search), id=q.get('b')||'', fine=q.has('fine'), o=document.getElementById('o');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur=n=>(+n||0).toFixed(2).replace('.',',')+' €';
+const call=(fn,body)=>fetch(F+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:K,Authorization:'Bearer '+K},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({stato:'errore'}));
+const vis=d=>d&&d.visita?`<div class="v"><b>${esc(d.visita)}</b><br>${esc(d.sede==='Online'?'Online, in videochiamata':d.sede)} · ${esc(d.quando)}<br>Importo: <b>${eur(d.importo)}</b>${d.codice?` · codice ${esc(d.codice)}`:''}</div>`:'';
+const show=h=>{o.innerHTML=h;};
+const contatti='<p>Per qualsiasi dubbio scriva a <a href="mailto:nutrizionista.spina@gmail.com">nutrizionista.spina@gmail.com</a> o al 351 879 7908.</p>';
+async function start(){
+  if(!/^[0-9a-f-]{36}$/i.test(id)) return show('<h1>Link non valido</h1><p>Controlli di aver aperto il link completo ricevuto per email.</p>'+contatti);
+  if(fine){ for(let i=0;i<6;i++){ const s=await call('sumup-sync',{booking_id:id}); if(s.stato==='pagato') break; await new Promise(r=>setTimeout(r,2500)); } }
+  const d=await call('sumup-paga',{booking_id:id});
+  if(d.stato==='pagato') return show(`<div class="ok">✓</div><h1>Pagamento ricevuto</h1>${vis(d)}<p>La visita è confermata: a breve riceve l'email di conferma.</p>`);
+  if(d.stato==='da_pagare'&&d.url){
+    if(fine) return show(`<h1>Pagamento non completato</h1>${vis(d)}<p>Non risulta ancora un pagamento. Se ha appena pagato attenda qualche minuto: riceverà l'email di conferma. Altrimenti può riprovare.</p><a class="btn" href="${esc(d.url)}">Riprova il pagamento</a>`);
+    return show(`<h1>Conferma della visita</h1>${vis(d)}<p>Il pagamento avviene sulla pagina sicura di SumUp: carta, Apple Pay o Google Pay.</p><a class="btn" href="${esc(d.url)}">Paga ${eur(d.importo)}</a>`);
+  }
+  if(d.stato==='annullato'||d.stato==='scaduto') return show(`<h1>Richiesta non più valida</h1>${vis(d)}<p>Questa richiesta di pagamento è stata chiusa.</p>`+contatti);
+  if(d.stato==='credito'||d.stato==='rimborsato') return show(`<h1>Nessun pagamento da fare</h1>${vis(d)}`+contatti);
+  if(d.stato==='non_trovato') return show('<h1>Richiesta non trovata</h1><p>Controlli di aver aperto il link completo ricevuto per email.</p>'+contatti);
+  show('<h1>Pagamento non disponibile</h1><p>In questo momento la pagina di pagamento non risponde: riprovi tra qualche minuto.</p><button class="btn" onclick="location.reload()">Riprova</button>'+contatti);
+}
+start();
+</script></body></html>
