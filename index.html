@@ -60,7 +60,7 @@ h1{font-size:30px;line-height:1.1}h2{font-size:21px}h3{font-size:17px}
 .next .btn{background:color-mix(in srgb,var(--brand-ink) 14%,transparent);border-color:color-mix(in srgb,var(--brand-ink) 30%,transparent);color:var(--brand-ink)}
 .btn.ghost{border-color:transparent;background:transparent}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
-.tabs nav{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.tabs nav{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
 .tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;font-size:12px;font-weight:700;color:var(--muted)}
 .tabs button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabs button[aria-current="page"]{color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent)}
@@ -98,7 +98,7 @@ h1{font-size:30px;line-height:1.1}h2{font-size:21px}h3{font-size:17px}
 .msg.me{align-self:flex-end;background:var(--brand);color:var(--brand-ink);border-bottom-right-radius:5px}
 .msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}
 .msg .row{margin-top:8px}
-.ask{display:flex;gap:8px;position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.ask{display:flex;gap:8px}
 .ask input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;font-size:16px}
 .sugg{display:flex;gap:6px;flex-wrap:wrap}
 .sugg button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px}
@@ -122,6 +122,22 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .qopts button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-size:16px;min-height:46px}
 .qopts button[aria-checked="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface));font-weight:700}
 .qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
+/* pulsante tondo dell'assistente e pannello */
+.fab{position:fixed;right:max(16px,calc(50vw - 264px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:12;width:58px;height:58px;border-radius:50%;border:0;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;box-shadow:0 10px 24px rgba(22,37,29,.28)}
+.fab svg,.fabic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sheetbg{position:fixed;inset:0;z-index:20;background:rgba(10,20,14,.35)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:560px;margin:0 auto;height:min(86vh,720px);background:var(--bg);border-radius:22px 22px 0 0;display:flex;flex-direction:column;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(0,0,0,.18)}
+.sheeth{display:flex;align-items:center;gap:10px}.sheeth b{flex:1;font-family:var(--f-display);font-size:18px}
+.fabic{width:34px;height:34px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center}.fabic svg{width:19px;height:19px}
+.sheet .chat{flex:1;overflow:auto;padding:4px 2px}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px;border-radius:12px}
+.card.tight{gap:0;padding:6px 16px}
+.todo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.todo:first-child{border-top:0}.todo span{display:flex;flex-direction:column}.todo small{color:var(--muted);font-size:13.5px}
+.pick{display:flex;gap:6px;flex-wrap:wrap}.pick button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 13px;font-size:15px;min-height:44px}
+.pick button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand);color:var(--brand-ink);font-weight:700}
+.pick.days2{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.pick.days2 button{flex:none;display:flex;flex-direction:column;align-items:center;line-height:1.1;min-width:58px}.pick.days2 small{font-size:12px;opacity:.8}
+.sum{background:var(--surface-2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.field2{display:flex;flex-direction:column;gap:4px}.field2 input{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px;background:var(--surface)}
 </style>
 
 <div id="root"></div>
@@ -141,7 +157,7 @@ const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const addDays=(n)=>{ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d); };
 
 /* ---- esempio dichiarato: persona inventata, valori plausibili */
-const DEMO={v:1,demo:1,mind:1,gen:ymd(new Date()),st:{n:'Dott. Federico Spina',ph:'+39 351 879 7908',web:'https://nutrizionistaspina.it'},
+const DEMO={v:1,demo:1,mind:1,bk:{demo:1,tipi:['supporto','orientamento']},gen:ymd(new Date()),st:{n:'Dott. Federico Spina',ph:'+39 351 879 7908',web:'https://nutrizionistaspina.it'},
  pz:{n:'Martina',full:'Martina (esempio)'},
  ap:[{s:addDays(9)+'T17:00',t:'Incontro di supporto',dur:40,sd:'Pisa',str:'Centro Le Mura',ind:'Via Emanuele Filiberto 5, 56127 Pisa',on:0},
      {s:addDays(37)+'T16:20',t:'Valutazione della composizione corporea',dur:20,sd:'Online',str:'',ind:'',on:1}],
@@ -229,12 +245,12 @@ function mapLink(a){ return a.ind?`https://www.google.com/maps/search/?api=1&que
 
 /* ---- schermate */
 function head(sub){ return `<div class="top"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>${esc(A.P.st?.n||'Il tuo nutrizionista')}</span></div>${A.P.demo?'<span class="chip demo">Esempio</span>':''}</div>${sub||''}`; }
-function nextCard(){ const n=upcoming()[0]; if(!n) return `<section class="card"><span class="eyebrow">Prossima visita</span><p>Nessuna visita in programma. Quando vuoi fissarla, scrivi al Dottore.</p>${wa('Buongiorno, vorrei fissare il prossimo appuntamento.')?`<div class="row"><a class="btn primary" href="${wa('Buongiorno, vorrei fissare il prossimo appuntamento.')}" target="_blank" rel="noopener">Scrivi su WhatsApp</a></div>`:''}</section>`;
+function nextCard(){ const n=upcoming()[0], pend=bkPend()[0]; if(!n) return `<section class="card"><span class="eyebrow">Prossima visita</span>${pend?`<p><b>Richiesta inviata</b> · ${esc(pendTxt(pend))}</p>`:`<p>Nessuna visita in programma.</p>`}<div class="row">${bkOn()?`<button class="btn primary" data-go="prenota">Prenota una visita</button>`:`<a class="btn primary" href="${mailto('Prossimo appuntamento','Buongiorno, vorrei fissare il prossimo appuntamento.')}">Scrivi al Dottore</a>`}</div></section>`;
   const d=daysTo(n), dd=apDate(n), rel=d===0?'oggi':d===1?'domani':`tra ${d} giorni`;
   return `<section class="card next" aria-label="Prossima visita"><span class="eyebrow muted">Prossima visita · ${rel}</span>
-   <div class="when"><span class="daynum">${dd.getDate()}</span><div><h2>${esc(dd.toLocaleDateString('it-IT',{weekday:'long'}))}, ore ${hm(n)}</h2><div class="muted">${esc(MESI[dd.getMonth()])} ${dd.getFullYear()} · ${esc(n.t)} · ${n.dur||''} min</div></div></div>
-   <div>${esc(where(n))}</div>
-   <div class="row"><a class="btn" href="${gcal(n)}" target="_blank" rel="noopener">Aggiungi al calendario</a>${mapLink(n)?`<a class="btn" href="${mapLink(n)}" target="_blank" rel="noopener">Indicazioni</a>`:''}${wa('')?`<a class="btn" href="${wa(`Buongiorno, confermo la visita di ${longDay(n)} alle ${hm(n)}. ${A.P.pz?.full||''}`)}" target="_blank" rel="noopener">Confermo</a><a class="btn" href="${wa(`Buongiorno, purtroppo devo spostare la visita di ${longDay(n)} alle ${hm(n)}. Quali altre date sono disponibili? ${A.P.pz?.full||''}`)}" target="_blank" rel="noopener">Devo spostarla</a>`:''}</div></section>`; }
+   <div class="when"><span class="daynum">${dd.getDate()}</span><div><h2>${esc(dd.toLocaleDateString('it-IT',{weekday:'long'}))}, ore ${hm(n)}</h2><div class="muted">${esc(n.t)}</div></div></div>
+   <div class="small">${esc(where(n))}</div>
+   <div class="row"><a class="btn" href="${gcal(n)}" target="_blank" rel="noopener">Calendario</a>${mapLink(n)?`<a class="btn" href="${mapLink(n)}" target="_blank" rel="noopener">Indicazioni</a>`:''}</div></section>`; }
 function mealHTML(m){ const [label,time,groups]=m;
   return `<div class="meal"><span class="mtime">${esc(time||'')}</span><div class="mbody"><span class="mname">${esc(label)}</span>${groups.map((g,gi)=>`${groups.length>1?`<span class="opt">Opzione ${gi+1}</span>`:''}${g.map(sl=>`<div class="slot"><span>${esc(sl[0])}</span>${sl.length>1?`<span class="alts">oppure ${sl.slice(1).map(x=>`<b>${esc(x)}</b>`).join(', ')}</span>`:''}</div>`).join('')}`).join('')}</div></div>`; }
 const dayPlan=i=>{ const d=A.P.pl?.d||[]; return d.length?d[Math.min(i,d.length-1)]:null; };
@@ -243,12 +259,15 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
   const tip=(A.P.edu||[])[new Date().getDate()%Math.max(1,(A.P.edu||[]).length)];
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
    ${nextCard()}
-   ${scrCard()}
-   ${mindCard()}
+   ${todoCard()}
    ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(mealHTML).join('')}</section>`:''}
-   ${tip?`<section class="card"><span class="eyebrow">Consiglio del giorno</span><h3>${esc(tip[0])}</h3><p class="small">${esc(tip[1])}</p></section>`:''}
-   ${A.P.pl?.note?`<section class="card"><span class="eyebrow">Ricorda</span><p class="small">${esc(A.P.pl.note)}</p></section>`:''}
+   ${tip?`<section class="card"><span class="eyebrow">Consiglio del giorno</span><b>${esc(tip[0])}</b><span class="small muted">${esc(tip[1])}</span></section>`:''}
    ${newsCard()}`; }
+function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).length;
+  if(q.length) L.push(`<div class="todo"><span><b>Questionari</b><small>${todo?`${todo} da compilare`:'pronti da inviare'}</small></span><button class="btn sm primary" data-go="quest">${todo?'Compila':'Invia'}</button></div>`);
+  if(A.P.mind){ const M=mLoad(), t=ymd(new Date()), n=M.filter(e=>e.at.slice(0,10)===t).length, un=M.filter(e=>!e.sent).length;
+    L.push(`<div class="todo"><span><b>Diario della fame</b><small>${n?`oggi ${n} ${n===1?'pasto':'pasti'}`:'nessun pasto oggi'}${un?` · ${un} da inviare`:''}</small></span><button class="btn sm" data-go="diario">Annota</button></div>`); }
+  return L.length?`<section class="card tight">${L.join('')}</section>`:''; }
 function scrCard(){ const L=A.P.scr||[]; if(!L.length) return ''; const todo=L.filter(q=>!scrDone(q)).length;
   return `<section class="card"><span class="eyebrow">Questionari dal Dottore</span><h3>${todo?`${todo} ${todo===1?'questionario da compilare':'questionari da compilare'}`:'Questionari compilati: inviali al Dottore'}</h3><p class="small muted">Servono a preparare la prossima visita. Ci vogliono pochi minuti.</p><div class="row"><button class="btn primary" data-go="quest">${todo?'Compila':'Invia le risposte'}</button></div></section>`; }
 function scrQuest(){ const L=A.P.scr||[]; const q=A.q&&L.find(x=>x.k===A.q);
@@ -289,14 +308,15 @@ function scrDiario(){ const d=A.md||(A.md=mNew()), L=mLoad();
    <section class="card"><h2>Ultimi 7 giorni</h2>${W.length?`<p class="small">Pasti annotati: <b>${W.length}</b> · fame prima in media <b>${avg(W.filter(e=>e.pre!=null).map(e=>e.pre))}</b> · dopo <b>${avg(W.filter(e=>e.post!=null).map(e=>e.post))}</b> · davanti a uno schermo <b>${W.filter(e=>e.scr).length}</b></p>
      ${W.slice(-8).reverse().map(e=>`<div class="dline"><span>${esc(new Date(e.at).toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))} · ${esc((MMEAL.find(x=>x[0]===e.m)||['',''])[1])}${e.emo.length?` · ${esc(e.emo.join(', '))}`:''}</span><b>${e.pre??'–'} → ${e.post??'–'}</b></div>`).join('')}`:'<p class="small muted">Ancora nessun pasto annotato.</p>'}</section>
    <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':L.some(e=>!e.sent)?`<p class="small">${L.filter(e=>!e.sent).length} pasti non ancora inviati. Partono come codice cifrato in un messaggio WhatsApp: solo il Dottore può leggerli.</p><div class="row"><button class="btn primary" id="msend">Prepara il messaggio</button></div>${A.mout?`<div class="row"><a class="btn primary" href="${wa(A.mout)}" target="_blank" rel="noopener" id="mwa">Apri WhatsApp</a><button class="btn" id="mcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.mout)}</textarea>`:''}`:'<p class="small muted">Tutto inviato.</p>'}</section>`; }
-function newsCard(){ const L=(A.P.news||[]).filter(n=>/^https?:\/\//.test(n.u||'')); if(!L.length) return ''; return `<section class="card"><span class="eyebrow">Approfondimenti per il tuo percorso</span><p class="small muted">Articoli del Dottore scelti per te: si aprono sul sito.</p>${L.map(n=>`<a class="mat" href="${esc(n.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(n.t)}</b>${n.d?`<span class="small muted">${esc(n.d)}</span>`:''}</span></a>`).join('')}</section>`; }
-function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card"><h2>Materiali per te</h2><p class="small muted">Scelti dal Dottore per il tuo percorso: si aprono e si scaricano dal Drive.</p>${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
+function newsCard(){ const L=(A.P.news||[]).filter(n=>/^https?:\/\//.test(n.u||'')); if(!L.length) return ''; return `<section class="card"><span class="eyebrow">Da leggere</span>${L.map(n=>`<a class="mat" href="${esc(n.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(n.t)}</b>${n.d?`<span class="small muted">${esc(n.d)}</span>`:''}</span></a>`).join('')}</section>`; }
+function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card"><h2>Materiali</h2>${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
 function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card"><h2>Schede scritte per te</h2>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
 function scrPiano(){ const d=A.P.pl?.d||[]; if(!d.length) return `${head()}<section class="card"><p>Il piano non è ancora stato aggiunto.</p></section>`;
   const dp=dayPlan(A.day);
   return `${head(`<div><div class="eyebrow">Il tuo piano</div><h1>${esc(A.P.pl.n||'Piano alimentare')}</h1></div>`)}
    ${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
    <section class="card">${d.length>1?`<h2>${esc(dp[0])}</h2>`:''}${dp[1].map(mealHTML).join('')}</section>
+   ${A.P.pl?.note?`<section class="card"><span class="eyebrow">Ricorda</span><span class="small">${esc(A.P.pl.note)}</span></section>`:''}
    ${edocCard()}
    ${matCard()}
    ${(A.P.edu||[]).length?`<section class="card"><h2>I consigli</h2>${A.P.edu.map(t=>`<div class="tip"><h3>${esc(t[0])}</h3><span class="small">${esc(t[1])}</span></div>`).join('')}</section>`:''}
@@ -310,8 +330,8 @@ function chartMs(ms){ const pts=ms.filter(x=>x.w>0); if(pts.length<2) return '';
    ${pts.map((p,i)=>`<circle cx="${xs[i]}" cy="${y(p.w)}" r="${i===pts.length-1?4.5:3}" fill="${i===pts.length-1?'var(--brand)':'var(--surface)'}" stroke="var(--brand)" stroke-width="2"/><text x="${xs[i]}" y="${H-6}" text-anchor="middle">${new Date(p.d).getDate()} ${MESI[new Date(p.d).getMonth()]}</text>`).join('')}</svg>`; }
 function scrVisite(){ const up=upcoming(), ms=A.P.ms||[], last=ms.at(-1), first=ms[0], dl=(k)=>last&&first&&last[k]!=null&&first[k]!=null&&ms.length>1?last[k]-first[k]:null, f=(x,d=1)=>x==null?'—':x.toLocaleString('it-IT',{maximumFractionDigits:d});
   return `${head(`<div><div class="eyebrow">Visite e misure</div><h1>Il tuo percorso</h1></div>`)}
-   <section class="card"><h2>In programma</h2>${up.length?up.map(a=>{ const d=apDate(a); return `<div class="vis"><div class="vdate"><b>${d.getDate()}</b><span>${MESI[d.getMonth()]}</span></div><div><div class="mname">${esc(a.t)}</div><div class="small muted">${esc(d.toLocaleDateString('it-IT',{weekday:'long'}))} ore ${hm(a)} · ${esc(where(a))}</div><div class="row" style="margin-top:6px"><a class="btn" href="${gcal(a)}" target="_blank" rel="noopener">Calendario</a></div></div></div>`; }).join(''):'<p class="muted">Nessuna visita in programma.</p>'}</section>
-   ${last?`<section class="card"><h2>Le tue misure</h2><div class="stats"><div class="stat"><b>${f(last.w)}</b><span>kg oggi</span></div><div class="stat"><b>${dl('w')==null?'—':(dl('w')>0?'+':'')+f(dl('w'))}</b><span>kg dall'inizio</span></div><div class="stat"><b>${last.wc!=null?f(last.wc):'—'}</b><span>cm di vita</span></div></div>${chartMs(ms)}<p class="small muted">Il peso è solo una delle misure: a ogni visita guardiamo anche circonferenze e composizione corporea.</p></section>`:''}
+   <section class="card"><div class="top"><h2>In programma</h2>${bkOn()?'<button class="btn sm primary" data-go="prenota">Prenota</button>':''}</div>${bkPend().map(b=>`<div class="vis"><div class="vdate"><b>${new Date(b.s).getDate()}</b><span>${MESI[new Date(b.s).getMonth()]}</span></div><div><div class="mname">${esc(b.t)}</div><div class="small muted">${esc(pendTxt(b))}</div><span class="chip">Richiesta inviata</span></div></div>`).join('')}${up.length?up.map(a=>{ const d=apDate(a); return `<div class="vis"><div class="vdate"><b>${d.getDate()}</b><span>${MESI[d.getMonth()]}</span></div><div><div class="mname">${esc(a.t)}</div><div class="small muted">${esc(d.toLocaleDateString('it-IT',{weekday:'long'}))} ore ${hm(a)} · ${esc(where(a))}</div><div class="row" style="margin-top:6px"><a class="btn sm" href="${gcal(a)}" target="_blank" rel="noopener">Calendario</a></div></div></div>`; }).join(''):bkPend().length?'':'<p class="muted">Nessuna visita in programma.</p>'}${up.length||bkPend().length?`<p class="small muted">Per spostare o annullare una visita <a href="${mailto('Visita','Buongiorno, devo spostare la visita di ')}">scrivi al Dottore</a>.</p>`:''}</section>
+   ${last?`<section class="card"><h2>Le tue misure</h2><div class="stats"><div class="stat"><b>${f(last.w)}</b><span>kg oggi</span></div><div class="stat"><b>${dl('w')==null?'—':(dl('w')>0?'+':'')+f(dl('w'))}</b><span>kg dall'inizio</span></div><div class="stat"><b>${last.wc!=null?f(last.wc):'—'}</b><span>cm di vita</span></div></div>${chartMs(ms)}</section>`:''}
    ${invCardApp()}
    ${(A.P.ref||[]).length?`<section class="card"><h2>Referti delle visite</h2>${A.P.ref.map(r=>`<div class="tip"><span class="eyebrow">${esc(new Date(r.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))}</span><span class="small" style="white-space:pre-wrap">${esc(r.x)}</span></div>`).join('')}</section>`:''}
    ${(A.P.past||[]).length?`<section class="card"><h3>Visite già fatte</h3>${A.P.past.map(v=>`<div class="small">${esc(new Date(v.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · ${esc(v.t)}</div>`).join('')}</section>`:''}`; }
@@ -321,14 +341,56 @@ function scrIntegr(){ const s=A.P.sup||[], it=A.P.int||[];
    <section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}</section>
    ${it.length?`<section class="card"><h2>Attenzione con i farmaci</h2>${it.map(x=>`<div class="alert"><b>${esc(x.m)}</b>${x.w?` con ${esc(x.w)}`:''}: ${esc(x.a)}</div>`).join('')}</section>`:''}
    <p class="foot">Non iniziare né sospendere farmaci senza il tuo medico. Per dubbi su un nuovo integratore chiedi prima al Dottore.</p>`; }
-const SUGG=['Quando è la prossima visita?','Cosa mangio a cena?','Cosa posso mangiare al posto del pollo?','Quando prendo gli integratori?','Devo spostare la visita'];
-function scrChiedi(){ A.use=usage(); if(!A.chat.length) A.chat.push({b:1,t:`Ciao ${A.P.pz?.n||''}! Posso aiutarti con il tuo piano, le visite e gli integratori. Rispondo solo con le indicazioni del Dottore: per tutto il resto ti metto in contatto con lui.`});
-  return `${head(`<div><div class="eyebrow">Assistente</div><h1>Chiedi</h1></div>`)}
-   <div class="chat" id="chat" aria-live="polite">${A.chat.map(m=>`<div class="msg ${m.b?'bot':'me'}">${esc(m.t)}${m.wa?`<div class="row"><a class="btn" href="${mailFromWa(m.wa)}">Scrivi al Dottore</a>${m.logi?`<a class="btn ghost" href="${m.wa}" target="_blank" rel="noopener">WhatsApp (urgenze)</a>`:''}</div>`:''}</div>`).join('')}${A.busy?'<div class="msg bot muted">Sto cercando nelle indicazioni…</div>':''}</div>
-   <div class="sugg">${SUGG.map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+const SUGG=['Cosa mangio a cena?','Quando è la prossima visita?','Quando prendo gli integratori?'];
+const chatOn=()=>A.P&&A.P.ui?.chat!==false;
+function chatSheet(){ A.use=usage(); if(!A.chat.length) A.chat.push({b:1,t:A.P.ui?.hello||`Ciao ${A.P.pz?.n||''}! Chiedimi del piano, delle visite o degli integratori.`});
+  return `<div class="sheetbg" data-chat="close"></div><section class="sheet" role="dialog" aria-modal="true" aria-label="Assistente">
+   <div class="sheeth"><span class="fabic" aria-hidden="true">${ICON.chiedi}</span><b>Assistente</b><button class="btn ghost sm" data-chat="close" aria-label="Chiudi">✕</button></div>
+   <div class="chat" id="chat" aria-live="polite">${A.chat.map(m=>`<div class="msg ${m.b?'bot':'me'}">${esc(m.t)}${m.wa?`<div class="row"><a class="btn" href="${mailFromWa(m.wa)}">Scrivi al Dottore</a>${m.logi?`<a class="btn ghost" href="${m.wa}" target="_blank" rel="noopener">WhatsApp (urgenze)</a>`:''}</div>`:''}${m.go&&bkOn()?`<div class="row"><button class="btn primary sm" data-go="${m.go}">Prenota una visita</button></div>`:''}</div>`).join('')}${A.busy?'<div class="msg bot muted">Sto cercando nelle indicazioni…</div>':''}</div>
+   ${A.chat.length<2?`<div class="sugg">${SUGG.map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`:''}
    <form class="ask" id="askf"><label for="q" class="eyebrow" hidden>Domanda</label><input id="q" autocomplete="off" maxlength="${LIM().len}" placeholder="${limitLeft()?'Scrivi una domanda…':'Domande di oggi esaurite'}" aria-label="Domanda"${limitLeft()?'':' disabled'}><button class="btn primary" type="submit"${limitLeft()?'':' disabled'}>Invia</button></form>
-   <p class="foot">${limitLeft()} di ${LIM().day} domande rimaste oggi · massimo ${LIM().len} caratteri</p>
-   <p class="foot">Non è un servizio per urgenze: in caso di emergenza chiama il 118.${A.ai?' Le risposte libere usano Claude solo sulle tue indicazioni.':''}</p>`; }
+   <p class="foot">${limitLeft()} domande rimaste oggi · per le emergenze chiama il 118</p></section>`; }
+
+/* ---- prenotazione dall'app: orari liberi delle fasce dello studio; la richiesta entra nell'agenda di NutriLab.
+   Dall'app non si annulla né si sposta: per quello si scrive al Dottore. Vale solo con il codice dell'app (codice breve) e il gettone del pacchetto. */
+const SID=()=>A.sid||LS.get('nlp_sid')||'';
+const bkOn=()=>!!(A.P?.bk&&(A.P.bk.demo||(SID()&&A.P.bk.tok)));
+const mailto=(sub,body)=>`mailto:${stEmail()}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+async function rpc(fn,args){ const r=await fetch(SUPA+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
+  const t=await r.text(); let j=null; try{ j=JSON.parse(t); }catch(e){} if(!r.ok){ const e=new Error(String(j?.message||'rete')); throw e; } return j; }
+const bkKey=()=>'nlp_bk_'+(SID()||'demo');
+const bkPend=()=>{ let L=[]; try{ L=JSON.parse(LS.get(bkKey())||'[]')||[]; }catch(e){} const ap=A.P?.ap||[]; return L.filter(b=>new Date(b.s)>new Date()&&!ap.some(a=>a.s===b.s)); };
+const pendTxt=b=>`${new Date(b.s).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})} alle ${b.s.slice(11,16)} · ${b.sd==='Online'?'online':b.sd}`;
+const BK={opt:null,tipo:'',sede:'',day:'',time:'',days:null,times:null,busy:'',err:'',ok:null,em:''};
+const SEDI_ORD=['Cecina','Pisa','Sesto Fiorentino','Online'];
+const bkErr=m=>/slot_not_available/.test(m)?'Questo orario è appena stato occupato: scegline un altro.':/too_many/.test(m)?'Hai già inviato diverse richieste oggi: per altre scrivi al Dottore.':/not_allowed/.test(m)?'La prenotazione dall\'app non è attiva per te: scrivi al Dottore.':/invalid_email/.test(m)?'Controlla l\'indirizzo email.':/type_not_bookable/.test(m)?'Questa visita non si prenota dall\'app.':'Non riesco a collegarmi: controlla la connessione e riprova.';
+async function bkStep(k,fn){ BK.busy=k; BK.err=''; render(); try{ await fn(); }catch(e){ BK.err=bkErr(e.message||''); } BK.busy=''; render(); }
+const bkLoad=()=>bkStep('opt',async()=>{ BK.opt=await rpc('nl_booking_options'); });
+const bkDays=()=>bkStep('days',async()=>{ const t=ymd(new Date()); BK.days=((await rpc('nl_booking_days',{p_sede:BK.sede}))||[]).filter(d=>d>t).sort().slice(0,40); });
+const bkTimes=()=>bkStep('times',async()=>{ BK.times=(await rpc('nl_booking_times',{p_sede:BK.sede,p_tipo:BK.tipo,p_day:BK.day}))||[]; });
+function bkSend(){ const T=(BK.opt?.tipi||[]).find(t=>t.tipo===BK.tipo); const s={s:`${BK.day}T${BK.time}`,t:T?.label||'',sd:BK.sede};
+  if(A.P.bk.demo){ BK.ok={demo:1,...s}; render(); return; }
+  bkStep('send',async()=>{ const r=await rpc('nl_app_book',{p_id:SID(),p_tok:A.P.bk.tok,p_tipo:BK.tipo,p_sede:BK.sede,p_day:BK.day,p_time:BK.time,p_nome:A.P.bk.nome||A.P.pz?.full||'',p_email:(BK.em||A.P.bk.em||'').trim(),p_telefono:A.P.bk.tel||''});
+    let L=[]; try{ L=JSON.parse(LS.get(bkKey())||'[]')||[]; }catch(e){} L.push({...s,c:r?.codice||''}); LS.set(bkKey(),JSON.stringify(L.slice(-10))); BK.ok={...s,c:r?.codice||''}; }); }
+function scrPrenota(){ if(!bkOn()){ A.tab='visite'; return scrVisite(); }
+  if(!BK.opt&&!BK.busy&&!BK.err) setTimeout(bkLoad,0);
+  const sub=`<div><div class="eyebrow">Nuova visita</div><h1>Prenota</h1></div>`;
+  if(BK.ok) return `${head(sub)}<section class="card"><h2>${BK.ok.demo?'Nell\'esempio la richiesta non parte':'Richiesta inviata'}</h2><div class="sum"><b>${esc(BK.ok.t)}</b><span>${esc(pendTxt(BK.ok))}</span>${BK.ok.c?`<span class="small muted">Codice ${esc(BK.ok.c)}</span>`:''}</div><p class="small muted">Ti arriva un'email di conferma. Per spostarla o annullarla scrivi al Dottore.</p><div class="row"><button class="btn primary" data-bk="done">Fatto</button></div></section>`;
+  const O=BK.opt, tipi=(O?.tipi||[]).filter(t=>(A.P.bk.tipi||[]).includes(t.tipo)), T=tipi.find(t=>t.tipo===BK.tipo);
+  const sedi=T?SEDI_ORD.concat((O.sedi||[]).filter(x=>!SEDI_ORD.includes(x))).filter(x=>(O.sedi||[]).includes(x)&&(!T.sedi?.length||T.sedi.includes(x))):[];
+  const dd=d=>{ const x=new Date(d+'T12:00:00'); return `<span>${esc(x.toLocaleDateString('it-IT',{weekday:'short'}))}</span><b>${x.getDate()}</b><small>${MESI[x.getMonth()]}</small>`; };
+  const ld=k=>BK.busy===k?'<p class="small muted">Un momento…</p>':'';
+  return `${head(sub)}
+   ${BK.err?`<div class="alert" role="alert">${esc(BK.err)}</div>`:''}
+   <section class="card"><h3>Visita</h3>${O?(tipi.length?`<div class="pick">${tipi.map(t=>`<button data-bk="tipo" data-v="${esc(t.tipo)}" aria-pressed="${t.tipo===BK.tipo}">${esc(t.label)} · ${t.dur}′</button>`).join('')}</div>`:'<p class="small muted">Nessuna visita prenotabile ora.</p>'):ld('opt')}</section>
+   ${T?`<section class="card"><h3>Dove</h3><div class="pick">${sedi.map(x=>`<button data-bk="sede" data-v="${esc(x)}" aria-pressed="${x===BK.sede}">${esc(x==='Online'?'Online':x)}</button>`).join('')||'<span class="small muted">Nessuna sede con orari liberi.</span>'}</div></section>`:''}
+   ${T&&BK.sede?`<section class="card"><h3>Giorno</h3>${BK.days?(BK.days.length?`<div class="pick days2">${BK.days.map(d=>`<button data-bk="day" data-v="${d}" aria-pressed="${d===BK.day}">${dd(d)}</button>`).join('')}</div>`:'<p class="small muted">Nessun giorno libero in questa sede.</p>'):ld('days')}</section>`:''}
+   ${BK.day?`<section class="card"><h3>Orario</h3>${BK.times?(BK.times.length?`<div class="pick">${BK.times.map(h=>`<button data-bk="time" data-v="${h}" aria-pressed="${h===BK.time}">${h}</button>`).join('')}</div>`:'<p class="small muted">Nessun orario libero in questo giorno.</p>'):ld('times')}</section>`:''}
+   ${BK.time?`<section class="card"><div class="sum"><b>${esc(T.label)}</b><span>${esc(pendTxt({s:BK.day+'T'+BK.time,sd:BK.sede}))}</span></div>
+     ${A.P.bk.em||A.P.bk.demo?`<span class="small muted">${A.P.bk.demo?'Nell\'esempio la richiesta non parte.':'Conferma a '+esc(A.P.bk.em)}</span>`:`<label class="field2"><span class="small muted">La tua email per la conferma</span><input id="bkem" type="email" autocomplete="email" value="${esc(BK.em)}"></label>`}
+     <div class="row"><button class="btn primary" data-bk="send"${BK.busy?' disabled':''}>${BK.busy==='send'?'Invio…':'Invia la richiesta'}</button></div>
+     <span class="small muted">Dall'app non si annulla: per spostarla scrivi al Dottore.</span></section>`:''}
+   <div class="row"><button class="btn ghost" data-tab="visite">Annulla</button></div>`; }
 
 /* ---- assistente: risponde solo con i dati del pacchetto; altrimenti rimanda al Dottore */
 function allSlots(){ const out=[]; for(const [dn,meals] of A.P.pl?.d||[]) for(const [ml,,groups] of meals) for(const g of groups) for(const sl of g) out.push({dn,ml,sl}); return out; }
@@ -342,7 +404,7 @@ function answer(q){ const n=norm(q), up=upcoming(), next=up[0];
     if(/parchegg/.test(n)) return {t:am.parcheggio};
     if(/minorenn|mio figli|mia figli|bambin|ragazz/.test(n)) return {t:am.minori};
     if(/follow|telefonat|richiam|chiamata di controllo|mi chiama/.test(n)) return {t:am.followup};
-    if(/lista d.?attesa|come (si )?prenot|prenotare|nuova visita|fissare/.test(n)) return {t:`${am.sedi.map(s=>`${s[0]} (${s[1]}): ${s[2]}`).join('. ')}.`,wa:wa('Buongiorno, vorrei fissare un appuntamento.')};
+    if(/lista d.?attesa|come (si )?prenot|prenotare|prenoto|nuova visita|fissare/.test(n)) return bkOn()?{t:'Puoi prenotare qui nell\'app: scegli la visita, la sede, il giorno e l\'orario libero. Il Dottore riceve subito la richiesta.',go:'prenota'}:{t:`${am.sedi.map(s=>`${s[0]} (${s[1]}): ${s[2]}`).join('. ')}.`,wa:wa('Buongiorno, vorrei fissare un appuntamento.')};
     if(/online|videochiam|a distanza/.test(n)) return {t:`Visite online: ${am.sedi.find(s=>s[0]==='Online')?.[2]||''}. Il link della videochiamata arriva per email.`};
     if(/whatsapp|email|contatt|come (ti|lo|vi) scriv/.test(n)) return {t:am.canali}; }
   if(/prossim|quando .*visita|appuntament|controllo/.test(n)&&!/integr/.test(n)) return {t:next?`La prossima visita è ${longDay(next)} alle ${hm(next)}: ${next.t.toLowerCase()}, ${where(next).toLowerCase().startsWith('in video')?'in videochiamata':'presso '+where(next)}.`+(up[1]?` La successiva è ${longDay(up[1])} alle ${hm(up[1])}.`:''):'Non hai visite in programma. Vuoi scrivere al Dottore per fissarla?',wa:next?'':wa('Buongiorno, vorrei fissare il prossimo appuntamento.')};
@@ -409,13 +471,24 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
   try{ const P=await openPack(code,pin); A.P=P; A.pin=pin; loadAns(); A.day=(new Date().getDay()+6)%7; LS.set('nlp_code',code); if(sid) LS.set('nlp_sid',sid); if(rem) LS.set('nlp_pin',pin); else LS.del('nlp_pin'); render(); }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
-function render(){ if(!A.P) return; const scr={oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,chiedi:scrChiedi,quest:scrQuest,diario:scrDiario}[A.tab]();
+function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,quest:scrQuest,diario:scrDiario,prenota:scrPrenota}[A.tab]||scrOggi)();
   $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:`<p class="foot">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · i dati restano sul tuo telefono · <button class="btn ghost small" id="logout">Esci</button></p>`}</main>
-   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Visite'],['integr','Integratori'],['chiedi','Chiedi']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>`; }
+   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Visite'],['integr','Integratori']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
+   ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}`;
+  if(A.chatOpen) setTimeout(()=>{ const c=$('#chat'); if(c) c.scrollTop=c.scrollHeight; },10); }
 
+document.addEventListener('click',e=>{ const c=e.target.closest('[data-chat]'); if(!c) return; e.preventDefault(); A.chatOpen=c.dataset.chat==='open'; render(); if(A.chatOpen) setTimeout(()=>$('#q')?.focus({preventScroll:true}),60); },true);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&A.chatOpen){ A.chatOpen=false; render(); } });
 document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]'); if(!t) return;
-  if(t.dataset.tab){ A.tab=t.dataset.tab; render(); window.scrollTo(0,0); return; }
-  if(t.dataset.go){ A.tab=t.dataset.go; if(t.dataset.go==='quest') A.q=null; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.tab){ A.tab=t.dataset.tab; A.chatOpen=false; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.go){ A.tab=t.dataset.go; A.chatOpen=false; if(t.dataset.go==='quest') A.q=null; if(t.dataset.go==='prenota'){ Object.assign(BK,{tipo:'',sede:'',day:'',time:'',days:null,times:null,err:'',ok:null}); } render(); window.scrollTo(0,0); return; }
+  if(t.dataset.bk){ const k=t.dataset.bk, v=t.dataset.v;
+    if(k==='tipo'){ Object.assign(BK,{tipo:v,sede:'',day:'',time:'',days:null,times:null,err:''}); const O=BK.opt, T=(O?.tipi||[]).find(x=>x.tipo===v), S=(O?.sedi||[]).filter(x=>!T?.sedi?.length||T.sedi.includes(x)); if(S.length===1){ BK.sede=S[0]; bkDays(); return; } render(); return; }
+    if(k==='sede'){ Object.assign(BK,{sede:v,day:'',time:'',days:null,times:null,err:''}); bkDays(); return; }
+    if(k==='day'){ Object.assign(BK,{day:v,time:'',times:null,err:''}); bkTimes(); return; }
+    if(k==='time'){ BK.time=v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+    if(k==='send'){ const em=$('#bkem'); if(em) BK.em=em.value.trim(); if(!A.P.bk.demo&&!A.P.bk.em&&!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(BK.em)){ BK.err='Scrivi la tua email per ricevere la conferma.'; render(); return; } bkSend(); return; }
+    if(k==='done'){ BK.ok=null; A.tab='visite'; render(); window.scrollTo(0,0); return; } return; }
   if(t.dataset.qopen){ A.q=t.dataset.qopen; render(); window.scrollTo(0,0); return; }
   if(t.dataset.qa!=null){ const k=A.q; (A.ans[k]||={})[t.dataset.qa]=t.dataset.v; A.out=''; saveAns(); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.id==='qsend'){ (async()=>{ const L=A.P.scr||[]; const code=await seal({v:1,pz:A.P.pz?.full||'',at:new Date().toISOString(),r:L.map(q=>({k:q.k,a:A.ans[q.k]||{}}))},A.pin);
@@ -438,7 +511,7 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='usecode'){ const raw=($('#pcode').value||'').trim(), v=raw.match(/p[A-Za-z0-9_-]{60,}/), sid=!v&&sidOf(raw); if(v){ A.code=v[0]; A.sid=null; lockScreen(); } else if(sid){ A.sid=sid; A.code=null; lockScreen(); } else { const c=$('#cerr'); if(c) c.textContent='Non trovo il codice: copia dal messaggio del Dottore la riga lunga che inizia con la lettera p.'; } return; } });
 const mMark=()=>{ if(!A.mpend) return; const L=mLoad(); for(const e of L) if(A.mpend.includes(e.at)) e.sent=1; mSave(L); A.mpend=null; };
 document.addEventListener('click',e=>{ if(e.target.closest?.('#mwa')) setTimeout(mMark,300); });
-document.addEventListener('input',e=>{ const t=e.target; if(t.id==='mnote'){ (A.md||=mNew()).n=t.value; return; } if(t.dataset?.qn!=null){ (A.ans[A.q]||={})[t.dataset.qn]=t.value.replace(',','.'); A.out=''; saveAns(); } });
+document.addEventListener('input',e=>{ const t=e.target; if(t.id==='bkem'){ BK.em=t.value; return; } if(t.id==='mnote'){ (A.md||=mNew()).n=t.value; return; } if(t.dataset?.qn!=null){ (A.ans[A.q]||={})[t.dataset.qn]=t.value.replace(',','.'); A.out=''; saveAns(); } });
 document.addEventListener('submit',e=>{ e.preventDefault();
   if(e.target.id==='pinf'){ const pin=($('#pin').value||'').replace(/\D/g,''); if(pin.length!==6){ $('#perr').textContent='Il codice ha 6 cifre.'; return; } tryPin(pin,$('#rem').checked); }
   if(e.target.id==='askf'){ const q=$('#q').value; ask(q); } });
