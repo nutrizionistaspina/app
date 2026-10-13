@@ -124,7 +124,7 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
 /* sostituzioni */
 .swb{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:2px 0;text-align:left;font-size:15.5px;color:var(--ink)}.swb i{font-style:normal;color:var(--brand);font-size:14px;border:1px solid color-mix(in srgb,var(--brand) 35%,var(--line));border-radius:999px;padding:0 7px;line-height:20px}
-.swb.on span{font-weight:700;color:var(--brand)}.swwas{display:block;font-size:12.5px;color:var(--muted)}
+.swb.on .ft{font-weight:700;color:var(--brand)}.fe{display:inline-block;width:1.45em;text-align:center;flex:none;font-size:1.05em;line-height:1}.mlist li:not(:has(.swb)){display:flex;gap:8px;align-items:baseline}.swb .fe{margin-right:-2px}.swlist button{display:flex;align-items:baseline;gap:8px}.swlist button small{margin-left:auto}.swe{display:block;font-size:34px;line-height:1.1;margin-bottom:4px}.swwas{display:block;font-size:12.5px;color:var(--muted)}
 .swsheet{height:auto;max-height:86vh;overflow:auto}
 .swnav{display:flex;align-items:center;gap:10px}.swarr{flex:none;width:52px;height:52px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:28px;line-height:1;color:var(--brand)}
 .swcur{flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--brand);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}.swcur b{font-size:18px}.swcur small{color:var(--muted)}
@@ -279,20 +279,35 @@ A.alt=new Set(); A.opt={}; A.sw=null; A.swReg={};
 const swKey=()=>'nlp_sw_'+(SID()||'demo')+'_'+norm(A.P?.pl?.n||'');
 const swGet=()=>{ try{ return JSON.parse(LS.get(swKey())||'{}')||{}; }catch(e){ return {}; } };
 const swSave=o=>LS.set(swKey(),JSON.stringify(o));
-const swDK=(day,label,main)=>`${day}|${norm(label)}|${norm(main)}`, swAK=(label,main)=>`*|${norm(label)}|${norm(main)}`;
+/* ---- emoji degli alimenti: arrivano dal piano di NutriLab («🍝 Pasta di semola 80 g»); per i pacchetti più vecchi si indovinano dal nome */
+const EMO_RE=/^((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:️|‍(?:\p{Extended_Pictographic})|\p{Emoji_Modifier})*)\s*/u;
+const EMO_GUESS=[[/yogurt|kefir|skyr|latte\b|ricotta|fiocchi di latte/,'🥛'],[/formaggi|parmigian|grana|mozzarell|pecorin|stracchino|feta|scamorza/,'🧀'],[/uov/,'🥚'],
+ [/pasta|spaghett|penne|fusill|tagliatell|gnocch/,'🍝'],[/riso/,'🍚'],[/pane|fette biscottate|crackers?|grissin|piadin|gallette/,'🍞'],[/avena|muesli|cereali|farro|orzo|quinoa|cous|miglio|grano saraceno|semolino/,'🌾'],
+ [/patat/,'🥔'],[/lenticchi|ceci|fagiol|piselli|cicerch|fave|lupin|soia|edamame|legumi/,'🫘'],[/tofu|tempeh|seitan/,'🫘'],
+ [/pollo|tacchino/,'🍗'],[/manzo|vitell|maiale|bresaola|prosciutt|carne|agnello|coniglio|hamburger/,'🥩'],[/salmone|merluzz|tonno|pesce|orata|branzino|sgombro|alici|acciugh|sardin|nasello|platessa|trota|baccal/,'🐟'],
+ [/gamber|cozz|vongol|calamar|polpo|seppi|mollusch|crostace/,'🦐'],
+ [/olio/,'🫒'],[/burro/,'🧈'],[/mandorl|noci|nocciol|anacard|pistacch|arachid|semi|frutta secca|frutta a guscio/,'🥜'],
+ [/mela|mele/,'🍎'],[/pera|pere/,'🍐'],[/banan/,'🍌'],[/kiwi/,'🥝'],[/aranc|mandarin|clementin|pompelm/,'🍊'],[/limon/,'🍋'],[/fragol/,'🍓'],[/frutti di bosco|mirtill|lampon|more\b/,'🫐'],[/uva/,'🍇'],[/pesc|albicocc|nettarin/,'🍑'],[/ciliegi/,'🍒'],[/ananas/,'🍍'],[/melon|anguri/,'🍉'],[/frutta/,'🍏'],
+ [/pomodor/,'🍅'],[/carot/,'🥕'],[/zucchin|cetriol/,'🥒'],[/broccol|cavol|verz/,'🥦'],[/insalat|lattug|rucola|spinac|bietol|radicchi/,'🥬'],[/peperon/,'🫑'],[/melanzan/,'🍆'],[/funghi/,'🍄'],[/verdur|ortaggi|minestron/,'🥗'],
+ [/cioccolat|cacao/,'🍫'],[/miele|marmellat|confettur/,'🍯'],[/biscott/,'🍪'],[/caff/,'☕'],[/\bte\b|tisan/,'🍵'],[/acqua/,'💧']];
+function guessE(t){ const n=norm(t).replace(/\s+\d.*$/,''); for(const [re,e] of EMO_GUESS) if(re.test(n)) return e; return ''; }
+const splitE=s=>{ s=String(s||''); const m=s.match(EMO_RE); return m?[m[1],s.slice(m[0].length)]:[guessE(s),s]; };
+const bare=s=>splitE(s)[1];
+const itemH=s=>{ const [e,t]=splitE(s); return `${e?`<span class="fe" aria-hidden="true">${e}</span>`:''}<span class="ft">${esc(t)}</span>`; };
+const swDK=(day,label,main)=>`${day}|${norm(label)}|${norm(bare(main))}`, swAK=(label,main)=>`*|${norm(label)}|${norm(bare(main))}`;
 function swIdx(day,label,sl){ const o=swGet(); const v=o[swDK(day,label,sl[0])]??o[swAK(label,sl[0])]; return v!=null&&v<sl.length?v:0; }
 function mealHTML(m,key,day){ const [label,time,groups]=m; key=key||label; day=day??A.day; const oi=Math.min(A.opt[key]||0,groups.length-1), g=groups[oi]||[];
   return `<div class="meal2"><div class="mh"><span class="mtime">${esc(time||'')}</span><b class="mname">${esc(label)}</b></div>
    ${groups.length>1?`<div class="optc" role="group" aria-label="Opzioni">${groups.map((_,i)=>`<button data-opt="${esc(key)}" data-v="${i}" aria-pressed="${i===oi}">Opzione ${i+1}</button>`).join('')}</div>`:''}
    <ul class="mlist">${g.map((sl,si)=>{ const ix=swIdx(day,label,sl), rk=`${key}|${oi}|${si}`; if(sl.length>1) A.swReg[rk]={day,label,sl};
-     return sl.length>1?`<li><button class="swb${ix?' on':''}" data-sw="${esc(rk)}" aria-label="Sostituisci ${esc(sl[ix])}"><span>${esc(sl[ix])}</span><i aria-hidden="true">⇄</i></button>${ix?`<small class="swwas">al posto di ${esc(sl[0])}</small>`:''}</li>`:`<li>${esc(sl[0])}</li>`; }).join('')}</ul></div>`; }
+     return sl.length>1?`<li><button class="swb${ix?' on':''}" data-sw="${esc(rk)}" aria-label="Sostituisci ${esc(bare(sl[ix]))}">${itemH(sl[ix])}<i aria-hidden="true">⇄</i></button>${ix?`<small class="swwas">al posto di ${esc(bare(sl[0]))}</small>`:''}</li>`:`<li>${itemH(sl[0])}</li>`; }).join('')}</ul></div>`; }
 function swSheet(){ const r=A.swReg[A.sw]; if(!r) return ''; const o=swGet(), ix=swIdx(r.day,r.label,r.sl), all=o[swAK(r.label,r.sl[0])]!=null&&o[swDK(r.day,r.label,r.sl[0])]==null, n=r.sl.length;
   const dn=(A.P.pl?.d||[])[r.day]?.[0]||'';
   return `<div class="sheetbg" data-swclose></div><section class="sheet swsheet" role="dialog" aria-modal="true" aria-label="Sostituzioni">
    <div class="sheeth"><b>${esc(r.label)}${dn?` · ${esc(dn)}`:''}</b><button class="btn ghost sm" data-swclose aria-label="Chiudi">✕</button></div>
-   <div class="swnav"><button class="swarr" data-swnav="-1" aria-label="Precedente">‹</button><div class="swcur"><b>${esc(r.sl[ix])}</b><small>${ix?`al posto di ${esc(r.sl[0])}`:'scelta del Dottore'}</small><span class="swdots">${r.sl.map((_,i)=>`<i class="${i===ix?'on':''}"></i>`).join('')}</span></div><button class="swarr" data-swnav="1" aria-label="Successivo">›</button></div>
-   <ul class="swlist">${r.sl.map((x,i)=>`<li><button data-swpick="${i}" aria-pressed="${i===ix}">${esc(x)}${i===0?' <small>del piano</small>':''}</button></li>`).join('')}</ul>
-   <label class="check"><input type="checkbox" data-swall${all?' checked':''}> Ogni giorno, quando c'è ${esc(r.sl[0].replace(/\s+\d.*$/,''))} a ${esc(r.label.toLowerCase())}</label>
+   <div class="swnav"><button class="swarr" data-swnav="-1" aria-label="Precedente">‹</button><div class="swcur">${splitE(r.sl[ix])[0]?`<span class="swe" aria-hidden="true">${splitE(r.sl[ix])[0]}</span>`:''}<b>${esc(bare(r.sl[ix]))}</b><small>${ix?`al posto di ${esc(bare(r.sl[0]))}`:'scelta del Dottore'}</small><span class="swdots">${r.sl.map((_,i)=>`<i class="${i===ix?'on':''}"></i>`).join('')}</span></div><button class="swarr" data-swnav="1" aria-label="Successivo">›</button></div>
+   <ul class="swlist">${r.sl.map((x,i)=>`<li><button data-swpick="${i}" aria-pressed="${i===ix}">${itemH(x)}${i===0?' <small>del piano</small>':''}</button></li>`).join('')}</ul>
+   <label class="check"><input type="checkbox" data-swall${all?' checked':''}> Ogni giorno, quando c'è ${esc(bare(r.sl[0]).replace(/\s+\d.*$/,''))} a ${esc(r.label.toLowerCase())}</label>
    <p class="small muted">Sono equivalenti scelti dal Dottore: puoi cambiarli quando vuoi.</p>
    <div class="row"><button class="btn primary" data-swclose>Fatto</button>${ix?'<button class="btn ghost" data-swpick="0">Torna al piano</button>':''}</div></section>`; }
 function swSet(i){ const r=A.swReg[A.sw]; if(!r) return; const o=swGet(), dk=swDK(r.day,r.label,r.sl[0]), ak=swAK(r.label,r.sl[0]), allOn=o[ak]!=null&&o[dk]==null;
