@@ -446,8 +446,6 @@ function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).le
     L.push(`<div class="todo"><span><b>Diario della fame</b><small>${n?`oggi ${n} ${n===1?'pasto':'pasti'}`:'nessun pasto oggi'}${un?` · ${un} da inviare`:''}</small></span><button class="btn sm" data-go="diario">Annota</button></div>`); }
   if(hdOn()){ const l=hdLast(); L.push(`<div class="todo"><span><b>La tua settimana</b><small>${l?`inviata il ${new Date(l).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}`:'passi, sonno, attività'}</small></span><button class="btn sm" data-go="salute">${l&&Date.now()-new Date(l)<5*864e5?'Vedi':'Inserisci'}</button></div>`); }
   return L.length?`<section class="card tight">${L.join('')}</section>`:''; }
-function scrCard(){ const L=A.P.scr||[]; if(!L.length) return ''; const todo=L.filter(q=>!scrDone(q)).length;
-  return `<section class="card"><span class="eyebrow">Questionari dal Dottore</span><h3>${todo?`${todo} ${todo===1?'questionario da compilare':'questionari da compilare'}`:'Questionari compilati: inviali al Dottore'}</h3><p class="small muted">Servono a preparare la prossima visita. Ci vogliono pochi minuti.</p><div class="row"><button class="btn primary" data-go="quest">${todo?'Compila':'Invia le risposte'}</button></div></section>`; }
 function scrQuest(){ const L=A.P.scr||[]; const q=A.q&&L.find(x=>x.k===A.q);
   if(q){ const a=A.ans[q.k]||{}, n=q.items.filter((_,i)=>a[i]!=null&&a[i]!=='').length, safe=q.safe!=null&&+a[q.safe]>0;
     return `${head(`<div><div class="eyebrow">Questionario · ${n} di ${q.items.length}</div><h1>${esc(q.name.split(' · ')[1]||q.name)}</h1></div>`)}
@@ -470,8 +468,6 @@ const mKey=()=>'nlp_mind_'+(A.P?.pz?.full?norm(A.P.pz.full):'demo');
 const mLoad=()=>{ try{ return JSON.parse(LS.get(mKey())||'[]')||[]; }catch(e){ return []; } };
 const mSave=L=>LS.set(mKey(),JSON.stringify(L.slice(-300)));
 const mNew=()=>({m:(()=>{ const h=new Date().getHours(); return h<10?'col':h<15?'pra':h<19?'spu':'cen'; })(),pre:null,post:null,emo:[],scr:false,fr:false,n:''});
-function mindCard(){ if(!A.P.mind) return ''; const L=mLoad(), t=ymd(new Date()), n=L.filter(e=>e.at.slice(0,10)===t).length, unsent=L.filter(e=>!e.sent).length;
-  return `<section class="card"><span class="eyebrow">Diario della fame</span><h3>${n?`Oggi hai annotato ${n} ${n===1?'pasto':'pasti'}`:'Come arrivi al prossimo pasto?'}</h3><p class="small muted">Prima e dopo aver mangiato: quanta fame hai, che cosa provi. Ci vogliono venti secondi e aiutano a riconoscere la fame fisica da quella emotiva.</p><div class="row"><button class="btn primary" data-go="diario">Annota un pasto</button>${unsent?`<button class="btn" data-go="diario">${unsent} da inviare</button>`:''}</div></section>`; }
 function scaleHTML(k,v){ return `<div class="scale" role="radiogroup" aria-label="${k==='pre'?'Fame prima di mangiare':'Fame dopo aver mangiato'}">${Array.from({length:11},(_,i)=>`<button type="button" role="radio" aria-pressed="${v===i}" aria-checked="${v===i}" aria-label="${i}: ${SCALE_TXT[i]}" class="${(k==='pre'&&(i===6||i===7))||(k==='post'&&(i===3||i===4))?'zone':''}" data-ms="${k}" data-v="${i}">${i}</button>`).join('')}</div><div class="scalel"><span>0 molto pieno</span><span>${v!=null?esc(SCALE_TXT[v]):''}</span><span>10 fame estrema</span></div>`; }
 function scrDiario(){ const d=A.md||(A.md=mNew()), L=mLoad();
   const days=7, from=Date.now()-days*864e5, W=L.filter(e=>new Date(e.at).getTime()>=from), avg=a=>a.length?(a.reduce((s,x)=>s+x,0)/a.length).toFixed(1).replace('.',','):'—';
