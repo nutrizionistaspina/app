@@ -124,7 +124,7 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
 /* sostituzioni */
 .swb{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:2px 0;text-align:left;font-size:15.5px;color:var(--ink)}.swb i{font-style:normal;color:var(--brand);font-size:14px;border:1px solid color-mix(in srgb,var(--brand) 35%,var(--line));border-radius:999px;padding:0 7px;line-height:20px}
-.swb.on .ft{font-weight:700;color:var(--brand)}.fe{display:inline-block;width:1.45em;text-align:center;flex:none;font-size:1.05em;line-height:1}.mlist li:not(:has(.swb)){display:flex;gap:8px;align-items:baseline}.swb .fe{margin-right:-2px}.swlist button{display:flex;align-items:baseline;gap:8px}.swlist button small{margin-left:auto}.swe{display:block;font-size:34px;line-height:1.1;margin-bottom:4px}.swwas{display:block;font-size:12.5px;color:var(--muted)}
+.pcc{border:1px solid color-mix(in srgb,var(--brand) 30%,var(--line))}.pch{display:flex;gap:12px;align-items:center;margin-bottom:6px}.pch h2{margin:2px 0 0;font-size:19px}.pcav{width:40px;height:40px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;flex:none}.pcav svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.pcre{background:color-mix(in srgb,var(--brand) 9%,transparent);border-radius:14px;padding:10px 12px}.pcoff.arm{color:#b3261e;font-weight:600}.pcoff{border:0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;padding:8px 0 0;cursor:pointer}.swb.on .ft{font-weight:700;color:var(--brand)}.fe{display:inline-block;width:1.45em;text-align:center;flex:none;font-size:1.05em;line-height:1}.mlist li:not(:has(.swb)){display:flex;gap:8px;align-items:baseline}.swb .fe{margin-right:-2px}.swlist button{display:flex;align-items:baseline;gap:8px}.swlist button small{margin-left:auto}.swe{display:block;font-size:34px;line-height:1.1;margin-bottom:4px}.swwas{display:block;font-size:12.5px;color:var(--muted)}
 .swsheet{height:auto;max-height:86vh;overflow:auto}
 .swnav{display:flex;align-items:center;gap:10px}.swarr{flex:none;width:52px;height:52px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:28px;line-height:1;color:var(--brand)}
 .swcur{flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--brand);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}.swcur b{font-size:18px}.swcur small{color:var(--muted)}
@@ -184,6 +184,7 @@ const DEMO={v:1,demo:1,mind:1,bk:{demo:1,tipi:['supporto','orientamento']},hd:{s
  ap:[{s:addDays(9)+'T17:00',t:'Incontro di supporto',dur:40,sd:'Pisa',str:'Centro Le Mura',ind:'Via Emanuele Filiberto 5, 56127 Pisa',on:0},
      {s:addDays(37)+'T16:20',t:'Valutazione della composizione corporea',dur:20,sd:'Online',str:'',ind:'',on:1}],
  past:[{d:addDays(-26),t:'Prima visita'},{d:addDays(-54),t:'Incontro di orientamento'}],
+ pc:{m:[{id:'benv',at:addDays(-6)+'T10:30',ti:'Benvenuto a bordo',tx:'Buongiorno! Da oggi qui trovi sempre il tuo piano, le sostituzioni e le prossime visite. Un consiglio: aggiungi l\'app alla schermata Home, così la apri con un tocco. A presto!'},{id:'spesa',at:addDays(-1)+'T10:30',yn:1,bk:1,ti:'Gestione della spesa',tx:'🛒 Spesso la difficoltà maggiore non è cucinare, ma scegliere i prodotti giusti al supermercato tra mille etichette. Se fare la spesa ti mette in difficoltà, possiamo farla insieme. Ti interessa?',y:'Ottimo! Funziona così: 🎥 ci videochiamiamo 2 volte (al massimo 30 minuti ciascuna) mentre sei al supermercato. 🛒 Analizziamo i prodotti e troviamo insieme le alternative migliori.',n:'Perfetto! 💪 Significa che stai gestendo l\'organizzazione alla grande. Continua così, ci vediamo al controllo!'},{id:'ctl1',at:addDays(12)+'T10:30',ti:'Raccomandazione',tx:'Ciao! Ci avviciniamo al primo controllo.'}]},
  pl:{n:'Piano mediterraneo · 1600 kcal',d:[0,1,2,3,4,5,6].map(i=>[DAYS[i],[
    ['Colazione','07:30',[[['Yogurt greco bianco 150 g','Kefir 200 g'],['Fiocchi d\'avena 30 g','Pane integrale 40 g'],['Frutti di bosco 100 g','Kiwi 100 g']]]],
    ['Spuntino','10:30',[[['Mandorle 15 g','Noci 15 g']]]],
@@ -317,11 +318,32 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
   const meals=dp?dp[1]:[], nextMeal=meals.find(m=>(m[1]||'99')>=hh)||null;
   const tip=(A.P.edu||[])[new Date().getDate()%Math.max(1,(A.P.edu||[]).length)];
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
+   ${pcCard()}
    ${nextCard()}
    ${todoCard()}
    ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0],Math.min(today,(A.P.pl?.d||[]).length-1))).join('')}</section>`:''}
    ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}
    ${newsCard()}`; }
+/* ---- messaggi del percorso: li scrive il Dottore in NutriLab, l'assistente li mostra qui quando è il momento (uno alla volta, niente notifiche) */
+const pcKey=()=>'nlp_pc_'+(SID()||'demo');
+const pcSt=()=>{ try{ return {r:{},a:{},...(JSON.parse(LS.get(pcKey())||'{}')||{})}; }catch(e){ return {r:{},a:{}}; } };
+const pcSave=o=>LS.set(pcKey(),JSON.stringify(o));
+function pcDue(){ const o=pcSt(), now=Date.now(); if(o.off) return [];
+  return (A.P.pc?.m||[]).filter(m=>{ const t=new Date(m.at).getTime(); return t<=now&&now-t<14*864e5&&!o.r[m.id]; }); }
+function pcSend(m,a){ if(A.P.demo||!A.P.tok) return; rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'msg',p_payload:{m,a}}).catch(()=>{}); }
+function pcCard(){ const o=pcSt(); if(o.off||!A.P.pc?.m?.length) return '';
+  const L=pcDue(), m=L.at(-1); if(!m) return ''; const a=o.a[m.id];
+  const act=[];
+  if(m.yn&&!a) act.push(`<button class="btn primary" data-pc="si" data-id="${esc(m.id)}">Sì, info</button><button class="btn" data-pc="no" data-id="${esc(m.id)}">No, grazie</button>`);
+  if(m.yn&&a==='si') act.push(m.bk&&bkOn()?`<button class="btn primary" data-go="prenota">Prenota la guida alla spesa</button>`:(wa('Buongiorno, mi interessa la guida alla spesa.')?`<a class="btn primary" href="${wa('Buongiorno, mi interessa la guida alla spesa.')}" target="_blank" rel="noopener">Scrivi al Dottore</a>`:`<a class="btn primary" href="${mailto('Guida alla spesa','Buongiorno, mi interessa la guida alla spesa.')}">Scrivi al Dottore</a>`));
+  if(m.go==='consigli'&&(A.P.edu||[]).length) act.push(`<button class="btn" data-pc="go" data-id="${esc(m.id)}">Apri i consigli</button>`);
+  if(m.u) act.push(`<a class="btn" href="${esc(m.u)}" target="_blank" rel="noopener" data-pcl="${esc(m.id)}">Leggi il blog</a>`);
+  if(!m.yn||a) act.push(`<button class="btn ghost" data-pc="read" data-id="${esc(m.id)}">${act.length?'Chiudi':'Grazie!'}</button>`);
+  return `<section class="card pcc" aria-label="Messaggio dal tuo percorso"><div class="pch"><span class="pcav" aria-hidden="true">${ICON.chiedi}</span><div><span class="eyebrow muted">Dal tuo percorso</span><h2>${esc(m.ti)}</h2></div></div>
+   <p>${esc(m.tx)}</p>${a?`<p class="pcre">${esc(a==='si'?m.y:m.n)}</p>`:''}
+   <div class="row">${act.join('')}</div>
+   <button class="pcoff${A.pcArm?' arm':''}" data-pc="off">${A.pcArm?'Confermi? Tocca di nuovo: piano, visite e assistente restano come sono':'Non ricevere più questi messaggi'}</button></section>`; }
+function pcRead(id){ const o=pcSt(); for(const x of A.P.pc?.m||[]){ o.r[x.id]=1; if(x.id===id) break; } pcSave(o); }
 function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).length;
   if(q.length) L.push(`<div class="todo"><span><b>Questionari</b><small>${todo?`${todo} da compilare`:'pronti da inviare'}</small></span><button class="btn sm primary" data-go="quest">${todo?'Compila':'Invia'}</button></div>`);
   if(A.P.mind){ const M=mLoad(), t=ymd(new Date()), n=M.filter(e=>e.at.slice(0,10)===t).length, un=M.filter(e=>!e.sent).length;
@@ -407,11 +429,11 @@ function scrIntegr(){ const s=A.P.sup||[], it=A.P.int||[];
    <p class="foot">Non iniziare né sospendere farmaci senza il tuo medico. Per dubbi su un nuovo integratore chiedi prima al Dottore.</p>`; }
 const SUGG=['Cosa mangio a cena?','Quando è la prossima visita?','Quando prendo gli integratori?'];
 const chatOn=()=>A.P&&A.P.ui?.chat!==false;
-function chatSheet(){ A.use=usage(); if(!A.chat.length) A.chat.push({b:1,t:A.P.ui?.hello||`Ciao ${A.P.pz?.n||''}! Chiedimi del piano, delle visite o degli integratori.`});
+function chatSheet(){ A.use=usage(); if(!A.chat.length) A.chat.push({b:1,t:A.P.ui?.hello||`Ciao ${A.P.pz?.n||''}! Chiedimi del piano, delle visite o degli integratori.`}); for(const m of pcDue()) if(!A.chat.some(c=>c.pc===m.id)) A.chat.push({b:1,pc:m.id,t:`${m.ti} · ${m.tx}`});
   return `<div class="sheetbg" data-chat="close"></div><section class="sheet" role="dialog" aria-modal="true" aria-label="Assistente">
    <div class="sheeth"><span class="fabic" aria-hidden="true">${ICON.chiedi}</span><b>Assistente</b><button class="btn ghost sm" data-chat="close" aria-label="Chiudi">✕</button></div>
    <div class="chat" id="chat" aria-live="polite">${A.chat.map(m=>`<div class="msg ${m.b?'bot':'me'}">${esc(m.t)}${m.wa?`<div class="row"><a class="btn" href="${mailFromWa(m.wa)}">Scrivi al Dottore</a>${m.logi?`<a class="btn ghost" href="${m.wa}" target="_blank" rel="noopener">WhatsApp (urgenze)</a>`:''}</div>`:''}${m.go&&bkOn()?`<div class="row"><button class="btn primary sm" data-go="${m.go}">Prenota una visita</button></div>`:''}</div>`).join('')}${A.busy?'<div class="msg bot muted">Sto cercando nelle indicazioni…</div>':''}</div>
-   ${A.chat.length<2?`<div class="sugg">${SUGG.map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`:''}
+   ${A.chat.filter(c=>!c.pc).length<2?`<div class="sugg">${SUGG.map(s=>`<button data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`:''}
    <form class="ask" id="askf"><label for="q" class="eyebrow" hidden>Domanda</label><input id="q" autocomplete="off" maxlength="${LIM().len}" placeholder="${limitLeft()?'Scrivi una domanda…':'Domande di oggi esaurite'}" aria-label="Domanda"${limitLeft()?'':' disabled'}><button class="btn primary" type="submit"${limitLeft()?'':' disabled'}>Invia</button></form>
    <p class="foot">${limitLeft()} domande rimaste oggi · per le emergenze chiama il 118</p></section>`; }
 
@@ -596,10 +618,17 @@ function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOp
   if(A.chatOpen) setTimeout(()=>{ const c=$('#chat'); if(c) c.scrollTop=c.scrollHeight; },10); }
 
 document.addEventListener('click',e=>{ const c=e.target.closest('[data-chat]'); if(!c) return; e.preventDefault(); A.chatOpen=c.dataset.chat==='open'; render(); if(A.chatOpen) setTimeout(()=>$('#q')?.focus({preventScroll:true}),60); },true);
+document.addEventListener('click',e=>{ const l=e.target.closest('[data-pcl]'); if(l){ pcRead(l.dataset.pcl); setTimeout(render,300); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&(A.chatOpen||A.sw)){ A.chatOpen=false; A.sw=null; render(); }
   if(A.sw&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){ const r=A.swReg[A.sw]; if(r){ swSet(swIdx(r.day,r.label,r.sl)+(e.key==='ArrowLeft'?-1:1)); render(); } } });
 document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]'); if(!t) return;
   if(t.dataset.tab){ A.tab=t.dataset.tab; A.chatOpen=false; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.pc){ const k=t.dataset.pc, id=t.dataset.id, o=pcSt(), y=window.scrollY;
+    if(k==='si'||k==='no'){ o.a[id]=k; pcSave(o); pcSend(id,k); }
+    else if(k==='read') pcRead(id);
+    else if(k==='go'){ pcRead(id); A.tab='piano'; A.psub='consigli'; render(); window.scrollTo(0,0); return; }
+    else if(k==='off'){ if(!A.pcArm){ A.pcArm=1; render(); window.scrollTo(0,y); return; } A.pcArm=0; o.off=1; pcSave(o); pcSend('stop','off'); }
+    render(); window.scrollTo(0,y); return; }
   if(t.dataset.go){ A.tab=t.dataset.go; A.chatOpen=false; HD.err=''; HD.msg=''; if(t.dataset.go==='quest') A.q=null; if(t.dataset.go==='prenota'){ Object.assign(BK,{tipo:'',sede:'',day:'',time:'',days:null,times:null,err:'',ok:null}); } render(); window.scrollTo(0,0); return; }
   if(t.dataset.bk){ const k=t.dataset.bk, v=t.dataset.v;
     if(k==='tipo'){ Object.assign(BK,{tipo:v,sede:'',day:'',time:'',days:null,times:null,err:''}); const O=BK.opt, T=(O?.tipi||[]).find(x=>x.tipo===v), S=(O?.sedi||[]).filter(x=>!T?.sedi?.length||T.sedi.includes(x)); if(S.length===1){ BK.sede=S[0]; bkDays(); return; } render(); return; }
