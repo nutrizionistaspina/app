@@ -122,6 +122,9 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .qopts button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-size:16px;min-height:46px}
 .qopts button[aria-checked="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface));font-weight:700}
 .qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
+/* settimana e allenamento */
+.hdf{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.hdf:first-of-type{border-top:0}.hdf>span:first-child{font-weight:700}.hdf input{width:96px;text-align:right;border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;font-size:17px;background:var(--surface)}.hdf small{color:var(--muted);font-size:12.5px;display:block;text-align:right}.hdf>span:last-child{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.filebtn{align-self:flex-start;cursor:pointer}.steps{margin:0 0 12px;padding-left:20px;display:grid;gap:8px}.mnote+.mnote{margin-top:8px}
 /* piano compatto */
 .h1s{font-size:24px}
 .seg{display:flex;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px}.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 6px;font-weight:700;font-size:14.5px;color:var(--muted)}.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -168,7 +171,7 @@ const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const addDays=(n)=>{ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d); };
 
 /* ---- esempio dichiarato: persona inventata, valori plausibili */
-const DEMO={v:1,demo:1,mind:1,bk:{demo:1,tipi:['supporto','orientamento']},gen:ymd(new Date()),st:{n:'Dott. Federico Spina',ph:'+39 351 879 7908',web:'https://nutrizionistaspina.it'},
+const DEMO={v:1,demo:1,mind:1,bk:{demo:1,tipi:['supporto','orientamento']},hd:{sc:''},gen:ymd(new Date()),st:{n:'Dott. Federico Spina',ph:'+39 351 879 7908',web:'https://nutrizionistaspina.it'},
  pz:{n:'Martina',full:'Martina (esempio)'},
  ap:[{s:addDays(9)+'T17:00',t:'Incontro di supporto',dur:40,sd:'Pisa',str:'Centro Le Mura',ind:'Via Emanuele Filiberto 5, 56127 Pisa',on:0},
      {s:addDays(37)+'T16:20',t:'Valutazione della composizione corporea',dur:20,sd:'Online',str:'',ind:'',on:1}],
@@ -281,6 +284,7 @@ function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).le
   if(q.length) L.push(`<div class="todo"><span><b>Questionari</b><small>${todo?`${todo} da compilare`:'pronti da inviare'}</small></span><button class="btn sm primary" data-go="quest">${todo?'Compila':'Invia'}</button></div>`);
   if(A.P.mind){ const M=mLoad(), t=ymd(new Date()), n=M.filter(e=>e.at.slice(0,10)===t).length, un=M.filter(e=>!e.sent).length;
     L.push(`<div class="todo"><span><b>Diario della fame</b><small>${n?`oggi ${n} ${n===1?'pasto':'pasti'}`:'nessun pasto oggi'}${un?` · ${un} da inviare`:''}</small></span><button class="btn sm" data-go="diario">Annota</button></div>`); }
+  if(hdOn()){ const l=hdLast(); L.push(`<div class="todo"><span><b>La tua settimana</b><small>${l?`inviata il ${new Date(l).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}`:'passi, sonno, attività'}</small></span><button class="btn sm" data-go="salute">${l&&Date.now()-new Date(l)<5*864e5?'Vedi':'Inserisci'}</button></div>`); }
   return L.length?`<section class="card tight">${L.join('')}</section>`:''; }
 function scrCard(){ const L=A.P.scr||[]; if(!L.length) return ''; const todo=L.filter(q=>!scrDone(q)).length;
   return `<section class="card"><span class="eyebrow">Questionari dal Dottore</span><h3>${todo?`${todo} ${todo===1?'questionario da compilare':'questionari da compilare'}`:'Questionari compilati: inviali al Dottore'}</h3><p class="small muted">Servono a preparare la prossima visita. Ci vogliono pochi minuti.</p><div class="row"><button class="btn primary" data-go="quest">${todo?'Compila':'Invia le risposte'}</button></div></section>`; }
@@ -326,11 +330,12 @@ function newsCard(){ const L=(A.P.news||[]).filter(n=>/^https?:\/\//.test(n.u||'
 function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card tight">${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
 function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Schede per te</span>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
 function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc||[]).length, hasM=(A.P.mat||[]).length;
-  const subs=[['piano','Piano'],...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
+  const subs=[['piano','Piano'],...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[]),...(hdOn()?[['allen','Allenamento']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
   const seg=subs.length>1?`<div class="seg" role="tablist">${subs.map(([k,l])=>`<button role="tab" data-psub="${k}" aria-selected="${A.psub===k}">${l}</button>`).join('')}</div>`:'';
-  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):A.psub==='consigli'?'Consigli':'Materiali')}</h1>`)+seg;
+  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):A.psub==='consigli'?'Consigli':A.psub==='allen'?'Allenamento':'Materiali')}</h1>`)+seg;
   if(A.psub==='consigli') return `${top}${(A.P.edu||[]).length?`<section class="card tight">${A.P.edu.map(t=>`<details class="tip2"><summary>${esc(t[0])}</summary><p class="small">${esc(t[1])}</p></details>`).join('')}</section>`:''}${edocCard()}`;
   if(A.psub==='mat') return `${top}${matCard()}`;
+  if(A.psub==='allen') return `${top}${allenHTML()}`;
   if(!d.length) return `${top}<section class="card"><p>Il piano non è ancora stato aggiunto.</p></section>`;
   const dp=dayPlan(A.day);
   return `${top}
@@ -408,6 +413,60 @@ function scrPrenota(){ if(!bkOn()){ A.tab='visite'; return scrVisite(); }
      <div class="row"><button class="btn primary" data-bk="send"${BK.busy?' disabled':''}>${BK.busy==='send'?'Invio…':'Invia la richiesta'}</button></div>
      <span class="small muted">Dall'app non si annulla: per spostarla scrivi al Dottore.</span></section>`:''}
    <div class="row"><button class="btn ghost" data-tab="visite">Annulla</button></div>`; }
+
+/* ---- dati della settimana e schede di allenamento: vanno al Dottore con il codice dell'app e il gettone del pacchetto.
+   Solo totali o medie della settimana; nessun dato resta sul server dopo che il Dottore li ha importati nella cartella. */
+const hdOn=()=>!!(A.P?.hd&&(A.P.demo||(SID()&&A.P.tok)));
+const hdKey=()=>'nlp_hd_'+(SID()||'demo');
+const hdGet=()=>{ try{ return JSON.parse(LS.get(hdKey())||'{}')||{}; }catch(e){ return {}; } };
+const hdSet=o=>LS.set(hdKey(),JSON.stringify(o));
+const hdLast=()=>hdGet().last||'';
+const HD={busy:'',msg:'',err:'',f:{}};
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
+const scCode=()=>A.P.demo?'ESEMPIO':`${(SID()||'').toUpperCase()}.${A.P.tok||''}`;
+function scrSalute(){ const g=hdGet(), f=HD.f, to=addDays(-1), from=addDays(-7), d=x=>new Date(x+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+  const fld=(k,l,u,ph,step)=>`<label class="hdf"><span>${l}</span><span><input inputmode="decimal" data-hd="${k}" value="${esc(f[k]??'')}" placeholder="${ph}"> <small>${u}</small></span></label>`;
+  return `${head(`<div><div class="eyebrow">${d(from)} – ${d(to)}</div><h1 class="h1s">La tua settimana</h1></div>`)}
+   ${HD.err?`<div class="alert" role="alert">${esc(HD.err)}</div>`:''}${HD.msg?`<div class="card"><b>${esc(HD.msg)}</b></div>`:''}
+   <section class="card"><p class="small muted">Leggili dall'app Salute, dall'orologio o dal contapassi. Lascia vuoto quello che non sai.</p>
+    ${fld('steps','Passi','al giorno, in media','8000')}${fld('sleep','Sonno','ore a notte','7')}${fld('act','Attività','minuti in tutta la settimana','150')}${fld('hr','Frequenza a riposo','battiti al minuto','60')}${fld('w','Peso','kg','')}
+    ${g.ok?'':`<label class="check"><input type="checkbox" id="hdok"> Acconsento a inviare questi dati al Dottore per il mio percorso</label>`}
+    <div class="row"><button class="btn primary" data-hdsend${HD.busy?' disabled':''}>${HD.busy==='send'?'Invio…':'Invia al Dottore'}</button></div></section>
+   ${isIOS||A.P.demo?`<details class="card tip2"><summary>Dall'iPhone in automatico</summary>${A.P.hd.sc?`<ol class="small steps"><li><a href="${esc(A.P.hd.sc)}" target="_blank" rel="noopener">Aggiungi il comando «Invia a NutriLab»</a></li><li>Quando te lo chiede, incolla questo codice: <button class="btn sm" data-sccopy>Copia il codice</button></li><li>Il comando legge da Salute la settimana e la manda al Dottore: avvialo quando vuoi, o crea un'automazione ogni domenica.</li></ol>`:'<p class="small muted">Il Dottore non ha ancora attivato il comando per iPhone: per ora inserisci i dati qui.</p>'}</details>`:''}
+   ${g.last?`<p class="foot">Ultimo invio il ${new Date(g.last).toLocaleDateString('it-IT',{day:'numeric',month:'long'})}</p>`:''}`; }
+function hdSend(){ const f=HD.f, g=hdGet(); const ok=g.ok||$('#hdok')?.checked; if(!ok){ HD.err='Per inviare i dati serve il tuo consenso: spunta la casella.'; render(); return; }
+  const P={from:addDays(-7),to:addDays(-1),src:'app'}; for(const k of ['steps','sleep','act','hr','w']){ let v=String(f[k]??'').replace(/\s/g,''); if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v)) v=v.replace(/\./g,''); v=v.replace(',','.'); if(v!==''&&!isNaN(+v)) P[k]=+v; }
+  if(Object.keys(P).length<4){ HD.err='Scrivi almeno un valore.'; render(); return; }
+  if(A.P.demo){ HD.err=''; HD.msg='Nell\'esempio i dati non partono.'; render(); return; }
+  HD.busy='send'; HD.err=''; render();
+  rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'salute',p_payload:P}).then(()=>{ hdSet({...hdGet(),ok:1,last:new Date().toISOString()}); HD.f={}; HD.msg='Inviati al Dottore. Grazie!'; })
+    .catch(e=>{ HD.err=/too_many/.test(e.message)?'Hai già inviato molti dati oggi: riprova domani.':/not_allowed/.test(e.message)?'Invio non attivo: chiedi al Dottore di aggiornare l\'app.':'Non riesco a collegarmi: riprova.'; })
+    .finally(()=>{ HD.busy=''; render(); }); }
+function allenHTML(){ const g=hdGet(), L=(g.sent||[]).slice().reverse();
+  return `${HD.err?`<div class="alert" role="alert">${esc(HD.err)}</div>`:''}${HD.msg?`<div class="card"><b>${esc(HD.msg)}</b></div>`:''}
+   <section class="card"><h3>Carica la scheda</h3><p class="small muted">Foto o PDF della scheda del tuo allenatore.</p>
+    <label class="btn primary filebtn">${HD.busy==='up'?'Invio…':'Scegli il file'}<input type="file" id="hdfile" accept="application/pdf,image/*" hidden${HD.busy?' disabled':''}></label></section>
+   <section class="card"><h3>Oppure incolla un link</h3><input class="mnote" id="hdlink" type="url" placeholder="https://…" value="${esc(HD.f.link||'')}"><input class="mnote" id="hdlt" placeholder="Nome (facoltativo), es. Scheda palestra" value="${esc(HD.f.lt||'')}"><div class="row"><button class="btn" data-hdlink${HD.busy?' disabled':''}>Invia il link</button></div></section>
+   ${L.length?`<section class="card tight">${L.map(x=>`<div class="todo"><span><b>${esc(x.t)}</b><small>inviata il ${new Date(x.at).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</small></span></div>`).join('')}</section>`:''}`; }
+const hdSent=t=>{ const g=hdGet(); g.sent=[...(g.sent||[]),{t,at:new Date().toISOString()}].slice(-20); hdSet(g); };
+async function shrink(file){ if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size<1.5e6) return file;
+  try{ const bmp=await createImageBitmap(file), k=Math.min(1,2000/Math.max(bmp.width,bmp.height)), c=document.createElement('canvas'); c.width=Math.round(bmp.width*k); c.height=Math.round(bmp.height*k); c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.85)); return b?new File([b],file.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):file; }catch(e){ return file; } }
+async function hdUpload(file){ HD.err=''; HD.msg=''; if(!file) return;
+  if(A.P.demo){ HD.msg='Nell\'esempio il file non parte.'; render(); return; }
+  const f=await shrink(file); if(f.size>8*1024*1024){ HD.err='Il file è troppo grande (massimo 8 MB).'; render(); return; }
+  HD.busy='up'; render();
+  try{ const data=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=rej; r.readAsDataURL(f); });
+    const r=await fetch(SUPA+'/functions/v1/nl-app-upload',{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify({id:SID(),tok:A.P.tok,name:f.name,mime:f.type||'application/pdf',data})});
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'rete'); hdSent(f.name); HD.msg='Scheda inviata al Dottore.'; }
+  catch(e){ HD.err=/type/.test(e.message)?'Formato non supportato: usa una foto o un PDF.':/too_big/.test(e.message)?'Il file è troppo grande (massimo 8 MB).':/too_many/.test(e.message)?'Hai già inviato molti file oggi.':/not_allowed/.test(e.message)?'Invio non attivo: chiedi al Dottore di aggiornare l\'app.':'Non riesco a collegarmi: riprova.'; }
+  HD.busy=''; render(); }
+function hdLinkSend(){ const u=($('#hdlink')?.value||'').trim(), t=($('#hdlt')?.value||'').trim()||'Scheda di allenamento'; HD.err=''; HD.msg='';
+  if(!/^https:\/\/\S{4,}$/.test(u)){ HD.err='Incolla un link che inizia con https://'; render(); return; }
+  if(A.P.demo){ HD.msg='Nell\'esempio il link non parte.'; render(); return; }
+  HD.busy='link'; render();
+  rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'link',p_payload:{u,t}}).then(()=>{ hdSent(t); HD.f.link=''; HD.f.lt=''; HD.msg='Link inviato al Dottore.'; })
+    .catch(e=>{ HD.err='Non riesco a collegarmi: riprova.'; }).finally(()=>{ HD.busy=''; render(); }); }
 
 /* ---- assistente: risponde solo con i dati del pacchetto; altrimenti rimanda al Dottore */
 function allSlots(){ const out=[]; for(const [dn,meals] of A.P.pl?.d||[]) for(const [ml,,groups] of meals) for(const g of groups) for(const sl of g) out.push({dn,ml,sl}); return out; }
@@ -488,8 +547,8 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
   try{ const P=await openPack(code,pin); A.P=P; A.pin=pin; loadAns(); A.day=(new Date().getDay()+6)%7; LS.set('nlp_code',code); if(sid) LS.set('nlp_sid',sid); if(rem) LS.set('nlp_pin',pin); else LS.del('nlp_pin'); render(); }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
-function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,quest:scrQuest,diario:scrDiario,prenota:scrPrenota}[A.tab]||scrOggi)();
-  $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:`<p class="foot">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · i dati restano sul tuo telefono · <button class="btn ghost small" id="logout">Esci</button></p>`}</main>
+function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
+  $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:`<p class="foot">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · <button class="btn ghost small" id="logout">Esci</button></p>`}</main>
    <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Visite'],['integr','Integratori']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
    ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}`;
   if(A.chatOpen) setTimeout(()=>{ const c=$('#chat'); if(c) c.scrollTop=c.scrollHeight; },10); }
@@ -498,7 +557,7 @@ document.addEventListener('click',e=>{ const c=e.target.closest('[data-chat]'); 
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&A.chatOpen){ A.chatOpen=false; render(); } });
 document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]'); if(!t) return;
   if(t.dataset.tab){ A.tab=t.dataset.tab; A.chatOpen=false; render(); window.scrollTo(0,0); return; }
-  if(t.dataset.go){ A.tab=t.dataset.go; A.chatOpen=false; if(t.dataset.go==='quest') A.q=null; if(t.dataset.go==='prenota'){ Object.assign(BK,{tipo:'',sede:'',day:'',time:'',days:null,times:null,err:'',ok:null}); } render(); window.scrollTo(0,0); return; }
+  if(t.dataset.go){ A.tab=t.dataset.go; A.chatOpen=false; HD.err=''; HD.msg=''; if(t.dataset.go==='quest') A.q=null; if(t.dataset.go==='prenota'){ Object.assign(BK,{tipo:'',sede:'',day:'',time:'',days:null,times:null,err:'',ok:null}); } render(); window.scrollTo(0,0); return; }
   if(t.dataset.bk){ const k=t.dataset.bk, v=t.dataset.v;
     if(k==='tipo'){ Object.assign(BK,{tipo:v,sede:'',day:'',time:'',days:null,times:null,err:''}); const O=BK.opt, T=(O?.tipi||[]).find(x=>x.tipo===v), S=(O?.sedi||[]).filter(x=>!T?.sedi?.length||T.sedi.includes(x)); if(S.length===1){ BK.sede=S[0]; bkDays(); return; } render(); return; }
     if(k==='sede'){ Object.assign(BK,{sede:v,day:'',time:'',days:null,times:null,err:''}); bkDays(); return; }
@@ -520,7 +579,10 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='mcopy'){ navigator.clipboard?.writeText(A.mout).then(()=>{ t.textContent='Copiato'; mMark(); },()=>{ document.querySelector('textarea.code')?.select(); }); return; }
   if(t.id==='qcopy'){ navigator.clipboard?.writeText(A.out).then(()=>{ t.textContent='Copiato'; },()=>{ const ta=document.querySelector('textarea.code'); ta?.select(); }); return; }
   if(t.dataset.day){ A.day=+t.dataset.day; render(); return; }
-  if(t.dataset.psub){ A.psub=t.dataset.psub; render(); window.scrollTo(0,0); return; }
+  if(t.dataset.psub){ A.psub=t.dataset.psub; HD.err=''; HD.msg=''; render(); window.scrollTo(0,0); return; }
+  if(t.hasAttribute('data-hdsend')){ hdSend(); return; }
+  if(t.hasAttribute('data-hdlink')){ hdLinkSend(); return; }
+  if(t.hasAttribute('data-sccopy')){ navigator.clipboard?.writeText(scCode()).then(()=>{ t.textContent='Copiato'; },()=>{ prompt('Copia il codice',scCode()); }); return; }
   if(t.dataset.alt!=null){ const k=t.dataset.alt; A.alt.has(k)?A.alt.delete(k):A.alt.add(k); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.opt!=null){ A.opt[t.dataset.opt]=+t.dataset.v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.q){ ask(t.dataset.q); return; }
@@ -531,7 +593,8 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='usecode'){ const raw=($('#pcode').value||'').trim(), v=raw.match(/p[A-Za-z0-9_-]{60,}/), sid=!v&&sidOf(raw); if(v){ A.code=v[0]; A.sid=null; lockScreen(); } else if(sid){ A.sid=sid; A.code=null; lockScreen(); } else { const c=$('#cerr'); if(c) c.textContent='Non trovo il codice: copia dal messaggio del Dottore la riga lunga che inizia con la lettera p.'; } return; } });
 const mMark=()=>{ if(!A.mpend) return; const L=mLoad(); for(const e of L) if(A.mpend.includes(e.at)) e.sent=1; mSave(L); A.mpend=null; };
 document.addEventListener('click',e=>{ if(e.target.closest?.('#mwa')) setTimeout(mMark,300); });
-document.addEventListener('input',e=>{ const t=e.target; if(t.id==='bkem'){ BK.em=t.value; return; } if(t.id==='mnote'){ (A.md||=mNew()).n=t.value; return; } if(t.dataset?.qn!=null){ (A.ans[A.q]||={})[t.dataset.qn]=t.value.replace(',','.'); A.out=''; saveAns(); } });
+document.addEventListener('change',e=>{ if(e.target.id==='hdfile') hdUpload(e.target.files?.[0]); });
+document.addEventListener('input',e=>{ const t=e.target; if(t.id==='bkem'){ BK.em=t.value; return; } if(t.dataset?.hd){ HD.f[t.dataset.hd]=t.value; return; } if(t.id==='hdlink'){ HD.f.link=t.value; return; } if(t.id==='hdlt'){ HD.f.lt=t.value; return; } if(t.id==='mnote'){ (A.md||=mNew()).n=t.value; return; } if(t.dataset?.qn!=null){ (A.ans[A.q]||={})[t.dataset.qn]=t.value.replace(',','.'); A.out=''; saveAns(); } });
 document.addEventListener('submit',e=>{ e.preventDefault();
   if(e.target.id==='pinf'){ const pin=($('#pin').value||'').replace(/\D/g,''); if(pin.length!==6){ $('#perr').textContent='Il codice ha 6 cifre.'; return; } tryPin(pin,$('#rem').checked); }
   if(e.target.id==='askf'){ const q=$('#q').value; ask(q); } });
