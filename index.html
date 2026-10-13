@@ -122,6 +122,14 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .qopts button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-size:16px;min-height:46px}
 .qopts button[aria-checked="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface));font-weight:700}
 .qnum{border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-size:17px;background:var(--surface);max-width:180px}
+/* sostituzioni */
+.swb{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:2px 0;text-align:left;font-size:15.5px;color:var(--ink)}.swb i{font-style:normal;color:var(--brand);font-size:14px;border:1px solid color-mix(in srgb,var(--brand) 35%,var(--line));border-radius:999px;padding:0 7px;line-height:20px}
+.swb.on span{font-weight:700;color:var(--brand)}.swwas{display:block;font-size:12.5px;color:var(--muted)}
+.swsheet{height:auto;max-height:86vh;overflow:auto}
+.swnav{display:flex;align-items:center;gap:10px}.swarr{flex:none;width:52px;height:52px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:28px;line-height:1;color:var(--brand)}
+.swcur{flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--brand);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}.swcur b{font-size:18px}.swcur small{color:var(--muted)}
+.swdots{display:flex;gap:5px;margin-top:4px}.swdots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.swdots i.on{background:var(--brand)}
+.swlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.swlist button{width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;font-size:15.5px}.swlist button[aria-pressed="true"]{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 10%,var(--surface));font-weight:700}.swlist small{color:var(--muted);font-weight:400}
 /* settimana e allenamento */
 .hdf{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.hdf:first-of-type{border-top:0}.hdf>span:first-child{font-weight:700}.hdf input{width:96px;text-align:right;border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;font-size:17px;background:var(--surface)}.hdf small{color:var(--muted);font-size:12.5px;display:block;text-align:right}.hdf>span:last-child{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .filebtn{align-self:flex-start;cursor:pointer}.steps{margin:0 0 12px;padding-left:20px;display:grid;gap:8px}.mnote+.mnote{margin-top:8px}
@@ -265,11 +273,30 @@ function nextCard(){ const n=upcoming()[0], pend=bkPend()[0]; if(!n) return `<se
    <div class="when"><span class="daynum">${dd.getDate()}</span><div><h2>${esc(dd.toLocaleDateString('it-IT',{weekday:'long'}))}, ore ${hm(n)}</h2><div class="muted">${esc(n.t)}</div></div></div>
    <div class="small">${esc(where(n))}</div>
    <div class="row"><a class="btn" href="${gcal(n)}" target="_blank" rel="noopener">Calendario</a>${mapLink(n)?`<a class="btn" href="${mapLink(n)}" target="_blank" rel="noopener">Indicazioni</a>`:''}</div></section>`; }
-A.alt=new Set(); A.opt={};
-function mealHTML(m,key){ const [label,time,groups]=m; key=key||label; const oi=Math.min(A.opt[key]||0,groups.length-1), g=groups[oi]||[], nAlt=g.filter(sl=>sl.length>1).length, open=A.alt.has(key);
-  return `<div class="meal2"><div class="mh"><span class="mtime">${esc(time||'')}</span><b class="mname">${esc(label)}</b>${nAlt?`<button class="altb" data-alt="${esc(key)}" aria-expanded="${open}">${open?'Chiudi':'Alternative'}</button>`:''}</div>
+A.alt=new Set(); A.opt={}; A.sw=null; A.swReg={};
+/* ---- sostituzioni fatte dal paziente: tra le alternative equivalenti scelte dal Dottore, si ricordano sul telefono.
+   Chiave del giorno «giorno|pasto|alimento del piano»; «ogni giorno» vale per lo stesso alimento nello stesso pasto in tutta la settimana */
+const swKey=()=>'nlp_sw_'+(SID()||'demo')+'_'+norm(A.P?.pl?.n||'');
+const swGet=()=>{ try{ return JSON.parse(LS.get(swKey())||'{}')||{}; }catch(e){ return {}; } };
+const swSave=o=>LS.set(swKey(),JSON.stringify(o));
+const swDK=(day,label,main)=>`${day}|${norm(label)}|${norm(main)}`, swAK=(label,main)=>`*|${norm(label)}|${norm(main)}`;
+function swIdx(day,label,sl){ const o=swGet(); const v=o[swDK(day,label,sl[0])]??o[swAK(label,sl[0])]; return v!=null&&v<sl.length?v:0; }
+function mealHTML(m,key,day){ const [label,time,groups]=m; key=key||label; day=day??A.day; const oi=Math.min(A.opt[key]||0,groups.length-1), g=groups[oi]||[];
+  return `<div class="meal2"><div class="mh"><span class="mtime">${esc(time||'')}</span><b class="mname">${esc(label)}</b></div>
    ${groups.length>1?`<div class="optc" role="group" aria-label="Opzioni">${groups.map((_,i)=>`<button data-opt="${esc(key)}" data-v="${i}" aria-pressed="${i===oi}">Opzione ${i+1}</button>`).join('')}</div>`:''}
-   <ul class="mlist">${g.map(sl=>`<li>${esc(sl[0])}${open&&sl.length>1?`<span class="alts">oppure ${sl.slice(1).map(x=>esc(x)).join(' · ')}</span>`:''}</li>`).join('')}</ul></div>`; }
+   <ul class="mlist">${g.map((sl,si)=>{ const ix=swIdx(day,label,sl), rk=`${key}|${oi}|${si}`; if(sl.length>1) A.swReg[rk]={day,label,sl};
+     return sl.length>1?`<li><button class="swb${ix?' on':''}" data-sw="${esc(rk)}" aria-label="Sostituisci ${esc(sl[ix])}"><span>${esc(sl[ix])}</span><i aria-hidden="true">⇄</i></button>${ix?`<small class="swwas">al posto di ${esc(sl[0])}</small>`:''}</li>`:`<li>${esc(sl[0])}</li>`; }).join('')}</ul></div>`; }
+function swSheet(){ const r=A.swReg[A.sw]; if(!r) return ''; const o=swGet(), ix=swIdx(r.day,r.label,r.sl), all=o[swAK(r.label,r.sl[0])]!=null&&o[swDK(r.day,r.label,r.sl[0])]==null, n=r.sl.length;
+  const dn=(A.P.pl?.d||[])[r.day]?.[0]||'';
+  return `<div class="sheetbg" data-swclose></div><section class="sheet swsheet" role="dialog" aria-modal="true" aria-label="Sostituzioni">
+   <div class="sheeth"><b>${esc(r.label)}${dn?` · ${esc(dn)}`:''}</b><button class="btn ghost sm" data-swclose aria-label="Chiudi">✕</button></div>
+   <div class="swnav"><button class="swarr" data-swnav="-1" aria-label="Precedente">‹</button><div class="swcur"><b>${esc(r.sl[ix])}</b><small>${ix?`al posto di ${esc(r.sl[0])}`:'scelta del Dottore'}</small><span class="swdots">${r.sl.map((_,i)=>`<i class="${i===ix?'on':''}"></i>`).join('')}</span></div><button class="swarr" data-swnav="1" aria-label="Successivo">›</button></div>
+   <ul class="swlist">${r.sl.map((x,i)=>`<li><button data-swpick="${i}" aria-pressed="${i===ix}">${esc(x)}${i===0?' <small>del piano</small>':''}</button></li>`).join('')}</ul>
+   <label class="check"><input type="checkbox" data-swall${all?' checked':''}> Ogni giorno, quando c'è ${esc(r.sl[0].replace(/\s+\d.*$/,''))} a ${esc(r.label.toLowerCase())}</label>
+   <p class="small muted">Sono equivalenti scelti dal Dottore: puoi cambiarli quando vuoi.</p>
+   <div class="row"><button class="btn primary" data-swclose>Fatto</button>${ix?'<button class="btn ghost" data-swpick="0">Torna al piano</button>':''}</div></section>`; }
+function swSet(i){ const r=A.swReg[A.sw]; if(!r) return; const o=swGet(), dk=swDK(r.day,r.label,r.sl[0]), ak=swAK(r.label,r.sl[0]), allOn=o[ak]!=null&&o[dk]==null;
+  i=(i+r.sl.length)%r.sl.length; if(allOn){ if(i) o[ak]=i; else delete o[ak]; } else { if(i) o[dk]=i; else delete o[dk]; } swSave(o); }
 const dayPlan=i=>{ const d=A.P.pl?.d||[]; return d.length?d[Math.min(i,d.length-1)]:null; };
 function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), now=new Date(), hh=pad(now.getHours())+':'+pad(now.getMinutes());
   const meals=dp?dp[1]:[], nextMeal=meals.find(m=>(m[1]||'99')>=hh)||null;
@@ -277,7 +304,7 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
    ${nextCard()}
    ${todoCard()}
-   ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0])).join('')}</section>`:''}
+   ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0],Math.min(today,(A.P.pl?.d||[]).length-1))).join('')}</section>`:''}
    ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}
    ${newsCard()}`; }
 function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).length;
@@ -340,7 +367,7 @@ function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc
   const dp=dayPlan(A.day);
   return `${top}
    ${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
-   <section class="card tight">${dp[1].map((m,i)=>mealHTML(m,A.day+'-'+i)).join('')}</section>
+   <section class="card tight">${dp[1].map((m,i)=>mealHTML(m,A.day+'-'+i,Math.min(A.day,d.length-1))).join('')}</section>
    ${A.P.pl?.note?`<details class="card tip2 note"><summary>Ricorda</summary><p class="small">${esc(A.P.pl.note)}</p></details>`:''}
    <p class="foot">Grammature a crudo e al netto degli scarti.</p>`; }
 function chartMs(ms){ const pts=ms.filter(x=>x.w>0); if(pts.length<2) return '';
@@ -550,11 +577,12 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
 function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
   $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:`<p class="foot">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · <button class="btn ghost small" id="logout">Esci</button></p>`}</main>
    <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Visite'],['integr','Integratori']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
-   ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}`;
+   ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}${A.sw?swSheet():''}`;
   if(A.chatOpen) setTimeout(()=>{ const c=$('#chat'); if(c) c.scrollTop=c.scrollHeight; },10); }
 
 document.addEventListener('click',e=>{ const c=e.target.closest('[data-chat]'); if(!c) return; e.preventDefault(); A.chatOpen=c.dataset.chat==='open'; render(); if(A.chatOpen) setTimeout(()=>$('#q')?.focus({preventScroll:true}),60); },true);
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&A.chatOpen){ A.chatOpen=false; render(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&(A.chatOpen||A.sw)){ A.chatOpen=false; A.sw=null; render(); }
+  if(A.sw&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){ const r=A.swReg[A.sw]; if(r){ swSet(swIdx(r.day,r.label,r.sl)+(e.key==='ArrowLeft'?-1:1)); render(); } } });
 document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]'); if(!t) return;
   if(t.dataset.tab){ A.tab=t.dataset.tab; A.chatOpen=false; render(); window.scrollTo(0,0); return; }
   if(t.dataset.go){ A.tab=t.dataset.go; A.chatOpen=false; HD.err=''; HD.msg=''; if(t.dataset.go==='quest') A.q=null; if(t.dataset.go==='prenota'){ Object.assign(BK,{tipo:'',sede:'',day:'',time:'',days:null,times:null,err:'',ok:null}); } render(); window.scrollTo(0,0); return; }
@@ -583,6 +611,10 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.hasAttribute('data-hdsend')){ hdSend(); return; }
   if(t.hasAttribute('data-hdlink')){ hdLinkSend(); return; }
   if(t.hasAttribute('data-sccopy')){ navigator.clipboard?.writeText(scCode()).then(()=>{ t.textContent='Copiato'; },()=>{ prompt('Copia il codice',scCode()); }); return; }
+  if(t.dataset.sw){ A.sw=t.dataset.sw; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.hasAttribute('data-swclose')){ A.sw=null; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.swnav){ const r=A.swReg[A.sw]; if(r){ swSet(swIdx(r.day,r.label,r.sl)+(+t.dataset.swnav)); } const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.swpick!=null){ swSet(+t.dataset.swpick); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.alt!=null){ const k=t.dataset.alt; A.alt.has(k)?A.alt.delete(k):A.alt.add(k); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.opt!=null){ A.opt[t.dataset.opt]=+t.dataset.v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.q){ ask(t.dataset.q); return; }
@@ -593,7 +625,10 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='usecode'){ const raw=($('#pcode').value||'').trim(), v=raw.match(/p[A-Za-z0-9_-]{60,}/), sid=!v&&sidOf(raw); if(v){ A.code=v[0]; A.sid=null; lockScreen(); } else if(sid){ A.sid=sid; A.code=null; lockScreen(); } else { const c=$('#cerr'); if(c) c.textContent='Non trovo il codice: copia dal messaggio del Dottore la riga lunga che inizia con la lettera p.'; } return; } });
 const mMark=()=>{ if(!A.mpend) return; const L=mLoad(); for(const e of L) if(A.mpend.includes(e.at)) e.sent=1; mSave(L); A.mpend=null; };
 document.addEventListener('click',e=>{ if(e.target.closest?.('#mwa')) setTimeout(mMark,300); });
-document.addEventListener('change',e=>{ if(e.target.id==='hdfile') hdUpload(e.target.files?.[0]); });
+document.addEventListener('change',e=>{ if(e.target.id==='hdfile') hdUpload(e.target.files?.[0]);
+  if(e.target.hasAttribute?.('data-swall')){ const r=A.swReg[A.sw]; if(!r) return; const o=swGet(), dk=swDK(r.day,r.label,r.sl[0]), ak=swAK(r.label,r.sl[0]), cur=swIdx(r.day,r.label,r.sl);
+    if(e.target.checked){ delete o[dk]; if(cur) o[ak]=cur; else o[ak]=0; } else { delete o[ak]; if(cur) o[dk]=cur; } swSave(o); const y=window.scrollY; render(); window.scrollTo(0,y); } });
+document.addEventListener('click',e=>{ if(e.target.matches?.('.sheetbg[data-swclose]')){ A.sw=null; render(); } });
 document.addEventListener('input',e=>{ const t=e.target; if(t.id==='bkem'){ BK.em=t.value; return; } if(t.dataset?.hd){ HD.f[t.dataset.hd]=t.value; return; } if(t.id==='hdlink'){ HD.f.link=t.value; return; } if(t.id==='hdlt'){ HD.f.lt=t.value; return; } if(t.id==='mnote'){ (A.md||=mNew()).n=t.value; return; } if(t.dataset?.qn!=null){ (A.ans[A.q]||={})[t.dataset.qn]=t.value.replace(',','.'); A.out=''; saveAns(); } });
 document.addEventListener('submit',e=>{ e.preventDefault();
   if(e.target.id==='pinf'){ const pin=($('#pin').value||'').replace(/\D/g,''); if(pin.length!==6){ $('#perr').textContent='Il codice ha 6 cifre.'; return; } tryPin(pin,$('#rem').checked); }
