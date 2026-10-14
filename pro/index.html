@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1A1A17">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>NutriLab Pro</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NutriLab Pro">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{--ink:#1A1A17;--rose:#B8686A;--rose2:#F4E4E2;--cream:#FBF9F5;--beige:#F3EEE5;--line:#E7E1D4;--muted:#79766F;--card:#fff;--ok:#4E7A5B;--warn:#B0843A;--bg:var(--cream)}
+@media (prefers-color-scheme:dark){:root{--ink:#F1EEE8;--rose:#D58C8E;--rose2:#3A2A2A;--cream:#151513;--beige:#1F1E1B;--line:#2F2D29;--muted:#A19D95;--card:#1C1B19;--bg:#151513}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+button,input,textarea,select{font:inherit;color:inherit}
+.serif{font-family:Georgia,"Times New Roman",serif}
+#root{min-height:100dvh;display:flex;flex-direction:column}
+header.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:calc(env(safe-area-inset-top) + 10px) 18px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+header.top h1{font:400 22px/1.1 Georgia,serif;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top small{display:block;font:12px Arial,sans-serif;color:var(--muted);margin-top:2px}
+.ib{border:1px solid var(--line);background:var(--card);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}
+.ib svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+main{flex:1;padding:12px 16px calc(96px + env(safe-area-inset-bottom));max-width:720px;width:100%;margin:0 auto}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:space-around;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);padding:6px 0;cursor:pointer;position:relative}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current]{color:var(--rose)}
+.badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--rose);color:#fff;border-radius:999px;font-size:10px;min-width:16px;height:16px;line-height:16px;padding:0 4px}
+.day{font:600 12px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--rose);margin:18px 2px 8px}
+.ap{display:flex;gap:12px;align-items:stretch;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
+.ap .tm{font:400 20px/1 Georgia,serif;min-width:52px;padding-top:2px}.ap .tm small{display:block;font:11px Arial;color:var(--muted);margin-top:4px}
+.ap .wh{flex:1;min-width:0}.ap .wh b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ap .wh span{font-size:13px;color:var(--muted)}
+.ap.past{opacity:.6}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{font:600 11px Arial;border-radius:999px;padding:3px 8px;background:var(--beige);color:var(--muted)}
+.chip.rose{background:var(--rose2);color:var(--rose)}.chip.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.chip.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:4px 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:0 0 12px}
+.card h2{font:400 18px Georgia,serif;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.card h2 .lbl{font:600 11px Arial;letter-spacing:.08em;text-transform:uppercase;color:var(--rose)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.kv{margin:6px 0;font-size:14.5px}.kv b{font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:1px}
+.hero{padding:6px 2px 4px}.hero h2{font:400 28px/1.15 Georgia,serif;margin:4px 0}.hero p{margin:2px 0;color:var(--muted);font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 15px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.rose{background:var(--rose);border-color:var(--rose);color:#fff}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:4px 0 10px}
+.kpi div{background:var(--beige);border-radius:12px;padding:8px 6px;text-align:center}.kpi b{display:block;font:400 18px Georgia,serif}.kpi span{font-size:11px;color:var(--muted)}
+details.meal{border-top:1px solid var(--line);padding:9px 0}details.meal:first-of-type{border-top:0}
+details.meal summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:8px;font-weight:600}
+details.meal summary::-webkit-details-marker{display:none}
+details.meal summary small{color:var(--muted);font-weight:400}details.meal summary .pv{display:block;font-size:13px;margin-top:2px;line-height:1.35}details.meal[open] summary .pv{display:none}
+.grp{margin:6px 0 0 0;font-size:14px}.grp .main{font-weight:500}.grp .alt{color:var(--muted);font-size:13px}
+.opt{font:600 11px Arial;color:var(--rose);letter-spacing:.06em;text-transform:uppercase;margin-top:8px}
+.daysel{display:flex;gap:4px;overflow-x:auto;margin:0 0 6px;padding-bottom:2px}.daysel button{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.daysel button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.agents{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
+.agents button{flex:none;border:1px solid var(--line);background:var(--beige);border-radius:12px;padding:8px 11px;font-size:13.5px;cursor:pointer;text-align:left}
+.agents button[aria-pressed=true]{background:var(--rose2);border-color:var(--rose);color:var(--rose)}
+textarea,.in{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.out{white-space:pre-wrap;background:var(--beige);border-radius:14px;padding:12px 14px;font-size:14.5px;margin-top:10px}
+.mail{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:11px 13px;margin:0 0 8px;cursor:pointer}
+.mail.un{border-left:3px solid var(--rose)}.mail .mh{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted)}.mail .ms{font-weight:600;margin-top:2px}.mail .mw{font-size:14px}
+.note{font-size:13px;color:var(--muted);margin:6px 2px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:90vw}
+.sheet{position:fixed;inset:0;z-index:15;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}
+.sheet>div{background:var(--bg);width:100%;max-width:720px;margin:0 auto;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:grid;gap:10px;max-height:90dvh;overflow:auto}
+.sheet h3{margin:0;font:400 20px Georgia,serif}
+.lock{max-width:420px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 60px) 24px 40px;display:grid;gap:14px}
+.lock h1{font:400 32px/1.1 Georgia,serif;margin:0}.lock h1 i{color:var(--rose)}
+.err{color:#B3261E;font-size:14px;min-height:1em}
+.back{border:0;background:none;color:var(--muted);padding:2px 0;cursor:pointer;font-size:14px}
+.empty{text-align:center;color:var(--muted);margin:40px 10px}
+.seg{display:flex;gap:6px;margin:4px 0 10px}.seg button{border:1px solid var(--line);background:none;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* NutriLab Pro: l'app del Dottore. Legge un pacchetto cifrato preparato da NutriLab; non può modificare i dati dei pazienti. */
+'use strict';
+const FN='https://uqpijskisejctcltmpdv.supabase.co/functions/v1/nl-pro';
+const LS={get:k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } },set:(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} },del:k=>{ try{ localStorage.removeItem(k); }catch(e){} }};
+const SS={get:k=>{ try{ return sessionStorage.getItem(k); }catch(e){ return null; } },set:(k,v)=>{ try{ sessionStorage.setItem(k,v); }catch(e){} }};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const b64e=u=>{ let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s); };
+const IC={cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',ppl:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg>',mail:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>',ref:'<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>',lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'};
+const A={key:'',K:null,D:null,at:'',tab:'ag',sel:null,q:'',inbox:null,ag:{},busy:'',past:false,day:{}};
+/* ---- chiave del dispositivo: arriva una volta dal link di NutriLab (#k=…) e resta sul telefono */
+(function(){ const m=location.hash.match(/k=([A-Za-z0-9]{20,64})/); if(m){ LS.set('nlpro_key',m[1]); history.replaceState(null,'',location.pathname); } A.key=LS.get('nlpro_key')||''; })();
+async function call(a,body){ const r=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json','x-pro-key':A.key},body:JSON.stringify({a,...(body||{})})});
+  const j=await r.json().catch(()=>({})); if(!r.ok){ const e=new Error(j.error||('http '+r.status)); e.status=r.status; e.j=j; throw e; } return j; }
+/* ---- cifratura: pacchetto = {w: sale+iv+chiave dati cifrata con la password, d: iv+dati cifrati con la chiave dati} */
+async function pwKey(pw,salt){ const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']); }
+async function openRaw(key,u){ return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:u.slice(0,12)},key,u.slice(12))); }
+async function unwrap(w,pw){ const u=b64d(w); return openRaw(await pwKey(pw,u.slice(0,16)),u.slice(16)); }
+async function openPack(blob,Kraw){ const P=JSON.parse(blob), K=await crypto.subtle.importKey('raw',Kraw,'AES-GCM',false,['decrypt']); let raw=await openRaw(K,b64d(P.d));
+  if(P.z) raw=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+  return JSON.parse(new TextDecoder().decode(raw)); }
+const savedK=()=>LS.get('nlpro_k')||SS.get('nlpro_k')||'';
+async function load(manual){ A.busy='load'; if(manual) render();
+  let blob=null; try{ const j=await call('pack'); blob=j.blob; if(blob) LS.set('nlpro_blob',blob); }
+  catch(e){ if(e.status===401){ LS.del('nlpro_key'); A.key=''; return render(); } blob=LS.get('nlpro_blob'); if(manual) toast(blob?'Senza rete: uso l\'ultima copia.':'Non riesco a collegarmi.'); }
+  A.busy='';
+  if(!blob){ A.D=null; return render(); }
+  const k=savedK(); if(!k){ A.blob=blob; return lockScreen(); }
+  try{ A.D=await openPack(blob,b64d(k)); A.blob=blob; }catch(e){ LS.del('nlpro_k'); A.blob=blob; return lockScreen('La chiave è cambiata: inserisci di nuovo la password.'); }
+  render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); }
+async function unlock(pw,rem){ try{ const P=JSON.parse(A.blob), K=await unwrap(P.w,pw); A.D=await openPack(A.blob,K); const s=b64e(K); if(rem) LS.set('nlpro_k',s); else SS.set('nlpro_k',s); render(); }
+  catch(e){ lockScreen('Password non corretta.'); } }
+/* ---- utilità */
+const ymd=d=>{ const x=new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+function dayLbl(d){ const t=new Date(); t.setHours(0,0,0,0); const x=new Date(d+'T00:00'), n=Math.round((x-t)/864e5); if(n===0) return 'Oggi'; if(n===1) return 'Domani'; if(n===-1) return 'Ieri'; return x.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}); }
+const pt=id=>A.D?.pts?.find(p=>p.id===id)||null;
+const ptByEm=em=>{ em=norm(em); return em?A.D?.pts?.find(p=>p.em===em)||null:null; };
+const wa=(ph,t)=>ph?`https://wa.me/${ph.replace('+','')}${t?`?text=${encodeURIComponent(t)}`:''}`:'';
+const prog=p=>!p?'':p.prog.t==='percorso'?'<span class="chip rose">Percorso</span>':p.prog.t==='pacchetto'?`<span class="chip ok">Pacchetto${p.prog.n?` · ${p.prog.done}/${p.prog.n}`:''}</span>`:'<span class="chip">Visite singole</span>';
+function toast(t){ $('.toast')?.remove(); const d=document.createElement('div'); d.className='toast'; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),3200); }
+/* ---- schermate di accesso */
+function lockScreen(msg){ $('#root').innerHTML=`<div class="lock"><span class="chip rose" style="justify-self:start">NutriLab Pro</span><h1>Il tuo studio <i>in tasca</i></h1>
+  <p class="muted">Inserisci la password che hai scelto in NutriLab (App dei pazienti → App professionista).</p>
+  <form id="pwf" style="display:grid;gap:12px"><input class="in" type="password" id="pw" autocomplete="current-password" placeholder="Password" aria-label="Password">
+  <label class="small"><input type="checkbox" id="rem" checked> Ricorda su questo telefono</label><div class="err">${esc(msg||'')}</div><button class="btn primary" type="submit" style="justify-content:center">Apri</button></form></div>`;
+  setTimeout(()=>$('#pw')?.focus(),60); }
+function keyScreen(){ $('#root').innerHTML=`<div class="lock"><span class="chip rose" style="justify-self:start">NutriLab Pro</span><h1>Collega <i>questo telefono</i></h1>
+  <p class="muted">Apri il link che trovi in NutriLab → App dei pazienti → App professionista → «Link per il telefono». Il link contiene la chiave del dispositivo e serve solo la prima volta.</p></div>`; }
+/* ---- agenda */
+function agenda(){ const D=A.D, today=ymd(Date.now()); if(!D.ap.length) return '<p class="empty">Niente in agenda nei prossimi 30 giorni.</p>';
+  const L=D.ap.filter(a=>A.past||a.s.slice(0,10)>=today); let h=A.past?'':`<button class="back" data-a="past">Mostra gli ultimi 7 giorni</button>`, day='';
+  for(const a of L){ const d=a.s.slice(0,10); if(d!==day){ day=d; h+=`<div class="day">${esc(dayLbl(d))}</div>`; } const p=pt(a.pid);
+    const ch=[a.pay?'<span class="chip warn">da pagare</span>':'',/prima/i.test(a.t)?'<span class="chip rose">prima visita</span>':'',/conosc|chiam/i.test(a.t)&&!a.call?'<span class="chip">chiamata</span>':'',p?prog(p):'<span class="chip">non in cartella</span>'].join('');
+    h+=`<button class="ap${d<today?' past':''}" data-a="ap" data-id="${esc(a.id)}"><span class="tm">${a.s.slice(11,16)}${a.dur?`<small>${a.dur} min</small>`:''}</span><span class="wh"><b>${esc(a.n||'Senza nome')}</b><span>${esc(a.t)}${a.sede?` · ${esc(a.sede)}`:''}</span><span class="chips">${ch}</span></span></button>`; }
+  return h; }
+function people(){ const q=norm(A.q), L=(A.D.pts||[]).filter(p=>!q||norm(p.n).includes(q)).sort((a,b)=>String(b.lv?.d||'').localeCompare(String(a.lv?.d||''))).slice(0,q?60:30);
+  return `<input class="search" type="search" data-f="q" placeholder="Cerca un paziente" value="${esc(A.q)}" aria-label="Cerca un paziente">`+(L.map(p=>`<button class="ap" data-a="pt" data-id="${esc(p.id)}"><span class="wh"><b>${esc(p.n)}</b><span>${p.lv?.d?`ultima visita ${new Date(p.lv.d).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})}`:'nessuna visita'}${p.plan?' · piano':''}</span><span class="chips">${prog(p)}</span></span></button>`).join('')||'<p class="empty">Nessun paziente.</p>'); }
+async function loadInbox(){ A.inbox={busy:1}; render(); try{ const j=await call('inbox'); A.inbox={L:j.L||[],at:Date.now()}; }catch(e){ A.inbox={L:[],err:e.message==='no_mail_token'?'Per vedere la posta di info@ serve il segreto HOSTINGER_MAIL_API_TOKEN in Supabase (vedi NutriLab → App professionista).':'Posta non raggiungibile ('+e.message+').'}; } render(); }
+function mailRow(m){ const p=ptByEm(m.from), d=m.date?new Date(m.date):null;
+  return `<button class="mail${m.unseen?' un':''}" ${p?`data-a="pt" data-id="${esc(p.id)}"`:'data-a="none"'}><span class="mh"><span>${p?`<b style="color:var(--ink)">${esc(p.n)}</b>`:esc(m.name||m.from)}</span><span>${d?d.toLocaleDateString('it-IT',{day:'numeric',month:'short'}):''}</span></span><span class="ms">${esc(m.subj||'(senza oggetto)')}</span>${m.att?`<span class="small muted">📎 ${m.att} allegat${m.att>1?'i':'o'}</span>`:''}</button>`; }
+function inbox(){ const I=A.inbox; if(!I){ setTimeout(loadInbox,0); return '<p class="empty">Carico la posta…</p>'; } if(I.busy) return '<p class="empty">Carico la posta…</p>';
+  return `<p class="note">Casella info@nutrizionistaspina.it · tocca un paziente per aprire la sua scheda.</p>${I.err?`<div class="card small">${esc(I.err)}</div>`:''}${I.L.map(mailRow).join('')||(I.err?'':'<p class="empty">Nessuna email.</p>')}`; }
+/* ---- scheda */
+function planCard(p){ const pl=p.plan; if(!pl) return `<div class="card"><h2><span class="lbl">Piano</span></h2><p class="muted small">Nessun piano ancora.</p></div>`;
+  const n=v=>v==null?'–':v, days=pl.full?.d||[], di=Math.min(A.day[p.id]||0,Math.max(0,days.length-1)), dd=days[di];
+  const meals=(dd?.[1]||[]).map(([ml,tm,groups])=>`<details class="meal"><summary><span>${esc(ml)}<small class="pv">${esc((groups[0]||[]).map(sl=>sl[0]).join(', '))}${groups.length>1?` · ${groups.length} opzioni`:''}</small></span><small>${esc(tm||'')}</small></summary>
+     ${groups.map((g,gi)=>`${groups.length>1?`<div class="opt">Opzione ${gi+1}</div>`:''}${g.map(sl=>`<div class="grp"><span class="main">${esc(sl[0])}</span>${sl.length>1?`<div class="alt">oppure ${esc(sl.slice(1).join(' · '))}</div>`:''}</div>`).join('')}`).join('')}</details>`).join('');
+  return `<div class="card"><h2><span class="lbl">Piano</span> ${esc(pl.n)}</h2>
+   <div class="kpi"><div><b>${n(pl.k)}</b><span>kcal${pl.gk?` / ${pl.gk}`:''}</span></div><div><b>${n(pl.c)}</b><span>carbo g</span></div><div><b>${n(pl.pr)}</b><span>prot g</span></div><div><b>${n(pl.f)}</b><span>grassi g</span></div><div><b>${n(pl.fi)}</b><span>fibra g</span></div></div>
+   ${days.length>1?`<div class="daysel">${days.map((d,i)=>`<button data-a="day" data-id="${esc(p.id)}" data-i="${i}" aria-pressed="${i===di}">${esc(d[0])}</button>`).join('')}</div>`:''}
+   ${meals||'<p class="muted small">Pasti non compilati.</p>'}
+   ${pl.ex?.length?`<p class="kv"><b>Esclusioni</b>${esc(pl.ex.join(', '))}</p>`:''}${pl.su?.length?`<p class="kv"><b>Integratori</b>${esc(pl.su.join(', '))}</p>`:''}${pl.goal?`<p class="kv"><b>Obiettivo</b>${esc(pl.goal)}${p.lv?.w?` · ultimo peso ${esc(p.lv.w)} kg`:''}</p>`:''}</div>`; }
+const AGS=[['chiamata','Prepara la chiamata'],['risposta','Rispondi a un messaggio'],['caso','Il caso in breve'],['piano','Spiega il piano'],['libera','Domanda libera']];
+function agentCard(p){ const S=A.ag[p.id]||(A.ag[p.id]={k:p.plan?'risposta':'chiamata',q:'',out:'',busy:false}), need=S.k==='risposta'||S.k==='libera';
+  return `<div class="card"><h2><span class="lbl">Agenti</span></h2><p class="note" style="margin-top:-4px">Solo lettura: leggono la scheda e rispondono a te, non cambiano nulla.</p>
+   <div class="agents">${AGS.map(([k,l])=>`<button data-a="agk" data-id="${esc(p.id)}" data-k="${k}" aria-pressed="${S.k===k}">${l}</button>`).join('')}</div>
+   ${need?`<textarea rows="3" data-f="agq" data-id="${esc(p.id)}" placeholder="${S.k==='risposta'?'Incolla il messaggio del paziente':'Scrivi la domanda'}">${esc(S.q)}</textarea>`:''}
+   <div class="acts" style="margin:8px 0 0"><button class="btn primary" data-a="ask" data-id="${esc(p.id)}"${S.busy?' disabled':''}>${S.busy?'Ci penso…':'Chiedi'}</button>${S.out?`<button class="btn" data-a="cp" data-id="${esc(p.id)}">Copia</button>${S.k==='risposta'&&p.ph?`<a class="btn" href="${esc(wa(p.ph,S.out.split(/\n\s*\n/)[0]))}" target="_blank" rel="noopener">WhatsApp</a>`:''}`:''}</div>
+   ${S.out?`<div class="out">${esc(S.out)}</div>`:''}</div>`; }
+function sendCard(p,a){ const em=p?.em||a?.em, ph=p?.ph||a?.ph, k=A.bro||(A.D.bro[0]?.k), sent=(a?.bro||[]);
+  const appMsg=p?.app?`Buongiorno ${p.f}, ecco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.`:'';
+  return `<div class="card"><h2><span class="lbl">Manda</span></h2>
+   <select class="in" data-f="bro" aria-label="Brochure">${A.D.bro.map(b=>`<option value="${esc(b.k)}"${b.k===k?' selected':''}>${esc(b.l)}</option>`).join('')}</select>
+   <div class="acts"><button class="btn" data-a="broMail" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}"${em&&A.busy!=='bro'?'':' disabled'}>${A.busy==='bro'?'Invio…':'Brochure per email'}</button><button class="btn" data-a="broShare">WhatsApp / Telegram</button></div>
+   ${sent.length?`<p class="note">Già mandata: ${sent.map(s=>esc(A.D.bro.find(b=>b.k===s.k)?.l||s.k)).join(', ')}</p>`:''}
+   ${p?.app?`<p class="kv"><b>App del percorso</b></p><div class="acts" style="margin-top:4px">${ph?`<a class="btn" href="${esc(wa(ph,appMsg))}" target="_blank" rel="noopener">Link dell'app su WhatsApp</a>`:''}<button class="btn" data-a="appMail" data-id="${esc(p.id)}"${em?'':' disabled'}>Per email</button></div>`:''}</div>`; }
+function preCard(p,a){ const L=[]; if(a?.note) L.push(['Nota',a.note]); if(a?.pre) L.push(['Dal sito',a.pre]);
+  if(p){ for(const x of p.site||[]) L.push(['Dal sito',x.t]); for(const [l,v] of p.form||[]) L.push([l,v]); }
+  const brief=p?.brief||[];
+  return `<div class="card"><h2><span class="lbl">Prima della chiamata</span></h2>${brief.length?brief.map(x=>`<p class="kv" style="margin:3px 0">${esc(x)}</p>`).join(''):''}${L.map(([l,v])=>`<p class="kv"><b>${esc(l)}</b>${esc(v)}</p>`).join('')}${!brief.length&&!L.length?'<p class="muted small">Nessuna informazione: chiedi motivo, obiettivo, diete già provate, salute e farmaci.</p>':''}</div>`; }
+function mailsOf(em){ const I=A.inbox; if(!I||I.busy||!em) return ''; const L=(I.L||[]).filter(m=>norm(m.from)===em).slice(0,5); return L.length?`<div class="card"><h2><span class="lbl">Email ricevute</span></h2>${L.map(mailRow).join('')}</div>`:''; }
+function sheetCard(){ const s=A.sel; const a=s.a?A.D.ap.find(x=>x.id===s.a):null, p=s.p?pt(s.p):(a?.pid?pt(a.pid):null); if(!a&&!p) return '<p class="empty">Non trovato.</p>';
+  const name=p?.n||a?.n||'Senza nome', em=p?.em||a?.em, ph=p?.ph||a?.ph, next=A.D.ap.find(x=>(p&&x.pid===p.id)||(a&&x.id===a.id));
+  return `<button class="back" data-a="back">‹ Indietro</button><div class="hero"><div class="chips">${prog(p)}</div><h2>${esc(name)}</h2>${next?`<p>${esc(dayLbl(next.s.slice(0,10)))}, ${next.s.slice(11,16)} · ${esc(next.t)}${next.sede?` · ${esc(next.sede)}`:''}</p>`:''}</div>
+   <div class="acts">${ph?`<a class="btn primary" href="tel:${esc(ph)}">Chiama</a><a class="btn" href="${esc(wa(ph))}" target="_blank" rel="noopener">WhatsApp</a>`:''}${em?`<button class="btn" data-a="compose" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}">Email</button>`:''}</div>
+   ${preCard(p,a)}${p?planCard(p):''}${p?agentCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
+/* ---- disegno */
+function render(){ if(!A.key) return keyScreen(); if(!A.D){ if(A.busy==='load'||!A.blob&&A.busy!=='') return $('#root').innerHTML='<p class="empty">Carico…</p>'; if(A.blob) return lockScreen(); $('#root').innerHTML=`<div class="lock"><h1>Nessun dato</h1><p class="muted">NutriLab non ha ancora preparato il pacchetto: apri NutriLab e premi «Aggiorna adesso».</p><button class="btn" data-a="reload">Riprova</button></div>`; return; }
+  const y=window.scrollY, foc=document.activeElement?.dataset?.f, unseen=(A.inbox?.L||[]).filter(m=>m.unseen).length;
+  const title=A.sel?'':A.tab==='ag'?'Agenda':A.tab==='pz'?'Pazienti':'Posta', sub=A.D.at?`aggiornato ${new Date(A.D.at).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:'';
+  $('#root').innerHTML=`<header class="top"><h1>${A.sel?'Scheda':title}<small>${esc(sub)}</small></h1><button class="ib" data-a="reload" aria-label="Aggiorna" title="Aggiorna">${IC.ref}</button><button class="ib" data-a="lock" aria-label="Blocca" title="Blocca">${IC.lock}</button></header>
+   <main>${A.busy==='load'?'<p class="note">Aggiorno…</p>':''}${A.sel?sheetCard():A.tab==='ag'?agenda():A.tab==='pz'?people():inbox()}</main>
+   <nav class="tabs">${[['ag','Agenda',IC.cal],['pz','Pazienti',IC.ppl],['ml','Posta',IC.mail]].map(([k,l,i])=>`<button data-a="tab" data-k="${k}"${!A.sel&&A.tab===k?' aria-current="page"':''}>${i}<span>${l}</span>${k==='ml'&&unseen?`<span class="badge">${unseen}</span>`:''}</button>`).join('')}</nav>`;
+  if(A.keepY) window.scrollTo(0,y); else window.scrollTo(0,0); A.keepY=false;
+  if(foc){ const f=document.querySelector(`[data-f="${foc}"]`); if(f){ f.focus(); try{ f.setSelectionRange(f.value.length,f.value.length); }catch(e){} } } }
+/* ---- invii (solo a pazienti in elenco; partono da noreply con risposta a info@) */
+async function broMail(p,a){ const em=p?.em||a?.em, k=A.bro||A.D.bro[0]?.k, b=A.D.bro.find(x=>x.k===k), f=(p?.f||(a?.n||'').split(' ')[0]||'');
+  A.busy='bro'; A.keepY=true; render();
+  try{ await call('send',{to:em,k,subj:`La brochure di cui abbiamo parlato · ${A.D.studio.nome}`,body:`Gentile ${f||'paziente'},\n\ncome d'accordo le mando in allegato la brochure «${b?.l||''}»: trova le fasi, che cosa comprende e il costo mensile.\n\nSe ha domande può rispondere a questa email${A.D.studio.tel?` o chiamare il ${A.D.studio.tel}`:''}.\n\n${A.D.studio.nome}`}); toast('Brochure in partenza.'); }
+  catch(e){ toast(e.message==='not_patient'?'Questo indirizzo non è tra i pazienti di NutriLab.':e.message==='too_many'?'Troppi invii oggi.':'Invio non riuscito.'); }
+  A.busy=''; A.keepY=true; render(); }
+async function broShare(){ const k=A.bro||A.D.bro[0]?.k; try{ const j=await call('file',{k}); const file=new File([b64d(j.b64)],j.nome,{type:'application/pdf'});
+    if(navigator.canShare?.({files:[file]})) await navigator.share({files:[file]}); else { const u=URL.createObjectURL(file), l=document.createElement('a'); l.href=u; l.download=j.nome; l.click(); setTimeout(()=>URL.revokeObjectURL(u),6e4); toast('PDF scaricato: allegalo in chat.'); } }
+  catch(e){ if(e?.name!=='AbortError') toast('Brochure non disponibile.'); } }
+function compose(p,a,pre){ const em=p?.em||a?.em; if(!em) return; const d=document.createElement('div'); d.className='sheet';
+  d.innerHTML=`<div role="dialog" aria-label="Email"><h3>Email a ${esc(p?.n||a?.n||em)}</h3><input class="in" id="msu" placeholder="Oggetto" value="${esc(pre?.s||'')}"><textarea id="mbo" rows="8" placeholder="Testo">${esc(pre?.b||'')}</textarea><p class="note">Parte da noreply@nutrizionistaspina.it; le risposte arrivano a info@.</p><div class="acts"><button class="btn primary" id="msend">Invia</button><button class="btn" id="mclose">Annulla</button></div></div>`;
+  document.body.appendChild(d); d.addEventListener('click',async e=>{ if(e.target===d||e.target.id==='mclose') return d.remove();
+    if(e.target.id==='msend'){ const su=$('#msu').value.trim(), bo=$('#mbo').value.trim(); if(!su||!bo) return toast('Scrivi oggetto e testo.'); e.target.disabled=true;
+      try{ await call('send',{to:em,subj:su,body:bo}); d.remove(); toast('Email in partenza.'); }catch(er){ e.target.disabled=false; toast(er.message==='not_patient'?'Indirizzo non tra i pazienti.':'Invio non riuscito.'); } } }); }
+async function ask(p){ const S=A.ag[p.id]; if((S.k==='risposta'||S.k==='libera')&&!S.q.trim()) return toast(S.k==='risposta'?'Incolla il messaggio del paziente.':'Scrivi la domanda.');
+  S.busy=true; S.out=''; A.keepY=true; render();
+  try{ const j=await call('ask',{agent:S.k,ctx:p.ctx,q:S.q}); S.out=j.text||'(nessuna risposta)'; }
+  catch(e){ S.out=e.message==='no_key'?'Gli agenti si attivano con il segreto ANTHROPIC_API_KEY in Supabase (vedi NutriLab → App professionista).':'Agente non raggiungibile ('+e.message+').'; }
+  S.busy=false; A.keepY=true; render(); }
+document.addEventListener('submit',e=>{ if(e.target.id==='pwf'){ e.preventDefault(); unlock($('#pw').value,$('#rem').checked); } });
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(!b||b.tagName==='A') return; const k=b.dataset.a, id=b.dataset.id;
+  if(k==='tab'){ A.tab=b.dataset.k; A.sel=null; render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); return; }
+  if(k==='ap'){ A.sel={a:id}; if(!A.inbox) loadInbox(); return render(); } if(k==='pt'){ A.sel={p:id}; if(!A.inbox) loadInbox(); return render(); } if(k==='back'){ A.sel=null; return render(); }
+  if(k==='past'){ A.past=true; return render(); } if(k==='reload'){ A.inbox=null; return load(true); }
+  if(k==='lock'){ LS.del('nlpro_k'); try{ sessionStorage.removeItem('nlpro_k'); }catch(e){} A.D=null; return lockScreen(); }
+  if(k==='day'){ A.day[id]=+b.dataset.i; A.keepY=true; return render(); }
+  if(k==='agk'){ A.ag[id].k=b.dataset.k; A.ag[id].out=''; A.keepY=true; return render(); }
+  if(k==='ask'){ const p=pt(id); if(p) ask(p); return; }
+  if(k==='cp'){ navigator.clipboard?.writeText(A.ag[id].out).then(()=>toast('Copiato')).catch(()=>toast('Seleziona e copia')); return; }
+  const p=id?pt(id):null, a=b.dataset.ap?A.D.ap.find(x=>x.id===b.dataset.ap):null;
+  if(k==='broMail') return broMail(p,a); if(k==='broShare') return broShare();
+  if(k==='compose') return compose(p,a);
+  if(k==='appMail'&&p?.app) return compose(p,null,{s:`La sua app del percorso · ${A.D.studio.nome}`,b:`Buongiorno ${p.f},\n\necco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.\n\n${A.D.studio.nome}`}); });
+document.addEventListener('input',e=>{ const f=e.target.dataset?.f; if(!f) return; if(f==='q'){ A.q=e.target.value; A.keepY=true; render(); } else if(f==='agq'){ A.ag[e.target.dataset.id].q=e.target.value; } });
+document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.target.value; });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
+if(A.key){ A.lastLoad=Date.now(); A.busy='load'; render(); load(false); } else render();
+</script>
+</body>
+</html>
