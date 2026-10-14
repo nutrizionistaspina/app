@@ -630,6 +630,16 @@ function hdLinkSend(){ const u=($('#hdlink')?.value||'').trim(), t=($('#hdlt')?.
     .catch(e=>{ HD.err='Non riesco a collegarmi: riprova.'; }).finally(()=>{ HD.busy=''; render(); }); }
 
 /* ---- assistente: risponde solo con i dati del pacchetto; altrimenti rimanda al Dottore */
+const clean1=s=>String(s||'').replace(/^[^\p{L}\d]+/u,'').trim();
+const BOT_STOP=new Set('quanto quanta quanti quante quale quali quando dove come cosa perche posso devo dovrei vorrei sempre ancora molto tutto tutti tutte questa questo quella quello della delle degli dello nella nelle negli sono stato stata fare faccio fatto avere essere anche dopo prima oggi domani piano dottore mangiare mangio consigli consiglio consigliare consigliami grazie salve buongiorno buonasera devo sono come cosa dove fare bene male oggi ieri poco dopo ogni quel quei cose posso puoi vuoi'.split(' '));
+const botStem=w=>w.length>=7?w.slice(0,-3):w.length>=5?w.slice(0,-1):w;
+function tipSections(){ const L=[]; for(const t of A.P.edu||[]) L.push({h:String(t[0]||''),b:String(t[1]||'')});
+  for(const blk of String(A.P.pl?.note||'').split(/\n\s*\n/)){ const ls=blk.trim().split('\n').map(x=>x.trim()).filter(Boolean); if(!ls.length) continue;
+    const isH=ls.length>1&&ls[0]===ls[0].toUpperCase()&&ls[0].length<45; L.push({h:isH?ls[0]:'',b:(isH?ls.slice(1):ls).join(' ')}); }
+  return L; }
+function bestTip(n){ const W=[...new Set(n.split(/[^a-z]+/).filter(w=>w.length>=4&&!BOT_STOP.has(w)).map(botStem))]; if(!W.length) return null;
+  let best=null,score=0; for(const sct of tipSections()){ const H=norm(sct.h), B=norm(sct.b); let sc=0; for(const w of W){ if(H.includes(w)) sc+=3; else if(new RegExp('(^|[^a-z])'+w).test(B)) sc+=1; } if(sc>score){ score=sc; best=sct; } }
+  return score>=3||(score>=2&&W.length<=3)?best:null; }
 function allSlots(){ const out=[]; for(const [dn,meals] of A.P.pl?.d||[]) for(const [ml,,groups] of meals) for(const g of groups) for(const sl of g) out.push({dn,ml,sl}); return out; }
 function answer(q){ const n=norm(q), up=upcoming(), next=up[0];
   if(/spost|disdic|annull|non riesco a venire|cambiare (la )?(data|visita)/.test(n)) return {t:next?`${AMB().disdette} Ti preparo già il messaggio per la visita di ${longDay(next)} alle ${hm(next)}.`:`${AMB().disdette}`,logi:1,wa:wa(next?`Buongiorno, devo spostare la visita di ${longDay(next)} alle ${hm(next)}. ${A.P.pz?.full||''}`:'Buongiorno, vorrei fissare un appuntamento.')};
@@ -647,20 +657,26 @@ function answer(q){ const n=norm(q), up=upcoming(), next=up[0];
   if(/prossim|quando .*visita|appuntament|controllo/.test(n)&&!/integr/.test(n)) return {t:next?`La prossima visita è ${longDay(next)} alle ${hm(next)}: ${next.t.toLowerCase()}, ${where(next).toLowerCase().startsWith('in video')?'in videochiamata':'presso '+where(next)}.`+(up[1]?` La successiva è ${longDay(up[1])} alle ${hm(up[1])}.`:''):'Non hai visite in programma. Vuoi scrivere al Dottore per fissarla?',wa:next?'':wa('Buongiorno, vorrei fissare il prossimo appuntamento.')};
   if(/dove|indirizz|sede|parchegg|come arriv/.test(n)) return {t:next?`${where(next)}.`+(mapLink(next)?' Trovi le indicazioni nella scheda della visita in Oggi.':''):'Non ho visite in programma da cui prendere l\'indirizzo.'};
   const meal=[['colazione','Colazione'],['spuntino','Spuntino'],['pranzo','Pranzo'],['merenda','Merenda'],['cena','Cena']].find(([k])=>n.includes(k));
+  if(/ricett|cosa (posso )?cucin|un.?idea per/.test(n)){ const h=new Date().getHours(), mk=meal?meal[0]:(h<11?'colazione':h<15?'pranzo':'cena'), dp=dayPlan((new Date().getDay()+6)%7), m=dp&&dp[1].find(x=>norm(x[0]).includes(mk));
+    const mats=(A.P.mat||[]).filter(x=>/ricett/i.test(x.t||'')), more=mats.length?` Ricette complete in Piano › Materiali: ${mats.map(x=>x.t).join(', ')}.`:'';
+    if(m){ const g=m[2][Math.floor(Math.random()*m[2].length)], its=g.map(sl=>clean1(sl[0])); return {t:`Un'idea con il tuo piano per ${m[0].toLowerCase()}: ${its.join(', ')}. ${mk==='colazione'||mk==='spuntino'||mk==='merenda'?'Puoi unirli in una ciotola.':'Puoi unirli in un piatto unico, con le cotture indicate dal Dottore.'}${more}`}; }
+    if(mats.length) return {t:more.trim()}; }
+  if(/sport|allenam|palestr|attivita fisica|movimento|camminat|passi|corsa|correre|esercizi/.test(n)){ const hab=(A.P.gm?.ab||[]).map(x=>String(x).trim()).filter(x=>/pass|cammin|allen|sport|attiv|esercizi|scale|bici|nuot/i.test(x)), sheet=((typeof hdGet==='function'?hdGet():{}).sent||[]).length;
+    return {t:`${hab.length?`Tra gli obiettivi concordati con il Dottore: ${hab.join('; ')}. `:''}Il piano alimentare non dice quanto sport fare: ${hab.length?'il resto lo decidi':'la quantità giusta per te la decidi'} con il Dottore in visita${sheet?' (ha già la tua scheda di allenamento)':''}.`,wa:wa(`Buongiorno, quanta attività fisica dovrei fare? ${A.P.pz?.full||''}`)}; }
   const sub=n.match(/(?:al posto (?:del|della|dello|dei|delle|degli|di)|invece (?:del|della|dello|dei|delle|di)|sostituire|sostituisco|alternativ[ae] (?:al|alla|allo|ai|alle|a)|cambiare)\s+(?:il |la |lo |i |le |gli |l')?([a-zà-ù' ]{3,})/);
   if(sub){ const w=sub[1].trim().split(' ')[0].replace(/i$|e$|a$|o$/,''); const hits=allSlots().filter(x=>x.sl.some(s=>norm(s).includes(w)));
     if(hits.length){ const h=hits[0], alt=h.sl.filter(s=>!norm(s).includes(w)); return {t:alt.length?`Nel tuo piano, a ${h.ml.toLowerCase()} puoi sostituirlo con: ${alt.join(', ')}. Queste alternative hanno valori simili.`:`Nel piano non c'è un'alternativa indicata per questo alimento a ${h.ml.toLowerCase()}. Chiedi al Dottore prima di cambiarlo.`,wa:alt.length?'':wa(`Buongiorno, nel piano posso sostituire "${hits[0].sl[0]}"? ${A.P.pz?.full||''}`)}; }
     return {t:'Questo alimento non è nel tuo piano: per sostituzioni diverse da quelle indicate chiedi al Dottore.',wa:wa(`Buongiorno, avrei una domanda sul piano: ${q}`)}; }
   if(meal||/mangio|mangiare oggi|menu|menù|cosa .*oggi/.test(n)){ const di=/domani/.test(n)?((new Date().getDay())%7):(new Date().getDay()+6)%7, dp=dayPlan(di); if(dp){ const ms=meal?dp[1].filter(m=>norm(m[0]).includes(meal[0])):dp[1];
-      if(ms.length) return {t:ms.map(m=>`${m[0]}${m[1]?' ('+m[1]+')':''}: `+m[2].map((g,gi)=>(m[2].length>1?`opzione ${gi+1}: `:'')+g.map(sl=>sl[0]+(sl.length>1?` (oppure ${sl.slice(1).join(', ')})`:'')).join('; ')).join(' — ')).join('\n')}; } }
+      if(ms.length){ const withAlt=ms.flatMap(m=>m[2].flat()).find(sl=>sl.length>1);
+        return {t:ms.map(m=>`${m[0]}${m[1]?' ('+m[1]+')':''}:\n`+m[2].map((g,gi)=>(m[2].length>1?`Opzione ${gi+1}: `:'')+g.map(sl=>sl[0]+(sl.length>1?` (o ${sl.length-1} alternativ${sl.length>2?'e':'a'})`:'')).join(', ')).join('\n')).join('\n\n')
+          +(withAlt?`\n\nPer vedere le alternative chiedi, per esempio: «alternative a ${clean1(withAlt[0]).split(' ')[0].toLowerCase()}».`:'')}; } } }
   const sups=A.P.sup||[], sh=sups.find(s=>norm(s.n).split(/\s+/).some(w=>w.length>3&&n.includes(w)));
   if(/integrator|vitamin|magnesio|omega|probiotic|prendo|assumere/.test(n)||sh){ const list=sh?[sh]:sups; if(list.length) return {t:list.map(s=>`${s.n}: ${[s.d,s.w&&('quando: '+s.w)].filter(Boolean).join(', ')}.`).join('\n')+(sh?'':'\nPer integratori diversi da questi chiedi prima al Dottore.')}; }
   const it=(A.P.int||[]).find(x=>norm(x.m).split(/\s+/).some(w=>w.length>3&&n.includes(w)));
   if(it) return {t:`${it.m}: ${it.a}`};
   if(/farmac|medicin|pillol|interazion/.test(n)) return {t:'Per farmaci e interazioni non indicati qui serve il parere del Dottore o del tuo medico.',wa:wa(`Buongiorno, avrei una domanda su un farmaco: ${q}`)};
-  const words=n.split(/[^a-zà-ù]+/).filter(w=>w.length>4); const tips=[...(A.P.edu||[]).map(t=>t[0]+'. '+t[1]),A.P.pl?.note||''].filter(Boolean);
-  let best=null,score=0; for(const t of tips){ const s=words.filter(w=>norm(t).includes(w.slice(0,-1))).length; if(s>score){ score=s; best=t; } }
-  if(best) return {t:`Tra le indicazioni del Dottore: ${best}`};
+  const tip=bestTip(n); if(tip) return {t:`Dalle indicazioni del Dottore${tip.h?` (${tip.h.charAt(0)+tip.h.slice(1).toLowerCase()})`:''}: ${tip.b.length>450?tip.b.slice(0,440).replace(/\s\S*$/,'')+'…':tip.b}`};
   return null; }
 /* ---- limiti dell'assistente: domande al giorno, risposte con Claude al giorno, lunghezza massima, una domanda ogni pochi secondi.
    I limiti li fissa il Dottore in NutriLab (pacchetto «lim»); il conteggio è sul telefono e si azzera a mezzanotte */
