@@ -33,10 +33,23 @@ async function start(){
     if(fine) return show(`<h1>Pagamento non completato</h1>${vis(d)}<p>Non risulta ancora un pagamento. Se ha appena pagato attenda qualche minuto: riceverà l'email di conferma. Altrimenti può riprovare.</p><a class="btn" href="${esc(d.url)}">Riprova il pagamento</a>`);
     return show(`<h1>Conferma della visita</h1>${vis(d)}<p>Il pagamento avviene sulla pagina sicura di SumUp: carta, Apple Pay o Google Pay.</p><a class="btn" href="${esc(d.url)}">Paga ${eur(d.importo)}</a>${rate(d)}`);
   }
+  if(['serve_cf','cf_non_valido','indirizzo_mancante'].includes(d.stato)) return fattForm(d);
   if(d.stato==='annullato'||d.stato==='scaduto') return show(`<h1>Richiesta non più valida</h1>${vis(d)}<p>Questa richiesta di pagamento è stata chiusa.</p>`+contatti);
   if(d.stato==='credito'||d.stato==='rimborsato') return show(`<h1>Nessun pagamento da fare</h1>${vis(d)}`+contatti);
   if(d.stato==='non_trovato') return show('<h1>Richiesta non trovata</h1><p>Controlli di aver aperto il link completo ricevuto per email.</p>'+contatti);
   show('<h1>Pagamento non disponibile</h1><p>In questo momento la pagina di pagamento non risponde: riprovi tra qualche minuto.</p><button class="btn" onclick="location.reload()">Riprova</button>'+contatti);
 }
+/* dati per la fattura: servono prima di pagare (la fattura sanitaria va intestata e comunicata al Sistema Tessera Sanitaria) */
+function fattForm(d,msg){ const m=msg||(d.stato==='cf_non_valido'?'Il codice fiscale non sembra corretto: controlli le 16 lettere e cifre.':d.stato==='indirizzo_mancante'?'Scriva l\'indirizzo completo: via, numero, CAP e città.':'');
+  show(`<h1>Dati per la fattura</h1>${vis(d)}<p>Servono per intestarle la fattura della visita, che riceverà dopo il pagamento.</p>
+   <form id="ff" style="display:grid;gap:10px;text-align:left;margin-top:8px"><label>Codice fiscale<input id="fcf" maxlength="16" autocapitalize="characters" autocomplete="off" required style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit;text-transform:uppercase"></label>
+   <label>Indirizzo di residenza (via, numero, CAP, città)<input id="find" maxlength="200" autocomplete="street-address" required style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit"></label>
+   ${m?`<p style="color:#b3261e;margin:0">${esc(m)}</p>`:''}<button class="btn" type="submit">Continua al pagamento</button></form>
+   <small style="margin-top:10px">Il codice fiscale si usa solo per la fattura e per la comunicazione al Sistema Tessera Sanitaria, a cui può opporsi chiedendolo allo studio.</small>`);
+  document.getElementById('ff').addEventListener('submit',async e=>{ e.preventDefault(); const cf=document.getElementById('fcf').value.trim().toUpperCase().replace(/\s+/g,''), ind=document.getElementById('find').value.trim();
+    if(!/^[A-Z0-9]{16}$/.test(cf)) return fattForm(d,'Il codice fiscale ha 16 caratteri tra lettere e cifre.'); if(ind.length<8) return fattForm(d,'Scriva l\'indirizzo completo: via, numero, CAP e città.');
+    show('<div class="sp"></div><p>Un momento…</p>'); const r=await call('sumup-paga',{booking_id:id,cf,ind});
+    if(r.stato==='da_pagare'&&r.url) return show(`<h1>Conferma della visita</h1>${vis(r)}<p>Il pagamento avviene sulla pagina sicura di SumUp: carta, Apple Pay o Google Pay.</p><a class="btn" href="${esc(r.url)}">Paga ${eur(r.importo)}</a>${rate(r)}`);
+    if(['cf_non_valido','indirizzo_mancante','serve_cf'].includes(r.stato)) return fattForm(r); start(); }); }
 start();
 </script></body></html>
