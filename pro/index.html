@@ -61,9 +61,6 @@ details.meal summary small{color:var(--muted);font-weight:400}details.meal summa
 .grp{margin:6px 0 0 0;font-size:14px}.grp .main{font-weight:500}.grp .alt{color:var(--muted);font-size:13px}
 .opt{font:600 11px Arial;color:var(--rose);letter-spacing:.06em;text-transform:uppercase;margin-top:8px}
 .daysel{display:flex;gap:4px;overflow-x:auto;margin:0 0 6px;padding-bottom:2px}.daysel button{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.daysel button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.agents{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
-.agents button{flex:none;border:1px solid var(--line);background:var(--beige);border-radius:12px;padding:8px 11px;font-size:13.5px;cursor:pointer;text-align:left}
-.agents button[aria-pressed=true]{background:var(--rose2);border-color:var(--rose);color:var(--rose)}
 textarea,.in{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
 .out{white-space:pre-wrap;background:var(--beige);border-radius:14px;padding:12px 14px;font-size:14.5px;margin-top:10px}
 .mail{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:11px 13px;margin:0 0 8px;cursor:pointer}
@@ -158,13 +155,6 @@ function planCard(p){ const pl=p.plan; if(!pl) return `<div class="card"><h2><sp
    ${days.length>1?`<div class="daysel">${days.map((d,i)=>`<button data-a="day" data-id="${esc(p.id)}" data-i="${i}" aria-pressed="${i===di}">${esc(d[0])}</button>`).join('')}</div>`:''}
    ${meals||'<p class="muted small">Pasti non compilati.</p>'}
    ${pl.ex?.length?`<p class="kv"><b>Esclusioni</b>${esc(pl.ex.join(', '))}</p>`:''}${pl.su?.length?`<p class="kv"><b>Integratori</b>${esc(pl.su.join(', '))}</p>`:''}${pl.goal?`<p class="kv"><b>Obiettivo</b>${esc(pl.goal)}${p.lv?.w?` · ultimo peso ${esc(p.lv.w)} kg`:''}</p>`:''}</div>`; }
-const AGS=[['chiamata','Prepara la chiamata'],['risposta','Rispondi a un messaggio'],['caso','Il caso in breve'],['piano','Spiega il piano'],['libera','Domanda libera']];
-function agentCard(p){ const S=A.ag[p.id]||(A.ag[p.id]={k:p.plan?'risposta':'chiamata',q:'',out:'',busy:false}), need=S.k==='risposta'||S.k==='libera';
-  return `<div class="card"><h2><span class="lbl">Agenti</span></h2><p class="note" style="margin-top:-4px">Solo lettura: leggono la scheda e rispondono a te, non cambiano nulla.</p>
-   <div class="agents">${AGS.map(([k,l])=>`<button data-a="agk" data-id="${esc(p.id)}" data-k="${k}" aria-pressed="${S.k===k}">${l}</button>`).join('')}</div>
-   ${need?`<textarea rows="3" data-f="agq" data-id="${esc(p.id)}" placeholder="${S.k==='risposta'?'Incolla il messaggio del paziente':'Scrivi la domanda'}">${esc(S.q)}</textarea>`:''}
-   <div class="acts" style="margin:8px 0 0"><button class="btn primary" data-a="ask" data-id="${esc(p.id)}"${S.busy?' disabled':''}>${S.busy?'Ci penso…':'Chiedi'}</button>${S.out?`<button class="btn" data-a="cp" data-id="${esc(p.id)}">Copia</button>${S.k==='risposta'&&p.ph?`<a class="btn" href="${esc(wa(p.ph,S.out.split(/\n\s*\n/)[0]))}" target="_blank" rel="noopener">WhatsApp</a>`:''}`:''}</div>
-   ${S.out?`<div class="out">${esc(S.out)}</div>`:''}</div>`; }
 function sendCard(p,a){ const em=p?.em||a?.em, ph=p?.ph||a?.ph, k=A.bro||(A.D.bro[0]?.k), sent=(a?.bro||[]);
   const appMsg=p?.app?`Buongiorno ${p.f}, ecco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.`:'';
   return `<div class="card"><h2><span class="lbl">Manda</span></h2>
@@ -181,7 +171,7 @@ function sheetCard(){ const s=A.sel; const a=s.a?A.D.ap.find(x=>x.id===s.a):null
   const name=p?.n||a?.n||'Senza nome', em=p?.em||a?.em, ph=p?.ph||a?.ph, next=A.D.ap.find(x=>(p&&x.pid===p.id)||(a&&x.id===a.id));
   return `<button class="back" data-a="back">‹ Indietro</button><div class="hero"><div class="chips">${prog(p)}</div><h2>${esc(name)}</h2>${next?`<p>${esc(dayLbl(next.s.slice(0,10)))}, ${next.s.slice(11,16)} · ${esc(next.t)}${next.sede?` · ${esc(next.sede)}`:''}</p>`:''}</div>
    <div class="acts">${ph?`<a class="btn primary" href="tel:${esc(ph)}">Chiama</a><a class="btn" href="${esc(wa(ph))}" target="_blank" rel="noopener">WhatsApp</a>`:''}${em?`<button class="btn" data-a="compose" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}">Email</button>`:''}</div>
-   ${preCard(p,a)}${p?planCard(p):''}${p?agentCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
+   ${preCard(p,a)}${p?planCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
 /* ---- disegno */
 function render(){ if(!A.key) return keyScreen(); if(!A.D){ if(A.busy==='load'||!A.blob&&A.busy!=='') return $('#root').innerHTML='<p class="empty">Carico…</p>'; if(A.blob) return lockScreen(); $('#root').innerHTML=`<div class="lock"><h1>Nessun dato</h1><p class="muted">NutriLab non ha ancora preparato il pacchetto: apri NutriLab e premi «Aggiorna adesso».</p><button class="btn" data-a="reload">Riprova</button></div>`; return; }
   const y=window.scrollY, foc=document.activeElement?.dataset?.f, unseen=(A.inbox?.L||[]).filter(m=>m.unseen).length;
@@ -205,11 +195,6 @@ function compose(p,a,pre){ const em=p?.em||a?.em; if(!em) return; const d=docume
   document.body.appendChild(d); d.addEventListener('click',async e=>{ if(e.target===d||e.target.id==='mclose') return d.remove();
     if(e.target.id==='msend'){ const su=$('#msu').value.trim(), bo=$('#mbo').value.trim(); if(!su||!bo) return toast('Scrivi oggetto e testo.'); e.target.disabled=true;
       try{ await call('send',{to:em,subj:su,body:bo}); d.remove(); toast('Email in partenza.'); }catch(er){ e.target.disabled=false; toast(er.message==='not_patient'?'Indirizzo non tra i pazienti.':'Invio non riuscito.'); } } }); }
-async function ask(p){ const S=A.ag[p.id]; if((S.k==='risposta'||S.k==='libera')&&!S.q.trim()) return toast(S.k==='risposta'?'Incolla il messaggio del paziente.':'Scrivi la domanda.');
-  S.busy=true; S.out=''; A.keepY=true; render();
-  try{ const j=await call('ask',{agent:S.k,ctx:p.ctx,q:S.q}); S.out=j.text||'(nessuna risposta)'; }
-  catch(e){ S.out=e.message==='no_key'?'Gli agenti si attivano con il segreto ANTHROPIC_API_KEY in Supabase (vedi NutriLab → App professionista).':'Agente non raggiungibile ('+e.message+').'; }
-  S.busy=false; A.keepY=true; render(); }
 document.addEventListener('submit',e=>{ if(e.target.id==='pwf'){ e.preventDefault(); unlock($('#pw').value,$('#rem').checked); } });
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(!b||b.tagName==='A') return; const k=b.dataset.a, id=b.dataset.id;
   if(k==='tab'){ A.tab=b.dataset.k; A.sel=null; render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); return; }
@@ -217,14 +202,11 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(
   if(k==='past'){ A.past=true; return render(); } if(k==='reload'){ A.inbox=null; return load(true); }
   if(k==='lock'){ LS.del('nlpro_k'); try{ sessionStorage.removeItem('nlpro_k'); }catch(e){} A.D=null; return lockScreen(); }
   if(k==='day'){ A.day[id]=+b.dataset.i; A.keepY=true; return render(); }
-  if(k==='agk'){ A.ag[id].k=b.dataset.k; A.ag[id].out=''; A.keepY=true; return render(); }
-  if(k==='ask'){ const p=pt(id); if(p) ask(p); return; }
-  if(k==='cp'){ navigator.clipboard?.writeText(A.ag[id].out).then(()=>toast('Copiato')).catch(()=>toast('Seleziona e copia')); return; }
   const p=id?pt(id):null, a=b.dataset.ap?A.D.ap.find(x=>x.id===b.dataset.ap):null;
   if(k==='broMail') return broMail(p,a); if(k==='broShare') return broShare();
   if(k==='compose') return compose(p,a);
   if(k==='appMail'&&p?.app) return compose(p,null,{s:`La sua app del percorso · ${A.D.studio.nome}`,b:`Buongiorno ${p.f},\n\necco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.\n\n${A.D.studio.nome}`}); });
-document.addEventListener('input',e=>{ const f=e.target.dataset?.f; if(!f) return; if(f==='q'){ A.q=e.target.value; A.keepY=true; render(); } else if(f==='agq'){ A.ag[e.target.dataset.id].q=e.target.value; } });
+document.addEventListener('input',e=>{ const f=e.target.dataset?.f; if(!f) return; if(f==='q'){ A.q=e.target.value; A.keepY=true; render(); } });
 document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.target.value; });
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
 if(A.key){ A.lastLoad=Date.now(); A.busy='load'; render(); load(false); } else render();
