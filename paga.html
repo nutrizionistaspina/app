@@ -22,7 +22,7 @@ const call=(fn,body)=>fetch(F+fn,{method:'POST',headers:{'Content-Type':'applica
 const vis=d=>d&&d.visita?`<div class="v"><b>${esc(d.visita)}</b><br>${esc(d.sede==='Online'?'Online, in videochiamata':d.sede)} · ${esc(d.quando)}<br>Importo: <b>${eur(d.importo)}</b>${d.codice?` · codice ${esc(d.codice)}`:''}</div>`:'';
 const show=h=>{o.innerHTML=h;};
 /* solo per pacchetti e percorsi, solo al momento del pagamento: le rate si fanno con PayPal, su richiesta */
-const rate=d=>/pacchett|percors/i.test(d&&d.visita||'')&&+d.importo>=20&&+d.importo<=3000?`<div class="v r"><b>Preferisci pagare in 3 rate?</b><br>Pacchetti e percorsi si possono pagare anche in 3 rate senza interessi con PayPal. Rispondi all'email che hai ricevuto o scrivi al ${'351 879 7908'}: ti mandiamo il link per le rate al posto di questo.<small>Paga in 3 rate è un servizio di PayPal, soggetto alla sua valutazione e ai suoi termini.</small></div>`:'';
+const rate=d=>/pacchett|percors/i.test(d&&d.visita||'')&&+d.importo>=20&&+d.importo<=3000?`<div class="v r"><b>Preferisci pagare in 3 rate?</b><br>Pacchetti e percorsi si possono pagare anche in 3 rate senza interessi con PayPal: 3 rate da ${eur((+d.importo||0)/3)}. Rispondi all'email che hai ricevuto o scrivi al ${'351 879 7908'}: ti mandiamo il link per le rate al posto di questo.<small>Paga in 3 rate è un servizio di PayPal, soggetto alla sua valutazione e ai suoi termini.</small></div>`:'';
 const contatti='<p>Per qualsiasi dubbio scriva a <a href="mailto:nutrizionista.spina@gmail.com">nutrizionista.spina@gmail.com</a> o al 351 879 7908.</p>';
 async function start(){
   if(!/^[0-9a-f-]{36}$/i.test(id)) return show('<h1>Link non valido</h1><p>Controlli di aver aperto il link completo ricevuto per email.</p>'+contatti);
