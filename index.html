@@ -343,7 +343,7 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
    ${pcCard()}
    ${nextCard()}
-   ${gmCard()}
+   ${gmCard()}${rvCard()}
    ${todoCard()}
    ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0],Math.min(today,(A.P.pl?.d||[]).length-1))).join('')}</section>`:''}
    ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}
@@ -388,6 +388,11 @@ function gmBadges(o,tp){ const today=ymd(new Date()), full=Object.values(o.w).fi
   try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('nlp_sw_')&&Object.keys(JSON.parse(localStorage.getItem(k)||'{}')).length){ sw=true; break; } } }catch(e){}
   const hd=(hdGet().sent||[]).length, tpOk=k=>(tp||[]).some(t=>t.k===k&&t.d<=today);
   return [['🔁','Prima sostituzione',sw],['🌱','Prima settimana piena',full>=1],['🌿','4 settimane piene',full>=4],['📲','4 settimane di dati',hd>=4],...(tp?[['⛵','Giro di boa',tpOk('boa')],['🏁','Traguardo',tpOk('fine')]]:[])]; }
+/* recensione su Google: una volta sola, per la sede dove vieni di solito; sparisce quando la lasci o dici «No, grazie» */
+function rvCard(){ const r=A.P.rv; if(!r?.u||A.P.demo&&!r||LS.get('nlp_rv_'+SID())) return '';
+  return `<section class="card rvc"><h2>Com'è andata finora?</h2><p class="small muted">Se il percorso ti sta aiutando, puoi lasciare una recensione allo studio di ${esc(r.s)} su Google: aiuta altre persone a trovarlo. Lo chiediamo una volta sola.</p>
+   <div class="row"><a class="btn primary" href="${esc(r.u)}" target="_blank" rel="noopener" data-rv="si">Lascia una recensione</a><button class="btn ghost" data-rv="no">No, grazie</button></div></section>`; }
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-rv]'); if(!b) return; LS.set('nlp_rv_'+SID(),b.dataset.rv==='si'?'fatta':'no'); if(b.tagName!=='A'){ e.preventDefault(); render(); } else setTimeout(render,400); });
 function gmCard(){ const g=A.P.gm; if(!g||(!g.ab?.length&&!g.tp?.length)) return ''; const o=gmSt(), today=ymd(new Date()), tp=g.tp||null, ab=g.ab||[];
   let tpH=''; if(tp?.length){ const t0=new Date(tp[0].d+'T12:00:00'), tEnd=new Date(tp.at(-1).d+'T12:00:00'), span=Math.max(1,tEnd-t0), now=Date.now();
     const wk=Math.max(1,Math.min(24,Math.floor((now-t0)/(7*864e5))+1)), pct=Math.max(0,Math.min(100,(now-t0)/span*100)), next=tp.find(t=>t.d>today);
