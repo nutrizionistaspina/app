@@ -183,6 +183,9 @@ details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+/* chiavi locali senza il nome del paziente: codice dell'app, oppure un'impronta anonima */
+const h32=s=>{ let h=2166136261; for(const c of String(s)){ h^=c.codePointAt(0); h=Math.imul(h,16777619); } return (h>>>0).toString(36); };
+const PID=()=>SID()||(A.P?.demo?'demo':'p'+h32(norm(A.P?.pz?.full||'')+'|'+(A.P?.pz?.cf||'')));
 const LS={get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },del(k){ try{ localStorage.removeItem(k); }catch(e){} }};
 const DAYS=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const MESI=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
@@ -240,7 +243,7 @@ async function seal(obj,pin){ const json=new TextEncoder().encode(JSON.stringify
 
 /* ---- stato */
 const A={P:null,tab:'oggi',day:(new Date().getDay()+6)%7,chat:[],code:null,ai:null,busy:false,pin:'',q:null,ans:{},out:''};
-const ansKey=()=>'nlp_ans_'+(A.P?.gen||'')+'_'+norm(A.P?.pz?.full||'');
+const ansKey=()=>'nlp_ans_'+(A.P?.gen||'')+'_'+PID();
 const loadAns=()=>{ try{ A.ans=JSON.parse(LS.get(ansKey())||'{}')||{}; }catch(e){ A.ans={}; } };
 const saveAns=()=>LS.set(ansKey(),JSON.stringify(A.ans));
 const scrDone=q=>q.items.every((it,i)=>A.ans[q.k]?.[i]!=null&&A.ans[q.k][i]!=='');
@@ -291,7 +294,7 @@ function nextCard(){ const n=upcoming()[0], pend=bkPend()[0]; if(!n) return `<se
 A.alt=new Set(); A.opt={}; A.sw=null; A.swReg={};
 /* ---- sostituzioni fatte dal paziente: tra le alternative equivalenti scelte dal Dottore, si ricordano sul telefono.
    Chiave del giorno «giorno|pasto|alimento del piano»; «ogni giorno» vale per lo stesso alimento nello stesso pasto in tutta la settimana */
-const swKey=()=>'nlp_sw_'+(SID()||'demo')+'_'+norm(A.P?.pl?.n||'');
+const swKey=()=>'nlp_sw_'+PID()+'_'+norm(A.P?.pl?.n||'');
 const swGet=()=>{ try{ return JSON.parse(LS.get(swKey())||'{}')||{}; }catch(e){ return {}; } };
 const swSave=o=>{ LS.set(swKey(),JSON.stringify(o)); swReport(); };
 /* riepilogo per il Dottore: quali alternative sceglie il paziente (arriva in cartella), al massimo una volta ogni pochi secondi e solo se cambia */
@@ -351,7 +354,7 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
    ${newsCard()}
    ${libWeek()}`; }
 /* ---- messaggi del percorso: li scrive il Dottore in NutriLab, l'assistente li mostra qui quando è il momento (uno alla volta, niente notifiche) */
-const pcKey=()=>'nlp_pc_'+(SID()||'demo');
+const pcKey=()=>'nlp_pc_'+PID();
 const pcSt=()=>{ try{ return {r:{},a:{},...(JSON.parse(LS.get(pcKey())||'{}')||{})}; }catch(e){ return {r:{},a:{}}; } };
 const pcSave=o=>LS.set(pcKey(),JSON.stringify(o));
 function pcDue(){ const o=pcSt(), now=Date.now(); if(o.off) return [];
@@ -378,7 +381,7 @@ function noteItems(t){ t=String(t||'').replace(/\r/g,'').trim(); if(!t) return [
 function noteHTML(t){ const L=noteItems(t); if(!L.length) return ''; const li=x=>`<li>${x.h?`<b>${esc(x.h)}</b> `:''}${esc(x.x)}</li>`;
   return `<section class="card note2"><h2>Ricorda</h2><ul class="nlist">${L.slice(0,3).map(li).join('')}</ul>${L.length>3?`<details class="nmore"><summary>Mostra tutto <span class="muted">(${L.length-3} in più)</span></summary><ul class="nlist">${L.slice(3).map(li).join('')}</ul></details>`:''}</section>`; }
 /* ---- il percorso in gioco (gentile): tappe, abitudini della settimana, riconoscimenti. Mai il peso. */
-const gmKey=()=>'nlp_gm_'+(SID()||'demo');
+const gmKey=()=>'nlp_gm_'+PID();
 const gmSt=()=>{ try{ return {w:{},...(JSON.parse(LS.get(gmKey())||'{}')||{})}; }catch(e){ return {w:{}}; } };
 const gmSave=o=>LS.set(gmKey(),JSON.stringify(o));
 const gmMon=(d=new Date())=>{ const x=new Date(d); x.setHours(12,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return ymd(x); };
@@ -428,7 +431,7 @@ function lsItems(){ const d=A.P.pl?.d||[]; if(!d.length) return []; const mult=d
         o.q+=x.q*mult; M.set(k,o); }); } } });
   return [...M.values()]; }
 const lsQty=o=>!o.q?'':o.u==='pz'?`× ${Math.round(o.q)}`:o.q>=1000?`${(Math.ceil(o.q/50)*50/1000).toLocaleString('it-IT',{maximumFractionDigits:2})} ${o.u==='ml'?'l':'kg'}`:`${Math.ceil(o.q/10)*10} ${o.u}`;
-const lsKey=()=>'nlp_ls_'+(SID()||'demo')+'_'+gmMon();
+const lsKey=()=>'nlp_ls_'+PID()+'_'+gmMon();
 const lsGet=()=>{ try{ return JSON.parse(LS.get(lsKey())||'{}')||{}; }catch(e){ return {}; } };
 function lsTips(L){ if(!A.P.ls?.mp) return []; const w=Math.floor(Date.now()/(7*864e5)), by=k=>MP_TIPS.filter(t=>t[0]===k);
   const has=new Set(L.map(o=>o.c)), cats=['legumi','cereali','pesce','carne','uova','verdura','frutta','latticini','frutta_secca','condimenti'].filter(k=>has.has(k)&&by(k).length), n=cats.length;
@@ -473,7 +476,7 @@ function scrQuest(){ const L=A.P.scr||[]; const q=A.q&&L.find(x=>x.k===A.q);
 const MEMO=['calma','fretta','stress','noia','stanchezza','tristezza','solitudine','gioia','rabbia'];
 const MMEAL=[['col','Colazione'],['pra','Pranzo'],['cen','Cena'],['spu','Spuntino'],['fuori','Fuori pasto']];
 const SCALE_TXT=['Molto pieno, a disagio','Troppo pieno','Troppo pieno','Soddisfatto','Soddisfatto','Né fame né pieno','Inizio ad avere fame','Ho fame','Molta fame','Molta fame','Fame estrema'];
-const mKey=()=>'nlp_mind_'+(A.P?.pz?.full?norm(A.P.pz.full):'demo');
+const mKey=()=>'nlp_mind_'+(A.P?.demo?'demo':PID());
 const mLoad=()=>{ try{ return JSON.parse(LS.get(mKey())||'[]')||[]; }catch(e){ return []; } };
 const mSave=L=>LS.set(mKey(),JSON.stringify(L.slice(-300)));
 const mNew=()=>({m:(()=>{ const h=new Date().getHours(); return h<10?'col':h<15?'pra':h<19?'spu':'cen'; })(),pre:null,post:null,emo:[],scr:false,fr:false,n:''});
@@ -550,7 +553,7 @@ const bkOn=()=>!!(A.P?.bk&&(A.P.bk.demo||(SID()&&A.P.bk.tok)));
 const mailto=(sub,body)=>`mailto:${stEmail()}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
 async function rpc(fn,args){ const r=await fetch(SUPA+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
   const t=await r.text(); let j=null; try{ j=JSON.parse(t); }catch(e){} if(!r.ok){ const e=new Error(String(j?.message||'rete')); throw e; } return j; }
-const bkKey=()=>'nlp_bk_'+(SID()||'demo');
+const bkKey=()=>'nlp_bk_'+PID();
 const bkPend=()=>{ let L=[]; try{ L=JSON.parse(LS.get(bkKey())||'[]')||[]; }catch(e){} const ap=A.P?.ap||[]; return L.filter(b=>new Date(b.s)>new Date()&&!ap.some(a=>a.s===b.s)); };
 const pendTxt=b=>`${new Date(b.s).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})} alle ${b.s.slice(11,16)} · ${b.sd==='Online'?'online':b.sd}`;
 const BK={opt:null,tipo:'',sede:'',day:'',time:'',days:null,times:null,busy:'',err:'',ok:null,em:''};
@@ -587,7 +590,7 @@ function scrPrenota(){ if(!bkOn()){ A.tab='visite'; return scrVisite(); }
 /* ---- dati della settimana e schede di allenamento: vanno al Dottore con il codice dell'app e il gettone del pacchetto.
    Solo totali o medie della settimana; nessun dato resta sul server dopo che il Dottore li ha importati nella cartella. */
 const hdOn=()=>!!(A.P?.hd&&(A.P.demo||(SID()&&A.P.tok)));
-const hdKey=()=>'nlp_hd_'+(SID()||'demo');
+const hdKey=()=>'nlp_hd_'+PID();
 const hdGet=()=>{ try{ return JSON.parse(LS.get(hdKey())||'{}')||{}; }catch(e){ return {}; } };
 const hdSet=o=>LS.set(hdKey(),JSON.stringify(o));
 const hdLast=()=>hdGet().last||'';
@@ -724,7 +727,7 @@ function lockScreen(msg){ const saved=LS.get('nlp_code')||LS.get('nlp_sid')||A.s
    <form id="pinf" style="display:flex;flex-direction:column;gap:14px"><div class="pin"><label for="pin" hidden>Codice</label><input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" aria-label="Codice di 6 cifre"></div>
    <label class="check"><input type="checkbox" id="rem"> Ricorda su questo telefono</label>
    <div class="err" id="perr">${esc(msg||'')}</div><button class="btn primary" type="submit">Apri</button></form>
-   ${!A.code&&!saved?'':`<button class="btn ghost" id="other">Usa un altro codice di accesso</button>`}
+   ${!A.code&&!saved?'':`<button class="btn ghost" id="other">Usa un altro codice di accesso</button><p class="small muted" style="text-align:center;margin:0">Cancella da questo telefono i dati salvati del percorso.</p>`}
    <button class="btn ghost" id="demo">Guarda l'esempio</button></main>`;
   setTimeout(()=>$('#pin')?.focus(),50); }
 function pasteScreen(msg){ $('#root').innerHTML=`<main class="lock screen"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>NutriLab</span></div>
@@ -739,10 +742,18 @@ const SUPA='https://uqpijskisejctcltmpdv.supabase.co', ANON='eyJhbGciOiJIUzI1NiI
 const sidOf=v=>{ const m=String(v||'').match(/(?:^|[^A-Za-z0-9])([A-Za-z2-9]{4})[-\s]?([A-Za-z2-9]{4})(?![A-Za-z0-9])/); return m?(m[1]+m[2]).toLowerCase():null; };
 async function fetchPack(sid){ const r=await fetch(SUPA+'/rest/v1/rpc/nl_app_get',{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify({p_id:sid})});
   if(!r.ok) throw new Error('rete'); const t=await r.json(); if(!t) throw new Error('nf'); return String(t); }
+/* dati salvati con le chiavi vecchie (nome del paziente, o «demo» per chi usa il link lungo): spostati sulle chiavi nuove */
+function migrateKeys(){ try{ const P=A.P; if(!P||P.demo) return; const id=PID(), nm=norm(P.pz?.full||''), ks=Object.keys(localStorage);
+    const mv=(o,n,keep)=>{ const v=localStorage.getItem(o); if(v==null||o===n) return; if(localStorage.getItem(n)==null) localStorage.setItem(n,v); if(!keep) localStorage.removeItem(o); };
+    if(nm){ mv('nlp_mind_'+nm,'nlp_mind_'+id); for(const k of ks) if(k.startsWith('nlp_ans_')&&k.endsWith('_'+nm)) mv(k,k.slice(0,k.length-nm.length)+id); }
+    if(!SID()) for(const k of ks){ const m=k.match(/^(nlp_(?:pc|gm|bk|hd|sw|ls))_demo(.*)$/); if(m) mv(k,m[1]+'_'+id+m[2],true); } }catch(e){} }
+/* «Usa un altro codice»: il telefono non tiene più niente del paziente precedente */
+function wipeLocal(){ try{ for(const k of Object.keys(localStorage)) if(k.startsWith('nlp_')) localStorage.removeItem(k); }catch(e){} Object.assign(A,{P:null,pin:'',chat:[],ans:{},out:'',q:null,code:null,sid:null}); }
 async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||LS.get('nlp_sid'));
   if(sid){ try{ code=await fetchPack(sid); }catch(e){ if(e.message==='nf'){ LS.del('nlp_sid'); pasteScreen('Codice dell\'app non trovato: controlla le 8 lettere e numeri del messaggio.'); return; } code=LS.get('nlp_code'); if(!code){ A.sid=null; pasteScreen('Questo codice breve non funziona ancora da qui: incolla il codice lungo che ti ha mandato il Dottore (inizia con la lettera p).'); return; } } }
   if(!code) code=LS.get('nlp_code'); if(!code){ pasteScreen(); return; }
-  try{ const P=await openPack(code,pin); A.P=P; A.pin=pin; loadAns(); A.day=(new Date().getDay()+6)%7; LS.set('nlp_code',code); if(sid) LS.set('nlp_sid',sid); if(rem) LS.set('nlp_pin',pin); else LS.del('nlp_pin'); render(); }
+  try{ const P=await openPack(code,pin); A.P=P; A.pin=pin; migrateKeys(); loadAns(); A.day=(new Date().getDay()+6)%7; LS.set('nlp_code',code); if(sid) LS.set('nlp_sid',sid); if(rem) LS.set('nlp_pin',pin); else LS.del('nlp_pin'); try{ if(location.hash) history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    try{ render(); }catch(e){ console.warn('render',e); A.P=null; LS.del('nlp_pin'); lockScreen('Il codice è giusto, ma l\'app non riesce a leggere il piano: scrivi al Dottore, che ti manderà un aggiornamento.'); } }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
 function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
@@ -799,8 +810,8 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.dataset.q){ ask(t.dataset.q); return; }
   if(t.id==='demo'){ A.P=DEMO; loadAns(); A.tab='oggi'; render(); return; }
   if(t.id==='tolock'){ A.P=null; if(A.code||A.sid||LS.get('nlp_code')||LS.get('nlp_sid')) lockScreen(); else pasteScreen(); return; }
-  if(t.id==='other'){ LS.del('nlp_code'); LS.del('nlp_pin'); LS.del('nlp_sid'); A.code=null; A.sid=null; pasteScreen(); return; }
-  if(t.id==='logout'){ LS.del('nlp_pin'); A.P=null; lockScreen(); return; }
+  if(t.id==='other'){ wipeLocal(); pasteScreen(); return; }
+  if(t.id==='logout'){ LS.del('nlp_pin'); Object.assign(A,{P:null,pin:'',chat:[],ans:{},out:'',q:null}); lockScreen(); return; }
   if(t.id==='usecode'){ const raw=($('#pcode').value||'').trim(), v=raw.match(/p[A-Za-z0-9_-]{60,}/), sid=!v&&sidOf(raw); if(v){ A.code=v[0]; A.sid=null; lockScreen(); } else if(sid){ A.sid=sid; A.code=null; lockScreen(); } else { const c=$('#cerr'); if(c) c.textContent='Non trovo il codice: copia dal messaggio del Dottore la riga lunga che inizia con la lettera p.'; } return; } });
 const mMark=()=>{ if(!A.mpend) return; const L=mLoad(); for(const e of L) if(A.mpend.includes(e.at)) e.sent=1; mSave(L); A.mpend=null; };
 document.addEventListener('click',e=>{ if(e.target.closest?.('#mwa')) setTimeout(mMark,300); });
