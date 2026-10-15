@@ -172,7 +172,7 @@ details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 
 .pick.days2{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.pick.days2 button{flex:none;display:flex;flex-direction:column;align-items:center;line-height:1.1;min-width:58px}.pick.days2 small{font-size:12px;opacity:.8}
 .sum{background:var(--surface-2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
 .field2{display:flex;flex-direction:column;gap:4px}.field2 input{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px;background:var(--surface)}
-</style>
+.gmpc p{margin:0 0 6px}.gminc{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:4px}.gminc li{display:flex;gap:8px;align-items:baseline}.gminc li.ok span{color:var(--brand,#2e5e45)}</style>
 
 <div id="root"></div>
 
@@ -394,11 +394,11 @@ function rvCard(){ const r=A.P.rv; if(!r?.u||A.P.demo&&!r||LS.get('nlp_rv_'+SID(
   return `<section class="card rvc"><h2>Com'è andata finora?</h2><p class="small muted">Se il percorso ti sta aiutando, puoi lasciare una recensione allo studio di ${esc(r.s)} su Google: aiuta altre persone a trovarlo. Lo chiediamo una volta sola.</p>
    <div class="row"><a class="btn primary" href="${esc(r.u)}" target="_blank" rel="noopener" data-rv="si">Lascia una recensione</a><button class="btn ghost" data-rv="no">No, grazie</button></div></section>`; }
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-rv]'); if(!b) return; LS.set('nlp_rv_'+SID(),b.dataset.rv==='si'?'fatta':'no'); if(b.tagName!=='A'){ e.preventDefault(); render(); } else setTimeout(render,400); });
-function gmCard(){ const g=A.P.gm; if(!g||(!g.ab?.length&&!g.tp?.length)) return ''; const o=gmSt(), today=ymd(new Date()), tp=g.tp||null, ab=g.ab||[];
+function gmCard(){ const g=A.P.gm||{}, pc=A.P.pc; if(!pc&&!g.ab?.length&&!g.tp?.length) return ''; const o=gmSt(), today=ymd(new Date()), tp=g.tp||null, ab=g.ab||[], TW=+g.wk||24;
   let tpH=''; if(tp?.length){ const t0=new Date(tp[0].d+'T12:00:00'), tEnd=new Date(tp.at(-1).d+'T12:00:00'), span=Math.max(1,tEnd-t0), now=Date.now();
-    const wk=Math.max(1,Math.min(24,Math.floor((now-t0)/(7*864e5))+1)), pct=Math.max(0,Math.min(100,(now-t0)/span*100)), next=tp.find(t=>t.d>today);
+    const wk=Math.max(1,Math.min(TW,Math.floor((now-t0)/(7*864e5))+1)), pct=Math.max(0,Math.min(100,(now-t0)/span*100)), next=tp.find(t=>t.d>today);
     const fd=d=>new Date(d+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
-    tpH=`<div class="gmtp"><div class="gmtpt"><b>Settimana ${wk} di 24</b>${next?`<small>Prossima tappa: ${esc(next.l)} · ${fd(next.d)}${next.pl?' (indicativa)':''}</small>`:'<small>Percorso completato: complimenti!</small>'}</div>
+    tpH=`<div class="gmtp"><div class="gmtpt"><b>Settimana ${wk} di ${TW}</b>${next?`<small>Prossima tappa: ${esc(next.l)} · ${fd(next.d)}${next.pl?' (indicativa)':''}</small>`:'<small>Percorso completato: complimenti!</small>'}</div>
       <div class="gmbar" role="img" aria-label="Avanzamento del percorso: ${Math.round(pct)}%"><span style="width:${pct}%"></span>${tp.map(t=>`<i class="${t.d<=today?'ok':''}" style="left:${Math.max(0,Math.min(100,(new Date(t.d+'T12:00:00')-t0)/span*100))}%" title="${esc(t.l)}"></i>`).join('')}</div>
       <details class="gmall"><summary>Tutte le tappe</summary><ul>${tp.map(t=>`<li class="${t.d<=today?'ok':''}"><span>${t.d<=today?'✓':'○'}</span>${esc(t.l)}<small>${fd(t.d)}${t.pl&&t.d>today?' · indicativa':''}</small></li>`).join('')}</ul></details></div>`; }
   let abH=''; if(ab.length){ const w=gmAskWeek(o,ab.length), r=o.w[w]||[], prev=w!==gmMon(), full=Object.values(o.w).filter(gmFull).length;
@@ -408,7 +408,10 @@ function gmCard(){ const g=A.P.gm; if(!g||(!g.ab?.length&&!g.tp?.length)) return
       ${L.length?`<div class="gmweeks" aria-label="Ultime settimane"><small>Ultime settimane</small>${L.map(k=>`<i class="${gmFull(o.w[k])?'full':(o.w[k]||[]).some(x=>x!=null)?'part':''}" title="settimana del ${new Date(k+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'})}"></i>`).join('')}</div>`:''}</div>`; }
   const B=gmBadges(o,tp), got=B.filter(b=>b[2]), nx=B.find(b=>!b[2]);
   const bH=got.length||nx?`<div class="gmbad">${got.map(b=>`<span class="ok">${b[0]} ${esc(b[1])}</span>`).join('')}${nx?`<span class="nx" title="Prossimo riconoscimento">${nx[0]} ${esc(nx[1])}</span>`:''}</div>`:'';
-  return `<section class="card gmc" aria-label="Il tuo percorso"><h2>Il tuo percorso</h2>${tpH}${abH}${bH}</section>`; }
+  const fdd=d=>new Date(d+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  const pcH=pc?`<div class="gmpc"><p><b>${esc(pc.t)}</b> · ${esc(pc.dv)}${pc.da&&pc.a?`<br><small class="muted">dal ${fdd(pc.da)} al ${fdd(pc.a)}</small>`:''}</p>
+    <p class="small">Visite fatte: <b>${+pc.vis||0}</b> di ${+pc.tot||0}</p>${(pc.inc||[]).length?`<p class="small muted">Compresi nel percorso</p><ul class="gminc">${pc.inc.map(([l,d])=>`<li class="${d?'ok':''}"><span aria-hidden="true">${d?'✓':'○'}</span>${esc(l)}${d?'':' <small class="muted">da fare</small>'}</li>`).join('')}</ul>`:''}</div>`:'';
+  return `<section class="card gmc" aria-label="Il tuo percorso"><h2>Il tuo percorso</h2>${pcH}${tpH}${abH}${bH}</section>`; }
 function gmSet(w,i,v){ const o=gmSt(), n=(A.P.gm?.ab||[]).length; const r=(o.w[w]||Array(n).fill(null)).slice(0,n); r[i]=v; o.w[w]=r; gmSave(o);
   if(r.filter(x=>x!=null).length===n&&!A.P.demo&&A.P.tok) rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'ab',p_payload:{w,r}}).catch(()=>{}); }
 /* ---- lista della spesa della settimana: dal piano, con le sostituzioni scelte, spuntabile e da condividere/stampare.
