@@ -394,7 +394,7 @@ function rvCard(){ const r=A.P.rv; if(!r?.u||A.P.demo&&!r||LS.get('nlp_rv_'+SID(
   return `<section class="card rvc"><h2>Com'è andata finora?</h2><p class="small muted">Se il percorso ti sta aiutando, puoi lasciare una recensione allo studio di ${esc(r.s)} su Google: aiuta altre persone a trovarlo. Lo chiediamo una volta sola.</p>
    <div class="row"><a class="btn primary" href="${esc(r.u)}" target="_blank" rel="noopener" data-rv="si">Lascia una recensione</a><button class="btn ghost" data-rv="no">No, grazie</button></div></section>`; }
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-rv]'); if(!b) return; LS.set('nlp_rv_'+SID(),b.dataset.rv==='si'?'fatta':'no'); if(b.tagName!=='A'){ e.preventDefault(); render(); } else setTimeout(render,400); });
-function gmCard(){ const g=A.P.gm||{}, pc=A.P.pc; if(!pc&&!g.ab?.length&&!g.tp?.length) return ''; const o=gmSt(), today=ymd(new Date()), tp=g.tp||null, ab=g.ab||[], TW=+g.wk||24;
+function gmCard(){ const g=A.P.gm||{}, pc=A.P.prc; if(!pc&&!g.ab?.length&&!g.tp?.length) return ''; const o=gmSt(), today=ymd(new Date()), tp=g.tp||null, ab=g.ab||[], TW=+g.wk||24;
   let tpH=''; if(tp?.length){ const t0=new Date(tp[0].d+'T12:00:00'), tEnd=new Date(tp.at(-1).d+'T12:00:00'), span=Math.max(1,tEnd-t0), now=Date.now();
     const wk=Math.max(1,Math.min(TW,Math.floor((now-t0)/(7*864e5))+1)), pct=Math.max(0,Math.min(100,(now-t0)/span*100)), next=tp.find(t=>t.d>today);
     const fd=d=>new Date(d+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
