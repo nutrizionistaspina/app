@@ -91,6 +91,7 @@ h1{font-size:30px;line-height:1.1}h2{font-size:21px}h3{font-size:17px}
 .stat span{font-size:12.5px;color:var(--muted)}
 .sup{display:flex;flex-direction:column;gap:4px;padding-block:12px;border-top:1px solid var(--line)}
 .sup:first-of-type{border-top:0;padding-top:0}
+.sup .prlink{color:var(--brand,inherit);text-decoration:underline;width:fit-content}
 .dose{display:inline-flex;align-self:flex-start;font-size:13.5px;font-weight:700;background:color-mix(in srgb,var(--leaf) 22%,var(--surface));border-radius:8px;padding:2px 8px}
 .alert{border-left:4px solid var(--warn);padding:8px 12px;background:color-mix(in srgb,var(--warn) 9%,var(--surface));border-radius:0 12px 12px 0;font-size:15px}
 .chat{display:flex;flex-direction:column;gap:10px}
@@ -526,7 +527,7 @@ function scrVisite(){ const up=upcoming(), ms=A.P.ms||[], last=ms.at(-1), first=
 function invCardApp(){ const L=A.P.inv||[]; if(!L.length) return ''; return `<section class="card"><h2>Professionisti consigliati</h2>${L.map(x=>`<div class="sup"><h3>${esc(x.pro)}</h3><span class="small">${esc(x.why)}</span><span class="small muted">${x.st==='prenotato'?'Prenotato':'Da prenotare'}${x.urg==='alta'?' · da fare presto':''}</span></div>`).join('')}${wa('x')?`<div class="row"><a class="btn" href="${wa('Buongiorno, le scrivo per la visita consigliata dallo specialista: ')}" target="_blank" rel="noopener">Aggiorna il Dottore</a></div>`:''}</section>`; }
 function scrIntegr(){ const s=A.P.sup||[], it=A.P.int||[];
   return `${head(`<div><div class="eyebrow">Integratori e farmaci</div><h1>Cosa prendere</h1></div>`)}
-   <section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}</section>
+   <section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}${x.pr&&/^https:\/\//.test(x.pr.u||'')?`<a class="small prlink" href="${esc(x.pr.u)}" target="_blank" rel="noopener">Prodotto indicato: ${esc(x.pr.n)}${x.pr.b?` (${esc(x.pr.b)})`:''} ↗</a>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}${A.P.supNote&&s.some(x=>x.pr)?`<p class="small muted">${esc(A.P.supNote)}</p>`:''}</section>
    ${it.length?`<section class="card"><h2>Attenzione con i farmaci</h2>${it.map(x=>`<div class="alert"><b>${esc(x.m)}</b>${x.w?` con ${esc(x.w)}`:''}: ${esc(x.a)}</div>`).join('')}</section>`:''}
    <p class="foot">Non iniziare né sospendere farmaci senza il tuo medico. Per dubbi su un nuovo integratore chiedi prima al Dottore.</p>`; }
 const SUGG=['Cosa mangio a cena?','Quando è la prossima visita?','Quando prendo gli integratori?'];
@@ -689,7 +690,7 @@ function answer(q){ const n=norm(q), up=upcoming(), next=up[0];
         return {t:ms.map(m=>`${m[0]}${m[1]?' ('+m[1]+')':''}:\n`+m[2].map((g,gi)=>(m[2].length>1?`Opzione ${gi+1}: `:'')+g.map(sl=>sl[0]+(sl.length>1?` (o ${sl.length-1} alternativ${sl.length>2?'e':'a'})`:'')).join(', ')).join('\n')).join('\n\n')
           +(withAlt?`\n\nPer vedere le alternative chiedi, per esempio: «alternative a ${clean1(withAlt[0]).split(' ')[0].toLowerCase()}».`:'')}; } } }
   const sups=A.P.sup||[], sh=sups.find(s=>norm(s.n).split(/\s+/).some(w=>w.length>3&&n.includes(w)));
-  if(/integrator|vitamin|magnesio|omega|probiotic|prendo|assumere/.test(n)||sh){ const list=sh?[sh]:sups; if(list.length) return {t:list.map(s=>`${s.n}: ${[s.d,s.w&&('quando: '+s.w)].filter(Boolean).join(', ')}.`).join('\n')+(sh?'':'\nPer integratori diversi da questi chiedi prima al Dottore.')}; }
+  if(/integrator|vitamin|magnesio|omega|probiotic|prendo|assumere/.test(n)||sh){ const list=sh?[sh]:sups; if(list.length) return {t:list.map(s=>`${s.n}: ${[s.d,s.w&&('quando: '+s.w),s.pr&&('prodotto indicato: '+s.pr.n)].filter(Boolean).join(', ')}.`).join('\n')+(sh?'':'\nPer integratori diversi da questi chiedi prima al Dottore.')}; }
   const it=(A.P.int||[]).find(x=>norm(x.m).split(/\s+/).some(w=>w.length>3&&n.includes(w)));
   if(it) return {t:`${it.m}: ${it.a}`};
   if(/farmac|medicin|pillol|interazion/.test(n)) return {t:'Per farmaci e interazioni non indicati qui serve il parere del Dottore o del tuo medico.',wa:wa(`Buongiorno, avrei una domanda su un farmaco: ${q}`)};
