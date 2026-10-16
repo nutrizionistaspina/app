@@ -161,6 +161,8 @@ function sendCard(p,a){ const em=p?.em||a?.em, ph=p?.ph||a?.ph, k=A.bro||(A.D.br
    <select class="in" data-f="bro" aria-label="Brochure">${A.D.bro.map(b=>`<option value="${esc(b.k)}"${b.k===k?' selected':''}>${esc(b.l)}</option>`).join('')}</select>
    <div class="acts"><button class="btn" data-a="broMail" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}"${em&&A.busy!=='bro'?'':' disabled'}>${A.busy==='bro'?'Invio…':'Brochure per email'}</button><button class="btn" data-a="broShare">WhatsApp / Telegram</button></div>
    ${sent.length?`<p class="note">Già mandata: ${sent.map(s=>esc(A.D.bro.find(b=>b.k===s.k)?.l||s.k)).join(', ')}</p>`:''}
+   ${(A.D.dp||[]).length?`<p class="kv" style="margin-top:12px"><b>Dieta in PDF</b></p><select class="in" data-f="dp" aria-label="Dieta">${A.D.dp.map(b=>`<option value="${esc(b.k)}"${b.k===(A.dp||A.D.dp[0].k)?' selected':''}>${esc(b.l)}</option>`).join('')}</select>
+   <div class="acts"><button class="btn" data-a="dpMail" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}"${em&&A.busy!=='dp'?'':' disabled'}>${A.busy==='dp'?'Invio…':'Dieta per email'}</button><button class="btn" data-a="dpShare">WhatsApp / Telegram</button></div>`:''}
    ${p?.app?`<p class="kv"><b>App del percorso</b></p><div class="acts" style="margin-top:4px">${ph?`<a class="btn" href="${esc(wa(ph,appMsg))}" target="_blank" rel="noopener">Link dell'app su WhatsApp</a>`:''}<button class="btn" data-a="appMail" data-id="${esc(p.id)}"${em?'':' disabled'}>Per email</button></div>`:''}</div>`; }
 function preCard(p,a){ const L=[]; if(a?.note) L.push(['Nota',a.note]); if(a?.pre) L.push(['Dal sito',a.pre]);
   if(p){ for(const x of p.site||[]) L.push(['Dal sito',x.t]); for(const [l,v] of p.form||[]) L.push([l,v]); }
@@ -187,6 +189,14 @@ async function broMail(p,a){ const em=p?.em||a?.em, k=A.bro||A.D.bro[0]?.k, b=A.
   try{ await call('send',{to:em,k,subj:`La brochure di cui abbiamo parlato · ${A.D.studio.nome}`,body:`Gentile ${f||'paziente'},\n\ncome d'accordo le mando in allegato la brochure «${b?.l||''}»: trova le fasi, che cosa comprende e il costo mensile.\n\nSe ha domande può rispondere a questa email${A.D.studio.tel?` o chiamare il ${A.D.studio.tel}`:''}.\n\n${A.D.studio.nome}`}); toast('Brochure in partenza.'); }
   catch(e){ toast(e.message==='not_patient'?'Questo indirizzo non è tra i pazienti di NutriLab.':e.message==='too_many'?'Troppi invii oggi.':'Invio non riuscito.'); }
   A.busy=''; A.keepY=true; render(); }
+async function dpMail(p,a){ const em=p?.em||a?.em, k=A.dp||A.D.dp?.[0]?.k, b=(A.D.dp||[]).find(x=>x.k===k), f=(p?.f||(a?.n||'').split(' ')[0]||''); if(!em||!b) return;
+  A.busy='dp'; A.keepY=true; render();
+  try{ await call('send',{to:em,k,subj:`La sua dieta · ${A.D.studio.nome}`,body:`Gentile ${f||'paziente'},\n\nle mando in allegato la dieta «${b.l}» di cui abbiamo parlato.\n\nSe ha dubbi o qualcosa non le torna può rispondere a questa email${A.D.studio.tel?` o chiamare il ${A.D.studio.tel}`:''}: ne parliamo anche alla prossima visita.\n\n${A.D.studio.nome}`}); toast('Dieta in partenza.'); }
+  catch(e){ toast(e.message==='not_patient'?'Questo indirizzo non è tra i pazienti di NutriLab.':e.message==='too_many'?'Troppi invii oggi.':'Invio non riuscito.'); }
+  A.busy=''; A.keepY=true; render(); }
+async function dpShare(){ const k=A.dp||A.D.dp?.[0]?.k; if(!k) return; try{ const j=await call('file',{k}); const file=new File([b64d(j.b64)],j.nome,{type:'application/pdf'});
+    if(navigator.canShare?.({files:[file]})) await navigator.share({files:[file]}); else { const u=URL.createObjectURL(file), l=document.createElement('a'); l.href=u; l.download=j.nome; l.click(); setTimeout(()=>URL.revokeObjectURL(u),6e4); toast('PDF scaricato: allegalo in chat.'); } }
+  catch(e){ if(e?.name!=='AbortError') toast('Dieta non disponibile.'); } }
 async function broShare(){ const k=A.bro||A.D.bro[0]?.k; try{ const j=await call('file',{k}); const file=new File([b64d(j.b64)],j.nome,{type:'application/pdf'});
     if(navigator.canShare?.({files:[file]})) await navigator.share({files:[file]}); else { const u=URL.createObjectURL(file), l=document.createElement('a'); l.href=u; l.download=j.nome; l.click(); setTimeout(()=>URL.revokeObjectURL(u),6e4); toast('PDF scaricato: allegalo in chat.'); } }
   catch(e){ if(e?.name!=='AbortError') toast('Brochure non disponibile.'); } }
@@ -203,11 +213,11 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(
   if(k==='lock'){ if(A.rec&&['rec','pause','stopping'].includes(A.rec.st)) return toast('Prima ferma la registrazione.'); A.rec=null; LS.del('nlpro_k'); try{ sessionStorage.removeItem('nlpro_k'); }catch(e){} A.D=null; return lockScreen(); }
   if(k==='day'){ A.day[id]=+b.dataset.i; A.keepY=true; return render(); }
   const p=id?pt(id):null, a=b.dataset.ap?A.D.ap.find(x=>x.id===b.dataset.ap):null;
-  if(k==='broMail') return broMail(p,a); if(k==='broShare') return broShare();
+  if(k==='broMail') return broMail(p,a); if(k==='broShare') return broShare(); if(k==='dpMail') return dpMail(p,a); if(k==='dpShare') return dpShare();
   if(k==='compose') return compose(p,a);
   if(k==='appMail'&&p?.app) return compose(p,null,{s:`La sua app del percorso · ${A.D.studio.nome}`,b:`Buongiorno ${p.f},\n\necco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.\n\n${A.D.studio.nome}`}); });
 document.addEventListener('input',e=>{ const f=e.target.dataset?.f; if(!f) return; if(f==='q'){ A.q=e.target.value; A.keepY=true; render(); } });
-document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.target.value; });
+document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.target.value; if(e.target.dataset?.f==='dp') A.dp=e.target.value; });
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&!A.rec&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
 if(A.key){ A.lastLoad=Date.now(); A.busy='load'; render(); load(false); } else render();
 </script>
