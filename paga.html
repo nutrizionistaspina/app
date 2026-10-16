@@ -13,11 +13,12 @@
 .m{width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font:700 18px Georgia,serif}
 h1{font:700 22px/1.25 Georgia,serif;margin:14px 0 6px}p{margin:8px 0;color:var(--muted)}
 .v{background:var(--bg);border-radius:12px;padding:12px;margin:14px 0;text-align:left;font-size:15px}.v b{color:var(--ink)}.v.r{margin-top:18px;border:1px solid var(--line);background:var(--surface)}.v.r small{margin-top:6px;font-size:12px}
+.btn.sat{background:#ef4e3a}.btns{display:flex;flex-direction:column;align-items:center;gap:4px}.btns .btn{min-width:240px}.btns p{margin:2px 0 6px;font-size:13px}
 .btn{display:inline-block;background:var(--brand);color:#fff;border:0;border-radius:999px;padding:12px 22px;font:600 16px system-ui,sans-serif;text-decoration:none;cursor:pointer;margin-top:8px}
 .ok{color:var(--brand);font-size:40px;line-height:1}.sp{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:r 1s linear infinite;margin:14px auto}@keyframes r{to{transform:rotate(360deg)}}
 small{display:block;margin-top:18px;color:var(--muted);font-size:13px}
 </style></head><body><main class="c"><div class="m">FS</div><div id="o"><div class="sp"></div><p>Un momento…</p></div>
-<small>Dott. Federico Spina · Biologo Nutrizionista · 351 879 7908 · nutrizionista.spina@gmail.com<br>Pagamento gestito da SumUp: i dati della carta non passano dallo studio.</small></main>
+<small>Dott. Federico Spina · Biologo Nutrizionista · 351 879 7908 · nutrizionista.spina@gmail.com<br>Pagamenti gestiti da SumUp e Satispay: i dati della carta e del conto non passano dallo studio.</small></main>
 <script>
 const F='https://uqpijskisejctcltmpdv.supabase.co/functions/v1/', K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcGlqc2tpc2VqY3RjbHRtcGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1OTU2NDIsImV4cCI6MjA4NTE3MTY0Mn0.zyLlaaYgTfoDQvWfggCdUV-QVa8PCYxq04Po7sMDW9g';
 const q=new URLSearchParams(location.search), id=q.get('b')||'', fine=q.has('fine'), o=document.getElementById('o');
@@ -27,18 +28,23 @@ const call=(fn,body)=>fetch(F+fn,{method:'POST',headers:{'Content-Type':'applica
 const vis=d=>d&&d.visita?`<div class="v"><b>${esc(d.visita)}</b><br>${esc(d.sede==='Online'?'Online, in videochiamata':d.sede)} · ${esc(d.quando)}<br>Importo: <b>${eur(d.importo)}</b>${d.codice?` · codice ${esc(d.codice)}`:''}</div>`:'';
 const show=h=>{o.innerHTML=h;};
 /* solo per pacchetti e percorsi, solo al momento del pagamento: le rate si fanno con PayPal, su richiesta */
-const rate=d=>/pacchett|percors/i.test(d&&d.visita||'')&&+d.importo>=20&&+d.importo<=3000?`<div class="v r"><b>Preferisci pagare in 3 rate?</b><br>Pacchetti e percorsi si possono pagare anche in 3 rate senza interessi con PayPal: 3 rate da ${eur((+d.importo||0)/3)}. Rispondi all'email che hai ricevuto o scrivi al ${'351 879 7908'}: ti mandiamo il link per le rate al posto di questo.<small>Paga in 3 rate è un servizio di PayPal, soggetto alla sua valutazione e ai suoi termini.</small></div>`:'';
+const rate=d=>/pacchett|percors/i.test(d&&d.visita||'')&&+d.importo>=20&&+d.importo<=3000?`<div class="v r"><b>Pacchetti e percorsi con PayPal</b><br>Se preferisce pagare con PayPal (in un'unica soluzione o, se PayPal glielo propone, a rate) risponda all'email che ha ricevuto: le mandiamo il link PayPal al posto di questo.<small>Le eventuali rate sono un servizio di PayPal, soggetto alla sua valutazione e ai suoi termini: allo studio arriva l'intero importo.</small></div>`:'';
+/* i modi di pagamento: carta con SumUp e, se attivo, Satispay (comodo per gli importi piccoli) */
+const payBtns=d=>`<div class="btns">${d.sp?`<button class="btn sat" id="spgo">Paga ${eur(d.importo)} con Satispay</button><p>dall'app Satispay, anche dal computer con il QR</p>`:''}${d.url?`<a class="btn" href="${esc(d.url)}">Paga ${eur(d.importo)} con carta</a><p>carta, Apple Pay o Google Pay su SumUp</p>`:''}</div>`;
+async function spGo(){ const b=document.getElementById('spgo'); if(b){ b.disabled=true; b.textContent='Un momento…'; } const r=await call('satispay',{action:'paga',booking_id:id}); if(r.url){ location.href=r.url; return; } if(b){ b.disabled=false; b.textContent='Satispay non disponibile: riprova o paga con carta'; } }
+document.addEventListener('click',e=>{ if(e.target.id==='spgo'){ e.preventDefault(); spGo(); } });
 const contatti='<p>Per qualsiasi dubbio scriva a <a href="mailto:nutrizionista.spina@gmail.com">nutrizionista.spina@gmail.com</a> o al 351 879 7908.</p>';
 async function start(){
   if(!/^[0-9a-f-]{36}$/i.test(id)) return show('<h1>Link non valido</h1><p>Controlli di aver aperto il link completo ricevuto per email.</p>'+contatti);
-  if(fine){ for(let i=0;i<6;i++){ const s=await call('sumup-sync',{booking_id:id}); if(s.stato==='pagato') break; await new Promise(r=>setTimeout(r,2500)); } }
+  if(fine){ for(let i=0;i<6;i++){ const [s,t]=await Promise.all([call('sumup-sync',{booking_id:id}),call('satispay',{action:'sync',booking_id:id})]); if(s.stato==='pagato'||t.stato==='pagato') break; await new Promise(r=>setTimeout(r,2500)); } }
   const d=await call('sumup-paga',{booking_id:id});
   if(d.stato==='pagato') return show(`<div class="ok">✓</div><h1>Pagamento ricevuto</h1>${vis(d)}<p>La visita è confermata: a breve riceve l'email di conferma.</p>`);
-  if(d.stato==='da_pagare'&&d.url){
-    if(fine) return show(`<h1>Pagamento non completato</h1>${vis(d)}<p>Non risulta ancora un pagamento. Se ha appena pagato attenda qualche minuto: riceverà l'email di conferma. Altrimenti può riprovare.</p><a class="btn" href="${esc(d.url)}">Riprova il pagamento</a>`);
-    return show(`<h1>Conferma della visita</h1>${vis(d)}<p>Il pagamento avviene sulla pagina sicura di SumUp: carta, Apple Pay o Google Pay.</p><a class="btn" href="${esc(d.url)}">Paga ${eur(d.importo)}</a>${rate(d)}`);
+  if(d.stato==='da_pagare'&&(d.url||d.sp)){
+    if(fine) return show(`<h1>Pagamento non completato</h1>${vis(d)}<p>Non risulta ancora un pagamento. Se ha appena pagato attenda qualche minuto: riceverà l'email di conferma. Altrimenti può riprovare.</p>${payBtns(d)}`);
+    return show(`<h1>Conferma della visita</h1>${vis(d)}<p>Il pagamento avviene sulla pagina sicura del servizio scelto.</p>${payBtns(d)}${rate(d)}`);
   }
   if(['serve_cf','cf_non_valido','indirizzo_mancante'].includes(d.stato)) return fattForm(d);
+  if(d.stato==='scaduto'&&d.sede) return show(`<h1>Orario non più bloccato</h1>${vis(d)}<p>Sono passati più di 30 minuti dalla prenotazione: torni sul sito e scelga di nuovo giorno e ora.</p>`+contatti);
   if(d.stato==='annullato'||d.stato==='scaduto') return show(`<h1>Richiesta non più valida</h1>${vis(d)}<p>Questa richiesta di pagamento è stata chiusa.</p>`+contatti);
   if(d.stato==='credito'||d.stato==='rimborsato') return show(`<h1>Nessun pagamento da fare</h1>${vis(d)}`+contatti);
   if(d.stato==='non_trovato') return show('<h1>Richiesta non trovata</h1><p>Controlli di aver aperto il link completo ricevuto per email.</p>'+contatti);
@@ -54,7 +60,7 @@ function fattForm(d,msg){ const m=msg||(d.stato==='cf_non_valido'?'Il codice fis
   document.getElementById('ff').addEventListener('submit',async e=>{ e.preventDefault(); const cf=document.getElementById('fcf').value.trim().toUpperCase().replace(/\s+/g,''), ind=document.getElementById('find').value.trim();
     if(!/^[A-Z0-9]{16}$/.test(cf)) return fattForm(d,'Il codice fiscale ha 16 caratteri tra lettere e cifre.'); if(ind.length<8) return fattForm(d,'Scriva l\'indirizzo completo: via, numero, CAP e città.');
     show('<div class="sp"></div><p>Un momento…</p>'); const r=await call('sumup-paga',{booking_id:id,cf,ind});
-    if(r.stato==='da_pagare'&&r.url) return show(`<h1>Conferma della visita</h1>${vis(r)}<p>Il pagamento avviene sulla pagina sicura di SumUp: carta, Apple Pay o Google Pay.</p><a class="btn" href="${esc(r.url)}">Paga ${eur(r.importo)}</a>${rate(r)}`);
+    if(r.stato==='da_pagare'&&(r.url||r.sp)) return show(`<h1>Conferma della visita</h1>${vis(r)}<p>Il pagamento avviene sulla pagina sicura del servizio scelto.</p>${payBtns(r)}${rate(r)}`);
     if(['cf_non_valido','indirizzo_mancante','serve_cf'].includes(r.stato)) return fattForm(r); start(); }); }
 start();
 </script></body></html>
