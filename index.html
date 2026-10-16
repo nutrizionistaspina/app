@@ -153,6 +153,25 @@ textarea.code{width:100%;min-height:90px;border:1px solid var(--line);border-rad
 .altb{border:0;background:transparent;color:var(--brand);font-weight:700;font-size:13.5px;padding:2px 0}
 .optc{display:flex;gap:6px;padding-left:54px}.optc button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:13px}.optc button[aria-pressed="true"]{border-color:var(--brand);color:var(--brand);font-weight:700}
 .mlist{list-style:none;margin:0;padding:0 0 0 54px;display:flex;flex-direction:column;gap:3px;font-size:15.5px}.mlist .alts{display:block;font-size:14px;color:var(--muted)}
+.ojwrap{border-radius:22px;padding:2px 0;background:linear-gradient(180deg,color-mix(in srgb,var(--oj,transparent) 13%,transparent),color-mix(in srgb,var(--mood,transparent) 7%,transparent) 420px,transparent);transition:background .6s}
+.ojwrap .card{border-color:color-mix(in srgb,var(--oj,var(--line)) 22%,var(--line))}.ojwrap .eyebrow{color:color-mix(in srgb,var(--oj,var(--brand)) 75%,var(--ink))}
+.ojtrack{list-style:none;margin:14px 0 6px;padding:0;display:flex}.ojtrack li{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;font-size:12px;color:var(--muted);text-align:center;line-height:1.2}
+.ojtrack li::before{content:'';position:absolute;top:15px;left:-50%;right:50%;height:3px;border-radius:2px;background:var(--line)}.ojtrack li:first-child::before{display:none}.ojtrack li.past::before,.ojtrack li.now::before{background:var(--c)}
+.ojtrack i{font-style:normal;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:13px;position:relative;z-index:1}
+.ojtrack li.past i,.ojtrack li.now i{background:var(--c);border-color:var(--c);color:#fff}.ojtrack li.now i{box-shadow:0 0 0 6px color-mix(in srgb,var(--s) 85%,transparent)}.ojtrack li.now span{color:var(--ink);font-weight:700}
+.ojnow{margin-top:10px;border-left:4px solid var(--oj);padding:6px 0 2px 12px}.ojnow h2{margin:2px 0 4px}
+.ojnew{background:color-mix(in srgb,var(--oj) 14%,var(--surface));border-color:var(--oj);animation:ojin .7s ease-out}@keyframes ojin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.ojnew{animation:none}.ojwrap{transition:none}}
+.ojmoodc .tags button::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--m);margin-right:6px;vertical-align:1px}.ojmoodc .tags button[aria-pressed=true]{background:color-mix(in srgb,var(--m) 18%,var(--surface));border-color:var(--m);color:var(--ink)}
+.ojgrp{border-left:3px solid var(--c);padding:2px 0 2px 12px;margin:10px 0}.ojgrp b{font-size:13px}.ojgrp ul{margin:4px 0 0;padding-left:18px}.ojgrp li{margin:3px 0}.ojgrp li::marker{color:var(--c)}
+.ojie{list-style:none;margin:0;padding:0}.ojie li{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.ojie li:first-child{border-top:0}.ojie span{display:flex;flex-direction:column;gap:2px}.ojie small{color:var(--muted);font-size:13.5px}
+.ojie em{font-style:normal;font-size:12px;font-weight:700;white-space:nowrap;border-radius:999px;padding:3px 9px;border:1px solid var(--line);color:var(--muted)}.ojie em.s1{border-color:var(--oj);color:var(--ink)}.ojie em.s2{background:var(--oj);border-color:var(--oj);color:#fff}
+.ojh3{font-size:15px;margin:14px 0 6px}.ojdl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:6px 12px;margin:0}.ojdl dt{font-weight:700;font-size:14px}.ojdl dd{margin:0;font-size:14px}
+.ojtrack li span{font-size:11px;padding:0 1px;overflow-wrap:anywhere}@media(max-width:420px){.ojtrack li span{font-size:10.5px;letter-spacing:-.15px}}
+.seg{overflow-x:auto;scrollbar-width:none}.seg::-webkit-scrollbar{display:none}.seg button{flex:1 0 auto;white-space:nowrap}
+.ojplut>summary{cursor:pointer;color:var(--muted);margin:10px 0 4px}.ojplut .tags{margin:6px 0;padding-left:8px;border-left:3px solid color-mix(in srgb,var(--m) 60%,transparent)}
+.ojbar{margin:12px 0}.ojbh{display:flex;justify-content:space-between;font-size:14.5px}.ojbh span{font-weight:700;color:color-mix(in srgb,var(--oj) 80%,var(--ink))}.ojbt{position:relative;height:10px;border-radius:6px;background:var(--surface-2);margin:6px 0 4px;overflow:hidden}.ojbt i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}.ojbt i.b{background:var(--oj);height:5px;top:5px}.ojbt i.a{background:color-mix(in srgb,var(--oj) 35%,transparent);height:5px}.ojbar small{color:var(--muted);font-size:13px}
+.ojsub{font-size:16px;margin:18px 6px 8px}.olday[style*="--oj"]{border-left:4px solid var(--oj)}
+.oldots{display:flex;gap:6px}.oldots button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card,#fff);font:600 13px inherit;color:var(--muted);cursor:pointer}.oldots button[aria-pressed=true]{background:var(--brand,#2E5E45);border-color:var(--brand,#2E5E45);color:#fff}.oldots button:disabled{opacity:.35;cursor:default}.olstep h2{display:flex;gap:10px;align-items:flex-start}.olnum{flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand,#2E5E45);color:#fff;display:inline-grid;place-items:center;font-size:13px;margin-top:2px}.olscale{margin:0;padding-left:0;list-style:none;display:grid;gap:6px;font-size:14px}.olscale b{display:inline-block;min-width:44px;color:var(--brand,#2E5E45)}
 details.tip2>summary{cursor:pointer;font-weight:700;list-style:none;padding:12px 0}details.tip2>summary::-webkit-details-marker{display:none}details.tip2>summary::after{content:"+";float:right;color:var(--muted);font-weight:400}details.tip2[open]>summary::after{content:"−"}
 .card.tight details.tip2{border-top:1px solid var(--line)}.card.tight details.tip2:first-child{border-top:0}details.tip2 p{margin:0 0 12px}
 details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 0}details.card.tip2 .eyebrow{font-weight:700}
@@ -350,6 +369,7 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
    ${gmCard()}${rvCard()}
    ${todoCard()}
    ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0],Math.min(today,(A.P.pl?.d||[]).length-1))).join('')}</section>`:''}
+   ${olToday()}
    ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}
    ${newsCard()}
    ${libWeek()}`; }
@@ -501,11 +521,57 @@ function libItem(x){ const k=LIBK[x.k]||LIBK.podcast; return `<a class="mat lib"
 function libCard(){ const L=(A.P.lib||[]).filter(x=>/^https:\/\//.test(x.u||'')); if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Da ascoltare e guardare</span>${L.map(libItem).join('')}<p class="small muted">Si apre su Spotify o YouTube.</p></section>`; }
 function libWeek(){ const L=(A.P.lib||[]).filter(x=>/^https:\/\//.test(x.u||'')); if(!L.length) return ''; const w=Math.floor((Date.now()/864e5+3)/7), x=L[w%L.length]; return `<section class="card"><span class="eyebrow">Il consiglio della settimana</span>${libItem(x)}</section>`; }
 function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Schede per te</span>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
+
+/* ---- Oltre il peso: i piccoli passi scelti in visita, con una spunta per i giorni in cui li hai provati (resta sul telefono) */
+const olKey=()=>'nlp_ol_'+PID();
+const olWeek=(d=new Date())=>{ const x=new Date(d); x.setHours(12,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x.toISOString().slice(0,10); };
+const olGet=()=>{ try{ return JSON.parse(LS.get(olKey())||'{}')||{}; }catch(e){ return {}; } };
+function olDone(k,w=olWeek()){ return (olGet()[w]||{})[k]||[]; }
+function olToggle(k,day){ const o=olGet(), w=olWeek(); o[w]||={}; const L=new Set(o[w][k]||[]); L.has(day)?L.delete(day):L.add(day); o[w][k]=[...L].sort(); const keys=Object.keys(o).sort(); while(keys.length>8) delete o[keys.shift()]; LS.set(olKey(),JSON.stringify(o)); }
+const OL_DAYS=['L','M','M','G','V','S','D'];
+function olDots(k){ const done=new Set(olDone(k)), today=(new Date().getDay()+6)%7;
+  return `<div class="oldots" role="group" aria-label="Giorni della settimana in cui l'hai provato">${OL_DAYS.map((d,i)=>`<button data-olk="${esc(k)}" data-old="${i}" aria-pressed="${done.has(i)}"${i>today?' disabled':''} aria-label="${['lunedì','martedì','mercoledì','giovedì','venerdì','sabato','domenica'][i]}">${done.has(i)?'✓':d}</button>`).join('')}</div>`; }
+function olHTML(){ const O=A.P.ol; if(!O) return '';
+  return `<section class="card"><span class="eyebrow">Dalla visita del ${esc(new Date(O.d+'T12:00').toLocaleDateString('it-IT',{day:'numeric',month:'long'}))}</span><p>${esc(O.in)}</p></section>
+   ${O.it.map(([k,t,c,q,v],i)=>`<section class="card olstep"><div class="top"><h2><span class="olnum">${i+1}</span>${esc(t)}</h2></div>${c?`<p>${esc(c)}</p>`:''}${q?`<p class="small"><b>Quando</b> · ${esc(q)}</p>`:''}${v?`<p class="small muted"><b>Come capiamo se funziona</b> · ${esc(v)}</p>`:''}<p class="small muted" style="margin:10px 0 4px">Questa settimana l'hai provato:</p>${olDots(k)}</section>`).join('')}
+   ${O.sc?`<section class="card"><h2>La scala della fame</h2><ul class="olscale"><li><b>0-2</b> fame fortissima: difficile scegliere con calma</li><li><b>3-4</b> fame chiara: il momento comodo per sedersi a tavola</li><li><b>5</b> neutro</li><li><b>6</b> soddisfatto: il momento giusto per fermarsi</li><li><b>7-8</b> pieno, appesantito</li><li><b>9-10</b> troppo pieno, fino al disagio</li></ul></section>`:''}
+   <p class="small muted" style="padding:0 6px">Le spunte restano solo su questo telefono: servono a te per ricordare. Ne parliamo alla prossima visita.</p>`; }
+function olToday(){ const O=A.P.ol; if(!O||!O.it.length) return ''; const n=Math.floor(Date.now()/864e5), it=O.it[n%O.it.length], today=(new Date().getDay()+6)%7, done=olDone(it[0]).includes(today);
+  return `<section class="card olday" style="${ojVars()}"><span class="eyebrow">Oltre il peso · il passo di oggi${A.P.oj?` · tappa ${A.P.oj.st}: ${esc(A.P.oj.S[A.P.oj.st-1][0])}`:''}</span><h2>${esc(it[1])}</h2>${it[2]?`<p class="small">${esc(it[2])}</p>`:''}<div class="row"><button class="btn ${done?'ghost':'primary'}" data-olk="${esc(it[0])}" data-old="${today}">${done?'✓ Fatto oggi':'L’ho provato oggi'}</button><button class="btn ghost" data-go="piano" data-ol-open>Tutti i passi</button></div></section>`; }
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-olk]'); if(b){ e.preventDefault(); olToggle(b.dataset.olk,+b.dataset.old); render(); return; } const o=e.target.closest('[data-ol-open]'); if(o){ A.psub='oltre'; } },true);
+/* ---- Oltre il peso: il percorso a tappe (dalla cartella). Il colore della tappa guida la pagina; l'umore di oggi (scelto qui o dal diario) la tinge appena */
+const OJ_PLUT=[['gioia','#E9B824',['serenità','calma','gioia','estasi']],['fiducia','#8DBF4E',['accettazione','fiducia','ammirazione']],['paura','#4E9E68',['apprensione','stress','ansia','paura','terrore']],['sorpresa','#3AAE9E',['distrazione','confusione','sorpresa','stupore']],['tristezza','#5A93CF',['pensierosità','stanchezza','solitudine','tristezza','angoscia']],['disgusto','#9468BC',['noia','avversione','disgusto']],['rabbia','#D9607C',['irritazione','rabbia','collera']],['aspettativa','#EE8A34',['interesse','fretta','aspettativa','vigilanza']]];
+const OJ_MOOD=Object.fromEntries(OJ_PLUT.flatMap(([,c,L])=>L.map(w=>[w,c])));
+const ojMoodKey=()=>'nlp_ojmood_'+PID(), ojSeenKey=()=>'nlp_ojst_'+PID();
+function ojMoodNow(){ const t=ymd(new Date()); try{ const m=JSON.parse(LS.get(ojMoodKey())||'null'); if(m&&m.d===t&&OJ_MOOD[m.m]) return [m.m,'oggi']; }catch(e){}
+  const from=Date.now()-3*864e5, L=mLoad().filter(e=>new Date(e.at).getTime()>=from&&(e.emo||[]).some(x=>OJ_MOOD[x])); if(L.length) return [L.at(-1).emo.find(x=>OJ_MOOD[x]),'diario'];
+  return OJ_MOOD[A.P.oj?.mo]?[A.P.oj.mo,'visita']:['','']; }
+function ojVars(){ const J=A.P.oj; if(!J) return ''; const S=J.S[J.st-1]||J.S[0], m=ojMoodNow()[0]; return `--oj:${S[2]};--ojs:${S[3]};--mood:${OJ_MOOD[m]||'transparent'}`; }
+function ojHTML(){ const J=A.P.oj; if(!J) return ''; const st=J.st, S=J.S[st-1], [mood,src]=ojMoodNow(), seen=+LS.get(ojSeenKey())||0, fresh=seen&&st>seen;
+  if(!seen) LS.set(ojSeenKey(),String(st));
+  const by=J.S.map(()=>[]); for(const [t,s] of J.h||[]) by[Math.min(J.S.length,Math.max(1,s))-1].push(t);
+  return `${fresh?`<section class="card ojnew" role="status"><span class="eyebrow">Qualcosa è cambiato</span><h2>Sei arrivato alla tappa ${st}: ${esc(S[0])}</h2><p class="small">Quello che hai costruito finora resta con te. Da qui il percorso ha un colore nuovo.</p><button class="btn primary" data-ojseen="${st}">Andiamo avanti</button></section>`:''}
+   <section class="card ojhead"><span class="eyebrow">Il tuo percorso oltre il peso</span>
+    <ol class="ojtrack" aria-label="Le tappe del percorso">${J.S.map((x,i)=>`<li class="${i+1<st?'past':i+1===st?'now':''}" style="--c:${x[2]};--s:${x[3]}"${i+1===st?' aria-current="step"':''}><i>${i+1<st?'✓':i+1}</i><span>${esc(x[0])}</span></li>`).join('')}</ol>
+    <div class="ojnow"><span class="small muted">Ora sei qui · tappa ${st} di ${J.S.length}</span><h2>${esc(S[0])}</h2><p class="small">${esc(S[1])}</p></div></section>
+   <section class="card ojmoodc"><h2>Come ti senti oggi?</h2><div class="tags">${MEMO.map(m=>`<button type="button" aria-pressed="${mood===m}" style="--m:${OJ_MOOD[m]}" data-ojm="${m}">${m}</button>`).join('')}</div>
+    <details class="ojplut"${mood&&!MEMO.includes(mood)?' open':''}><summary class="small">Non trovi la parola giusta?</summary>${OJ_PLUT.map(([f,c,L])=>`<div class="tags" style="--m:${c}">${L.filter(w=>!MEMO.includes(w)).map(w=>`<button type="button" aria-pressed="${mood===w}" style="--m:${c}" data-ojm="${w}">${w}</button>`).join('')}</div>`).join('')}</details>
+    <p class="small muted">${mood?(src==='diario'?'Dal tuo diario della fame.':src==='visita'?'Da come stavi all’ultima visita.':'')+' Qualunque cosa senti va bene così: i colori della pagina ti fanno solo compagnia.':'Se vuoi, scegli una parola: la pagina si adatta con discrezione.'}</p></section>
+   ${(J.sc||[]).length?`<section class="card"><h2>Come cambia la tua consapevolezza</h2><p class="small muted">Le scale da 0 a 10 che misuriamo in visita: la barra chiara è il punto di partenza.</p>${J.sc.map(([n,a,b,t])=>`<div class="ojbar"><div class="ojbh"><b>${esc(n)}</b><span>${a!==b?`da ${a} a ${b}`:b}</span></div><div class="ojbt">${a!==b?`<i class="a" style="width:${a*10}%"></i>`:''}<i class="b" style="width:${Math.max(4,b*10)}%"></i></div><small>${esc(t)}</small></div>`).join('')}</section>`:''}
+   ${by.some(L=>L.length)?`<section class="card"><h2>Le abitudini che hai fatto tue</h2>${by.map((L,i)=>L.length?`<div class="ojgrp" style="--c:${J.S[i][2]}"><b>${i+1} · ${esc(J.S[i][0])}</b><ul>${L.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`:'').join('')}</section>`:''}
+   ${J.ie?`<section class="card"><h2>Mangiare in modo intuitivo</h2><ul class="ojie">${J.ie.map(([t,d,s])=>`<li><span><b>${esc(t)}</b><small>${esc(d)}</small></span><em class="s${s}">${['da esplorare','in allenamento','ormai mio'][s]||''}</em></li>`).join('')}</ul></section>`:''}
+   ${J.mp?`<section class="card"><h2>Il tuo piano di mantenimento</h2><p class="small muted">Niente bilancia: le porzioni si misurano con la tua mano e i cibi si distribuiscono nella settimana. La fame e la sazietà restano la tua guida.</p>
+     <h3 class="ojh3">✋ Le porzioni</h3><dl class="ojdl">${J.mp.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
+     <h3 class="ojh3">🗓️ Quanto spesso</h3><dl class="ojdl">${(J.mf||[]).map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>${J.mn?`<p class="small">${esc(J.mn)}</p>`:''}</section>`:''}
+   ${A.P.ol?'<h2 class="ojsub">I passi di queste settimane</h2>':''}`; }
+document.addEventListener('click',e=>{ const m=e.target.closest('[data-ojm]'); if(m){ e.preventDefault(); const cur=ojMoodNow(); LS.set(ojMoodKey(),JSON.stringify({d:ymd(new Date()),m:cur[0]===m.dataset.ojm&&cur[1]==='oggi'?'':m.dataset.ojm})); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  const s=e.target.closest('[data-ojseen]'); if(s){ e.preventDefault(); LS.set(ojSeenKey(),s.dataset.ojseen); render(); } },true);
 function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc||[]).length, hasM=(A.P.mat||[]).length||(A.P.lib||[]).length;
-  const subs=[['piano','Piano'],...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[]),...(A.P.ls?[['spesa','Spesa']]:[]),...(hdOn()?[['allen','Sport']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
+  const subs=[['piano','Piano'],...(A.P.ol||A.P.oj?[['oltre','Oltre il peso']]:[]),...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[]),...(A.P.ls?[['spesa','Spesa']]:[]),...(hdOn()?[['allen','Sport']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
   const seg=subs.length>1?`<div class="seg" role="tablist">${subs.map(([k,l])=>`<button role="tab" data-psub="${k}" aria-selected="${A.psub===k}">${l}</button>`).join('')}</div>`:'';
-  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):A.psub==='consigli'?'Consigli':A.psub==='allen'?'Allenamento':A.psub==='spesa'?'Lista della spesa':'Materiali')}</h1>`)+seg;
+  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):A.psub==='consigli'?'Consigli':A.psub==='oltre'?'Oltre il peso':A.psub==='allen'?'Allenamento':A.psub==='spesa'?'Lista della spesa':'Materiali')}</h1>`)+seg;
   if(A.psub==='consigli') return `${top}${(A.P.edu||[]).length?`<section class="card tight">${A.P.edu.map(t=>`<details class="tip2"><summary>${esc(t[0])}</summary><p class="small">${esc(t[1])}</p></details>`).join('')}</section>`:''}${edocCard()}`;
+  if(A.psub==='oltre') return `${top}<div class="ojwrap" style="${ojVars()}">${ojHTML()}${olHTML()}</div>`;
   if(A.psub==='mat') return `${top}${matCard()}${libCard()}`;
   if(A.psub==='spesa') return `${top}${spesaHTML()}`;
   if(A.psub==='allen') return `${top}${allenHTML()}`;
