@@ -1,0 +1,3 @@
+transformers.js 3.8.1 (Apache-2.0, Hugging Face): LICENSE-transformers.txt
+onnxruntime-web (MIT, Microsoft Corporation): ort-wasm-simd-threaded.jsep.*
+Copia locale usata dal registratore di NutriLab Pro: nessun file viene caricato da CDN esterne.

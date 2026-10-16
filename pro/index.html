@@ -171,14 +171,14 @@ function sheetCard(){ const s=A.sel; const a=s.a?A.D.ap.find(x=>x.id===s.a):null
   const name=p?.n||a?.n||'Senza nome', em=p?.em||a?.em, ph=p?.ph||a?.ph, next=A.D.ap.find(x=>(p&&x.pid===p.id)||(a&&x.id===a.id));
   return `<button class="back" data-a="back">‹ Indietro</button><div class="hero"><div class="chips">${prog(p)}</div><h2>${esc(name)}</h2>${next?`<p>${esc(dayLbl(next.s.slice(0,10)))}, ${next.s.slice(11,16)} · ${esc(next.t)}${next.sede?` · ${esc(next.sede)}`:''}</p>`:''}</div>
    <div class="acts">${ph?`<a class="btn primary" href="tel:${esc(ph)}">Chiama</a><a class="btn" href="${esc(wa(ph))}" target="_blank" rel="noopener">WhatsApp</a>`:''}${em?`<button class="btn" data-a="compose" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}">Email</button>`:''}</div>
-   ${preCard(p,a)}${p?planCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
+   ${recCard(p,a)}${preCard(p,a)}${p?planCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
 /* ---- disegno */
 function render(){ if(!A.key) return keyScreen(); if(!A.D){ if(A.busy==='load'||!A.blob&&A.busy!=='') return $('#root').innerHTML='<p class="empty">Carico…</p>'; if(A.blob) return lockScreen(); $('#root').innerHTML=`<div class="lock"><h1>Nessun dato</h1><p class="muted">NutriLab non ha ancora preparato il pacchetto: apri NutriLab e premi «Aggiorna adesso».</p><button class="btn" data-a="reload">Riprova</button></div>`; return; }
   const y=window.scrollY, foc=document.activeElement?.dataset?.f, unseen=(A.inbox?.L||[]).filter(m=>m.unseen).length;
-  const title=A.sel?'':A.tab==='ag'?'Agenda':A.tab==='pz'?'Pazienti':'Posta', sub=A.D.at?`aggiornato ${new Date(A.D.at).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:'';
-  $('#root').innerHTML=`<header class="top"><h1>${A.sel?'Scheda':title}<small>${esc(sub)}</small></h1><button class="ib" data-a="reload" aria-label="Aggiorna" title="Aggiorna">${IC.ref}</button><button class="ib" data-a="lock" aria-label="Blocca" title="Blocca">${IC.lock}</button></header>
-   <main>${A.busy==='load'?'<p class="note">Aggiorno…</p>':''}${A.sel?sheetCard():A.tab==='ag'?agenda():A.tab==='pz'?people():inbox()}</main>
-   <nav class="tabs">${[['ag','Agenda',IC.cal],['pz','Pazienti',IC.ppl],['ml','Posta',IC.mail]].map(([k,l,i])=>`<button data-a="tab" data-k="${k}"${!A.sel&&A.tab===k?' aria-current="page"':''}>${i}<span>${l}</span>${k==='ml'&&unseen?`<span class="badge">${unseen}</span>`:''}</button>`).join('')}</nav>`;
+  const title=A.rec?'Registra':A.sel?'':A.tab==='ag'?'Agenda':A.tab==='pz'?'Pazienti':'Posta', sub=A.D.at?`aggiornato ${new Date(A.D.at).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:'';
+  $('#root').innerHTML=`<header class="top"><h1>${A.rec?'Registra':A.sel?'Scheda':title}<small>${esc(sub)}</small></h1><button class="ib" data-a="reload" aria-label="Aggiorna" title="Aggiorna">${IC.ref}</button><button class="ib" data-a="lock" aria-label="Blocca" title="Blocca">${IC.lock}</button></header>
+   <main>${A.busy==='load'?'<p class="note">Aggiorno…</p>':''}${A.rec?recView():A.sel?(recBanner()+sheetCard()):recBanner()+(A.tab==='ag'?agenda():A.tab==='pz'?people():inbox())}</main>
+   ${A.rec?'':`<nav class="tabs">`}${A.rec?'':[['ag','Agenda',IC.cal],['pz','Pazienti',IC.ppl],['ml','Posta',IC.mail]].map(([k,l,i])=>`<button data-a="tab" data-k="${k}"${!A.sel&&A.tab===k?' aria-current="page"':''}>${i}<span>${l}</span>${k==='ml'&&unseen?`<span class="badge">${unseen}</span>`:''}</button>`).join('')}${A.rec?'':'</nav>'}`;
   if(A.keepY) window.scrollTo(0,y); else window.scrollTo(0,0); A.keepY=false;
   if(foc){ const f=document.querySelector(`[data-f="${foc}"]`); if(f){ f.focus(); try{ f.setSelectionRange(f.value.length,f.value.length); }catch(e){} } } }
 /* ---- invii (solo a pazienti in elenco; partono da noreply con risposta a info@) */
@@ -197,10 +197,10 @@ function compose(p,a,pre){ const em=p?.em||a?.em; if(!em) return; const d=docume
       try{ await call('send',{to:em,subj:su,body:bo}); d.remove(); toast('Email in partenza.'); }catch(er){ e.target.disabled=false; toast(er.message==='not_patient'?'Indirizzo non tra i pazienti.':'Invio non riuscito.'); } } }); }
 document.addEventListener('submit',e=>{ if(e.target.id==='pwf'){ e.preventDefault(); unlock($('#pw').value,$('#rem').checked); } });
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(!b||b.tagName==='A') return; const k=b.dataset.a, id=b.dataset.id;
-  if(k==='tab'){ A.tab=b.dataset.k; A.sel=null; render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); return; }
+  if(k==='tab'){ if(A.rec) return; A.tab=b.dataset.k; A.sel=null; render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); return; }
   if(k==='ap'){ A.sel={a:id}; if(!A.inbox) loadInbox(); return render(); } if(k==='pt'){ A.sel={p:id}; if(!A.inbox) loadInbox(); return render(); } if(k==='back'){ A.sel=null; return render(); }
   if(k==='past'){ A.past=true; return render(); } if(k==='reload'){ A.inbox=null; return load(true); }
-  if(k==='lock'){ LS.del('nlpro_k'); try{ sessionStorage.removeItem('nlpro_k'); }catch(e){} A.D=null; return lockScreen(); }
+  if(k==='lock'){ if(A.rec&&['rec','pause','stopping'].includes(A.rec.st)) return toast('Prima ferma la registrazione.'); A.rec=null; LS.del('nlpro_k'); try{ sessionStorage.removeItem('nlpro_k'); }catch(e){} A.D=null; return lockScreen(); }
   if(k==='day'){ A.day[id]=+b.dataset.i; A.keepY=true; return render(); }
   const p=id?pt(id):null, a=b.dataset.ap?A.D.ap.find(x=>x.id===b.dataset.ap):null;
   if(k==='broMail') return broMail(p,a); if(k==='broShare') return broShare();
@@ -211,5 +211,6 @@ document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
 if(A.key){ A.lastLoad=Date.now(); A.busy='load'; render(); load(false); } else render();
 </script>
+<script src="rec.js"></script>
 </body>
 </html>
