@@ -1,4 +1,4 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2E5E45"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><script>/* NutriLab BETA standalone: va prima di tutto il resto.
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><meta name="author" content="Dott. Federico Spina"><meta name="copyright" content="© 2026 Dott. Federico Spina"><meta name="description" content="NutriLab beta, software nutrizionale del Dott. Federico Spina, biologo nutrizionista. I dati restano sul dispositivo: nessun invio in rete."><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2E5E45"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><script>/* NutriLab BETA standalone: va prima di tutto il resto.
    Fuori da claude.ai non ci sono archivio online, connettori né Claude: i dati restano in questo browser.
    Qui si offre solo il salvataggio dei file (download normale del browser). */
 (function () {
@@ -10,12 +10,11 @@
   if (!window.claude) window.claude = Object.freeze({ use: async (n) => NS[n] || null, beta: true });
   try { navigator.storage?.persist?.(); } catch (e) {}
 })();
-</script></head><body><title>NutriLab beta</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+</script></head><body><title>NutriLab beta · Dott. Federico Spina</title>
+<style>@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(vendor/inter-latin-400-normal.woff2) format('woff2')}@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(vendor/inter-latin-500-normal.woff2) format('woff2')}@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url(vendor/inter-latin-600-normal.woff2) format('woff2')}@font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url(vendor/inter-latin-700-normal.woff2) format('woff2')}@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:600;font-display:swap;src:url(vendor/source-serif-4-latin-600-normal.woff2) format('woff2')}@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:700;font-display:swap;src:url(vendor/source-serif-4-latin-700-normal.woff2) format('woff2')}</style>
+<script src="vendor/chart.umd.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf.plugin.autotable.min.js"></script>
 <style>
 /* Layout: barra di navigazione | Studio a tre colonne (libreria · pasti 2×2 · dashboard clinica) | pagine Pazienti, Piani, Report, Alimenti */
 :root{
@@ -4274,7 +4273,7 @@ function plansPanel(p,plans){
         <div class="vp-a"><button class="btn ghost${V.armed==='pl:'+pl.id?' danger':''}" data-act="vPlDel" data-id="${pl.id}">${V.armed==='pl:'+pl.id?'Archiviare il piano?':ICON.box+' Archivia'}</button><button class="btn ghost${V.armed==='plp:'+pl.id?' danger':''}" data-act="plPurge" data-id="${pl.id}">${V.armed==='plp:'+pl.id?'Eliminare per sempre?':ICON.trash+' Elimina'}</button><button class="btn ${d?'primary':'ghost'}" data-act="plOpen" data-id="${pl.id}">${d?'Apri in studio con il nuovo target':'Apri in studio'} ${ICON.arrow}</button>${d?`<button class="btn ghost" data-act="tgtUpd" data-id="${pl.id}">Aggiorna solo il target</button>`:''}</div></div>`; }).join('')}</div>`+archH;
 }
 /* importazione dal foglio "Indici Metabolici" (celle fisse) */
-async function loadXLSX(){ if(window.XLSX) return window.XLSX; await new Promise((ok,ko)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload=ok; s.onerror=ko; document.head.appendChild(s); }); return window.XLSX; }
+async function loadXLSX(){ if(window.XLSX) return window.XLSX; await new Promise((ok,ko)=>{ const s=document.createElement('script'); s.src='vendor/xlsx.full.min.js'; s.onload=ok; s.onerror=ko; document.head.appendChild(s); }); return window.XLSX; }
 async function readIM(file){
   const X=await loadXLSX(); const wb=X.read(await file.arrayBuffer()); const ws=wb.Sheets[wb.SheetNames.find(n=>/indici/i.test(n))||wb.SheetNames[0]];
   const c=a=>{ const x=ws[a]; if(!x||x.v===''||x.v==null) return null; const n=typeof x.v==='number'?x.v:parseFloat(String(x.v).replace(',','.')); return isNaN(n)?null:n; };
@@ -4841,8 +4840,8 @@ const TPRESET={hrv:[['RMSSD','','ms'],['SDNN','','ms'],['pNN50','','%'],['FC a r
 const TST={busy:false,msg:'',err:false,type:'sangue'};
 let pdfjsP=null;
 function loadPdfJs(){ return pdfjsP||=new Promise((ok,ko)=>{ if(window.pdfjsLib) return ok(window.pdfjsLib);
-  const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-  s.onload=()=>{ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }catch(e){} ok(window.pdfjsLib); }; s.onerror=()=>{ pdfjsP=null; ko(new Error('pdfjs')); }; document.head.appendChild(s); }); }
+  const s=document.createElement('script'); s.src='vendor/pdf.min.js';
+  s.onload=()=>{ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js'; }catch(e){} ok(window.pdfjsLib); }; s.onerror=()=>{ pdfjsP=null; ko(new Error('pdfjs')); }; document.head.appendChild(s); }); }
 /* testo del PDF; se è una scansione (poco testo) restituisce anche le pagine come immagini */
 async function readPdf(file){
   const lib=await loadPdfJs(); const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
@@ -8890,8 +8889,8 @@ const LIB_K={podcast:['🎧','Podcast'],audiolibro:['📖','Audiolibro'],video:[
 const LIB_TEMI=[['tutti','Per tutti'],['base','Inizio del percorso'],['peso','Peso e diete'],['ricette','Cucina'],['fuori','Pasti fuori casa'],['etichette','Etichette e spesa'],['verdura','Frutta, verdura e fibra'],['pesce','Cuore e grassi'],['sale','Sale e pressione'],['sonno','Sonno e stress'],['mente','Fame emotiva'],['sport','Sport']];
 const LIB_MAX=6;
 function libAll(){ if(!Array.isArray(S.lib)) S.lib=[
-  {id:'lib_bress_fbfm',u:'https://open.spotify.com/episode/0QeQuI9d8OtNx5Q9UtHGE7',k:'podcast',t:'Fa bene o fa male? – Dario Bressanini',a:'Scienze X Storia',img:'https://image-cdn-fa.spotifycdn.com/image/ab6772ab000015bef54f90aedd1168b42f68fd09',dur:'55 min',nota:'Miti e paure sul cibo smontati con il metodo scientifico.',tema:'tutti',on:true,add:today()},
-  {id:'lib_bress_term',u:'https://open.spotify.com/show/7tmAjAmqcIPAGGqJuaPHfe',k:'audiolibro',t:'La dieta termodinamica',a:'Dario Bressanini',img:'https://image-cdn-ak.spotifycdn.com/image/ab6766630000db5b17111b9da40f961c8ede5e35',dur:'',nota:'Perché si ingrassa, perché le diete falliscono e cosa funziona davvero.',tema:'peso',on:true,add:today()}];
+  {id:'lib_bress_fbfm',u:'https://open.spotify.com/episode/0QeQuI9d8OtNx5Q9UtHGE7',k:'podcast',t:'Fa bene o fa male? – Dario Bressanini',a:'Scienze X Storia',img:'',dur:'55 min',nota:'Miti e paure sul cibo smontati con il metodo scientifico.',tema:'tutti',on:true,add:today()},
+  {id:'lib_bress_term',u:'https://open.spotify.com/show/7tmAjAmqcIPAGGqJuaPHfe',k:'audiolibro',t:'La dieta termodinamica',a:'Dario Bressanini',img:'',dur:'',nota:'Perché si ingrassa, perché le diete falliscono e cosa funziona davvero.',tema:'peso',on:true,add:today()}];
   return S.lib; }
 const libOn=()=>libAll().filter(x=>x.on&&/^https:\/\//.test(x.u||'')&&x.t);
 function libTemi(p){ const T=norm([Object.values(p.anam||{}).join(' '),p.clin||'',JSON.stringify(p.aq||{})].join(' ')), has=re=>re.test(T), W=new Set(['tutti']);
@@ -14685,7 +14684,15 @@ load(); go('oggi'); syncBadge(); initSync();
    - pazienti di prova al primo avvio (nomi e dati inventati);
    - dati solo in questo browser: backup da esportare e importare;
    - le funzioni che chiedono Claude o un collegamento restano visibili ma non partono. */
-const BETA_KEY = 'nutrilab-beta-init';
+const BETA_KEY = 'nutrilab-beta-init', BETA_AUTH = 'Dott. Federico Spina, biologo nutrizionista';
+function betaInfo() { let d = document.getElementById('betaInfo'); if (!d) { d = document.createElement('dialog'); d.id = 'betaInfo'; document.body.appendChild(d); }
+  d.innerHTML = `<h2>NutriLab beta</h2><p><b>Ideata e realizzata dal ${BETA_AUTH}</b> (iscrizione all'Ordine dei Biologi), per il proprio studio. Versione di prova, uso professionale.</p>
+   <h3>Dove vanno i dati</h3><ul><li>Pazienti, visite, piani e agenda restano <b>solo su questo dispositivo</b>, nella memoria di questo browser o dell'app.</li>
+   <li>L'app <b>non fa connessioni a internet</b>: librerie e caratteri sono inclusi, e una regola di sicurezza (Content-Security-Policy) blocca qualsiasi invio verso altri siti.</li>
+   <li>Nessun account, nessuna statistica, nessun cookie di terze parti, nessuna intelligenza artificiale attiva.</li>
+   <li>Escono dati solo quando lo decidi tu: un file che salvi (PDF, backup) o un link che apri (email, WhatsApp, siti esterni).</li></ul>
+   <h3>Copie di sicurezza</h3><p>Il backup è un file sul tuo computer: conservalo in un posto protetto, contiene dati sanitari.</p>
+   <p class="bi-f">© 2026 ${BETA_AUTH} · NutriLab</p><button data-beta="close">Chiudi</button>`; d.showModal(); }
 function betaDemo() { const t = today(), add = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
   const mon = (() => { const x = new Date(); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.toISOString().slice(0, 10); })();
   const P = [
@@ -14715,16 +14722,17 @@ function betaReset() { if (!confirm('Cancellare tutti i dati di questo browser e
   try { localStorage.removeItem(LS); localStorage.removeItem(BETA_KEY); } catch (e) {} location.reload(); }
 function betaBar() { let el = document.getElementById('betaBar'); if (!el) { el = document.createElement('div'); el.id = 'betaBar'; document.body.prepend(el); }
   let lb = ''; try { lb = localStorage.getItem('nutrilab-beta-lastbk') || ''; } catch (e) {}
-  el.innerHTML = `<b>NutriLab beta</b><span>Dati solo in questo browser${lb ? ` · ultimo backup ${new Date(lb).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}` : ' · nessun backup ancora'}. Claude e i collegamenti non sono attivi.</span>
+  el.innerHTML = `<b>NutriLab beta</b><span>del ${BETA_AUTH}. I dati restano su questo dispositivo: nessun invio in rete${lb ? ` · ultimo backup ${new Date(lb).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}` : ' · nessun backup ancora'}.</span>
+   <button data-beta="info" class="ghost">Chi l'ha creata e privacy</button>
    <button data-beta="exp">Esporta backup</button><label>Importa backup<input type="file" accept=".json,application/json" data-beta="imp" hidden></label><button data-beta="reset" class="ghost">Ricomincia con i dati di prova</button>`; }
-document.addEventListener('click', (e) => { const b = e.target.closest('[data-beta]'); if (!b || b.tagName === 'INPUT') return; if (b.dataset.beta === 'exp') betaExport(); else if (b.dataset.beta === 'reset') betaReset(); }, true);
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-beta]'); if (!b || b.tagName === 'INPUT') return; if (b.dataset.beta === 'close') document.getElementById('betaInfo')?.close(); else if (b.dataset.beta === 'info') betaInfo(); else if (b.dataset.beta === 'exp') betaExport(); else if (b.dataset.beta === 'reset') betaReset(); }, true);
 document.addEventListener('change', (e) => { const t = e.target; if (t.dataset?.beta !== 'imp') return; const f = t.files?.[0]; t.value = ''; if (f) betaImport(f); }, true);
 /* i messaggi che rimandano a claude.ai: nella beta la funzione semplicemente non c'è */
 { const _t = toast; toast = function (m, ...r) { if (/claude\.ai/.test(String(m || ''))) m = 'Non disponibile nella beta: serve Claude o un collegamento.'; return _t.call(this, m, ...r); }; }
 document.head.insertAdjacentHTML('beforeend', `<style>
 #betaBar{position:sticky;top:0;z-index:999;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 16px;background:#FFF4D6;color:#5A4410;font:13.5px/1.35 system-ui,-apple-system,sans-serif;border-bottom:1px solid #EBD9A4}
 #betaBar b{letter-spacing:.3px}#betaBar span{flex:1 1 260px}#betaBar button,#betaBar label{font:600 13px inherit;border:1px solid #D9C27F;background:#fff;color:#5A4410;border-radius:999px;padding:5px 12px;cursor:pointer}
-#betaBar .ghost{background:transparent}@media (prefers-color-scheme:dark){#betaBar{background:#3A3014;color:#F3E3B5;border-color:#5A4A1E}#betaBar button,#betaBar label{background:#2A2410;color:#F3E3B5;border-color:#5A4A1E}}
+#betaBar .ghost{background:transparent}#betaInfo{max-width:560px;border:0;border-radius:16px;padding:22px 24px;font:15px/1.5 Inter,system-ui,sans-serif;color:#1B2A22}#betaInfo::backdrop{background:rgba(0,0,0,.35)}#betaInfo h2{font:700 22px 'Source Serif 4',serif;margin:0 0 8px}#betaInfo h3{font-size:15px;margin:14px 0 4px}#betaInfo ul{padding-left:1.2em;margin:4px 0}#betaInfo .bi-f{color:#67766E;font-size:13px}#betaInfo button{font:600 14px inherit;border:1px solid #CAD6CE;border-radius:999px;padding:6px 16px;background:#fff;cursor:pointer}@media (prefers-color-scheme:dark){#betaBar{background:#3A3014;color:#F3E3B5;border-color:#5A4A1E}#betaBar button,#betaBar label{background:#2A2410;color:#F3E3B5;border-color:#5A4A1E}}
 </style>`);
 setTimeout(() => { betaInit(); betaBar(); }, 300);
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
