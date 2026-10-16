@@ -197,6 +197,12 @@ details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 
 .field2{display:flex;flex-direction:column;gap:4px}.field2 input{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px;background:var(--surface)}
 .gmpc p{margin:0 0 6px}.gminc{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:4px}.gminc li{display:flex;gap:8px;align-items:baseline}.gminc li.ok span{color:var(--brand,#2e5e45)}.hrvol{margin:.5em 0 0;padding-left:1.3em;display:grid;gap:.7em}.h4chk{display:flex;gap:8px;align-items:center}.h4chk input{width:18px;height:18px;margin:0}.h4stores{display:flex;gap:8px;flex-wrap:wrap;margin:.6em 0}.h4em{display:grid;gap:4px;margin:.8em 0 .6em}.hrvc .err{color:var(--warn,#B4532A)}.hrvg summary{font-weight:600}
 .cic .ciq{margin:.8em 0 .3em;font-weight:600;font-size:15px}.cimis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.cimis label{display:grid;gap:4px}.cic .err,.payc .err{color:var(--warn,#B4532A)}.rict{margin:0 0 10px}.ric summary .chip{margin-left:6px}.ricx{color:var(--muted)}.payo{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:8px 0}.rich{font-size:17px;margin:16px 4px 6px}.phprev{width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin:6px 0}.phthumb{width:72px;height:72px;object-fit:cover;border-radius:8px;margin:4px 0 8px}
+
+.mh{flex-wrap:wrap}.mvb{margin-left:auto;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;cursor:pointer}.mvwas{color:var(--muted);font-size:12.5px}
+.pview{display:flex;gap:4px;margin:10px 0;background:var(--surface-2);border-radius:999px;padding:3px;width:max-content}.pview button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;color:var(--muted)}.pview button[aria-pressed="true"]{background:var(--surface);color:var(--ink)}
+.wday>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;padding:12px 2px}.wday>summary::-webkit-details-marker{display:none}.wday>summary small{flex-basis:100%;color:var(--muted);font-size:12.5px}.pvh{margin:6px 2px}
+.mvlist button{flex-direction:column;align-items:flex-start!important}.mvlist small{margin-left:0!important;color:var(--muted)}.linkb{border:0;background:none;color:var(--brand);font-weight:600;text-decoration:underline;padding:0;cursor:pointer;font:inherit}.ctsedi{margin-top:10px}
+.payo.ppban{display:block}.ppban .ppbtn{width:100%}.ppban{background:#f5f7fa;border:1px solid #dfe5ee;border-radius:14px;padding:12px;color:#1b2b44}.ppbtn{display:flex;align-items:center;justify-content:center;background:#ffc439;border-radius:999px;height:44px;text-decoration:none;margin-bottom:8px}.ppbtn:hover{filter:brightness(.97)}.ppw{font:italic 800 21px/1 Verdana,Arial,sans-serif;letter-spacing:-.5px}.ppw i:first-child{color:#003087}.ppw i:last-child{color:#009cde}
 </style>
 
 <div id="root"></div>
@@ -282,6 +288,7 @@ const ICON={oggi:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path 
  piano:'<svg viewBox="0 0 24 24"><path d="M4 14h16a8 8 0 0 1-16 0z"/><path d="M8 10c0-2 1.5-2.5 1.5-4.5M12 10c0-2 1.5-2.5 1.5-4.5"/></svg>',
  visite:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
  integr:'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-35 12 12.5)"/><path d="M9.3 8.2l5.4 7.6"/></svg>',
+ io:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6"/></svg>',
  chiedi:'<svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></svg>'};
 const LEAF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l8-8"/></svg>';
 
@@ -333,7 +340,9 @@ function swSummary(){ const o=swGet(), M=new Map(), d=A.P.pl?.d||[];
   const out=[]; for(const [k,v] of Object.entries(o)){ const [day,ml,main]=k.split('|'), sl=M.get(ml+'|'+main); if(!sl||!v||v>=sl.length) continue;
     const meal=(d.flatMap(x=>x[1]).find(m=>norm(m[0])===ml)||[ml])[0];
     out.push({m:String(meal).slice(0,40),f:bare(sl[0]).slice(0,60),t:bare(sl[v]).slice(0,60),d:day==='*'?'ogni giorno':String(d[+day]?.[0]||'').slice(0,12)}); }
-  return out.slice(0,20); }
+  for(const [k,v] of Object.entries(mvGet())){ const [day,ml]=k.split('|'); const meal=(d.flatMap(x=>x[1]).find(m=>norm(m[0])===ml)||[ml])[0];
+    out.push({m:String(meal).slice(0,40),f:'pasto intero',t:'quello di '+String(d[+v]?.[0]||'').slice(0,12),d:String(d[+day]?.[0]||'').slice(0,12)}); }
+  return out.slice(0,24); }
 function swReport(){ if(A.P?.demo||!A.P?.tok||!SID()) return; clearTimeout(swT); swT=setTimeout(()=>{ const s=swSummary(), k='nlp_swsent_'+SID(), h=JSON.stringify(s);
     if(LS.get(k)===h) return; rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'sw',p_payload:{pl:String(A.P.pl?.n||'').slice(0,80),s}}).then(()=>LS.set(k,h)).catch(()=>{}); },8000); }
 /* ---- emoji degli alimenti: arrivano dal piano di NutriLab («🍝 Pasta di semola 80 g»); per i pacchetti più vecchi si indovinano dal nome */
@@ -354,7 +363,7 @@ const itemH=s=>{ const [e,t]=splitE(s); return `${e?`<span class="fe" aria-hidde
 const swDK=(day,label,main)=>`${day}|${norm(label)}|${norm(bare(main))}`, swAK=(label,main)=>`*|${norm(label)}|${norm(bare(main))}`;
 function swIdx(day,label,sl){ const o=swGet(); const v=o[swDK(day,label,sl[0])]??o[swAK(label,sl[0])]; return v!=null&&v<sl.length?v:0; }
 function mealHTML(m,key,day){ const [label,time,groups]=m; key=key||label; day=day??A.day; const oi=Math.min(A.opt[key]||0,groups.length-1), g=groups[oi]||[];
-  return `<div class="meal2"><div class="mh"><span class="mtime">${esc(time||'')}</span><b class="mname">${esc(label)}</b></div>
+  return `<div class="meal2"><div class="mh"><span class="mtime">${esc(time||'')}</span><b class="mname">${esc(label)}</b>${m[3]!=null?`<small class="mvwas">da ${esc(((A.P.pl?.d||[])[m[3]]||[''])[0].toLowerCase())}</small>`:''}${A.tab==='piano'&&(A.P.pl?.d||[]).length>1?`<button class="mvb" data-mv="${day}|${esc(label)}" aria-label="Sposta ${esc(label)} in un altro giorno">⇅ Sposta</button>`:''}</div>
    ${groups.length>1?`<div class="optc" role="group" aria-label="Opzioni">${groups.map((_,i)=>`<button data-opt="${esc(key)}" data-v="${i}" aria-pressed="${i===oi}">Opzione ${i+1}</button>`).join('')}</div>`:''}
    <ul class="mlist">${g.map((sl,si)=>{ const ix=swIdx(day,label,sl), rk=`${key}|${oi}|${si}`; if(sl.length>1) A.swReg[rk]={day,label,sl};
      return sl.length>1?`<li><button class="swb${ix?' on':''}" data-sw="${esc(rk)}" aria-label="Sostituisci ${esc(bare(sl[ix]))}">${itemH(sl[ix])}<i aria-hidden="true">⇄</i></button>${ix?`<small class="swwas">al posto di ${esc(bare(sl[0]))}</small>`:''}</li>`:`<li>${itemH(sl[0])}</li>`; }).join('')}</ul></div>`; }
@@ -369,20 +378,43 @@ function swSheet(){ const r=A.swReg[A.sw]; if(!r) return ''; const o=swGet(), ix
    <div class="row"><button class="btn primary" data-swclose>Fatto</button>${ix?'<button class="btn ghost" data-swpick="0">Torna al piano</button>':''}</div></section>`; }
 function swSet(i){ const r=A.swReg[A.sw]; if(!r) return; const o=swGet(), dk=swDK(r.day,r.label,r.sl[0]), ak=swAK(r.label,r.sl[0]), allOn=o[ak]!=null&&o[dk]==null;
   i=(i+r.sl.length)%r.sl.length; if(allOn){ if(i) o[ak]=i; else delete o[ak]; } else { if(i) o[dk]=i; else delete o[dk]; } swSave(o); }
-const dayPlan=i=>{ const d=A.P.pl?.d||[]; return d.length?d[Math.min(i,d.length-1)]:null; };
+/* ---- spostare un pasto intero tra giorni: solo tra pasti con lo stesso nome (il pranzo di martedì con quello di giovedì).
+   Si ricorda sul telefono come «giorno|pasto» → giorno da cui prendere il pasto; il piano del Dottore non cambia */
+const mvKey=()=>'nlp_mv_'+PID()+'_'+norm(A.P?.pl?.n||'');
+const mvGet=()=>{ try{ return JSON.parse(LS.get(mvKey())||'{}')||{}; }catch(e){ return {}; } };
+const mvSave=o=>{ LS.set(mvKey(),JSON.stringify(o)); swReport(); };
+function mvSrc(i,label){ const v=mvGet()[i+'|'+norm(label)]; return v==null?i:+v; }
+const dayPlan=i=>{ const d=A.P.pl?.d||[]; if(!d.length) return null; i=Math.min(i,d.length-1); const dp=d[i];
+  return [dp[0],dp[1].map(m=>{ const s=mvSrc(i,m[0]); if(s===i||!d[s]) return m; const sm=d[s][1].find(x=>norm(x[0])===norm(m[0])); return sm?[m[0],m[1],sm[2],s]:m; })]; };
+function mvSwap(i,j,label){ const o=mvGet(), L=norm(label), a=mvSrc(i,label), b=mvSrc(j,label); const put=(k,v,self)=>{ if(v===self) delete o[k+'|'+L]; else o[k+'|'+L]=v; }; put(i,b,i); put(j,a,j); mvSave(o); }
+function mvSheet(){ const r=A.mv; if(!r) return ''; const d=A.P.pl?.d||[], cur=mvSrc(r.day,r.label);
+  const sum=g=>((g||[])[0]||[]).map(sl=>bare(sl[0]).replace(/\s+\d.*$/,'')).slice(0,4).join(', ');
+  const opts=d.map((x,j)=>{ if(j===r.day) return ''; const m=(dayPlan(j)?.[1]||[]).find(y=>norm(y[0])===norm(r.label)); return m?`<li><button data-mvto="${j}"><b>${esc(x[0])}</b><small>${esc(sum(m[2]))}</small></button></li>`:''; }).join('');
+  return `<div class="sheetbg" data-mvclose></div><section class="sheet swsheet" role="dialog" aria-modal="true" aria-label="Sposta il pasto">
+   <div class="sheeth"><b>${esc(r.label)} · ${esc(d[r.day]?.[0]||'')}</b><button class="btn ghost sm" data-mvclose aria-label="Chiudi">✕</button></div>
+   <p class="small">Scambia questo pasto con ${esc(r.label.toLowerCase())} di un altro giorno: i due pasti si invertono, la settimana resta equilibrata.</p>
+   <ul class="swlist mvlist">${opts||'<li class="small muted">Negli altri giorni non c\'è un pasto con lo stesso nome.</li>'}</ul>
+   <div class="row"><button class="btn primary" data-mvclose>Chiudi</button>${cur!==r.day?'<button class="btn ghost" data-mvback>Rimetti quello del piano</button>':''}</div></section>`; }
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-mv],[data-mvto],[data-mvclose],[data-mvback],[data-plreset],[data-pview]'); if(!t) return; e.preventDefault(); e.stopImmediatePropagation();
+  if(t.dataset.pview){ A.pview=t.dataset.pview; render(); return; }
+  if(t.dataset.plreset!=null){ if(!t.classList.contains('arm')){ t.classList.add('arm'); t.textContent='Tocca di nuovo per confermare'; return; } LS.set(mvKey(),'{}'); LS.set(swKey(),'{}'); swReport(); render(); return; }
+  if(t.dataset.mv!=null){ const [day,label]=t.dataset.mv.split('|'); A.mv={day:+day,label}; render(); return; }
+  if(t.dataset.mvto!=null&&A.mv){ mvSwap(A.mv.day,+t.dataset.mvto,A.mv.label); A.mv=null; render(); return; }
+  if(t.dataset.mvback!=null&&A.mv){ const i=A.mv.day, n=(A.P.pl?.d||[]).length; /* si scambia con il giorno che ha adesso il nostro pasto */
+    for(let j=0;j<n;j++) if(j!==i&&mvSrc(j,A.mv.label)===i){ mvSwap(i,j,A.mv.label); break; } A.mv=null; render(); return; }
+  if(t.dataset.mvclose!=null){ A.mv=null; render(); } },true);
 function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), now=new Date(), hh=pad(now.getHours())+':'+pad(now.getMinutes());
-  const meals=dp?dp[1]:[], nextMeal=meals.find(m=>(m[1]||'99')>=hh)||null;
+  const meals=dp?dp[1]:[], nextMeal=meals.find(m=>(m[1]||'99')>=hh)||null, ci=A.P.ci&&(!ciSt().sent||CIM.js);
   const tip=(A.P.edu||[])[new Date().getDate()%Math.max(1,(A.P.edu||[]).length)];
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
    ${pcCard()}
    ${nextCard()}
-   ${gmCard()}${ciCardApp()}${rvCard()}
    ${todoCard()}
+   ${ci?(A.ciOpen||CIM.js||ciSt().a!=null?ciCardApp():`<section class="card tight"><div class="todo"><span><b>Check-in della settimana</b><small>un minuto: com'è andata, energia, sonno, fame</small></span><button class="btn sm primary" data-ciopen>Inizia</button></div></section>`):''}
    ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0],Math.min(today,(A.P.pl?.d||[]).length-1))).join('')}</section>`:''}
    ${olToday()}
-   ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}
-   ${newsCard()}
-   ${libWeek()}`; }
+   ${rvCard()}
+   ${tip?`<details class="card tip2"><summary><span class="eyebrow">Consiglio del giorno</span><br>${esc(tip[0])}</summary><p class="small">${esc(tip[1])}</p></details>`:''}`; }
 /* ---- messaggi del percorso: li scrive il Dottore in NutriLab, l'assistente li mostra qui quando è il momento (uno alla volta, niente notifiche) */
 const pcKey=()=>'nlp_pc_'+PID();
 const pcSt=()=>{ try{ return {r:{},a:{},...(JSON.parse(LS.get(pcKey())||'{}')||{})}; }catch(e){ return {r:{},a:{}}; } };
@@ -487,7 +519,9 @@ function todoCard(){ const L=[], q=A.P.scr||[], todo=q.filter(x=>!scrDone(x)).le
   if(A.P.mind){ const M=mLoad(), t=ymd(new Date()), n=M.filter(e=>e.at.slice(0,10)===t).length, un=M.filter(e=>!e.sent).length;
     L.push(`<div class="todo"><span><b>Diario della fame</b><small>${n?`oggi ${n} ${n===1?'pasto':'pasti'}`:'nessun pasto oggi'}${un?` · ${un} da inviare`:''}</small></span><button class="btn sm" data-go="diario">Annota</button></div>`); }
   if(hdOn()){ const l=hdLast(); L.push(`<div class="todo"><span><b>La tua settimana</b><small>${l?`inviata il ${new Date(l).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}`:'passi, sonno, attività'}</small></span><button class="btn sm" data-go="salute">${l&&Date.now()-new Date(l)<5*864e5?'Vedi':'Inserisci'}</button></div>`); }
-  return L.length?`<section class="card tight">${L.join('')}</section>`:''; }
+  const P=A.P.pay; if(P&&!P.r&&!P.st&&P.tot) L.push(`<div class="todo"><span><b>Pagamento</b><small>${esc(P.desc||'')}</small></span><button class="btn sm" data-go="io">Vedi</button></div>`);
+  const ab=A.P.gm?.ab||[]; if(ab.length){ const o=gmSt(), w=gmAskWeek(o,ab.length), r=o.w[w]||[]; if(r.filter(x=>x!=null).length<ab.length) L.push(`<div class="todo"><span><b>Abitudini della settimana</b><small>${w!==gmMon()?'com\'è andata la settimana scorsa?':'rispondi quando vuoi'}</small></span><button class="btn sm" data-go="visite">Rispondi</button></div>`); }
+  return L.length?`<section class="card tight"><span class="eyebrow" style="padding-top:10px">Da fare</span>${L.join('')}</section>`:''; }
 function scrQuest(){ const L=A.P.scr||[]; const q=A.q&&L.find(x=>x.k===A.q);
   if(q){ const a=A.ans[q.k]||{}, n=q.items.filter((_,i)=>a[i]!=null&&a[i]!=='').length, safe=q.safe!=null&&+a[q.safe]>0;
     return `${head(`<div><div class="eyebrow">Questionario · ${n} di ${q.items.length}</div><h1>${esc(q.name.split(' · ')[1]||q.name)}</h1></div>`)}
@@ -548,8 +582,8 @@ function olHTML(){ const O=A.P.ol; if(!O) return '';
    ${O.sc?`<section class="card"><h2>La scala della fame</h2><ul class="olscale"><li><b>0-2</b> fame fortissima: difficile scegliere con calma</li><li><b>3-4</b> fame chiara: il momento comodo per sedersi a tavola</li><li><b>5</b> neutro</li><li><b>6</b> soddisfatto: il momento giusto per fermarsi</li><li><b>7-8</b> pieno, appesantito</li><li><b>9-10</b> troppo pieno, fino al disagio</li></ul></section>`:''}
    <p class="small muted" style="padding:0 6px">Le spunte restano solo su questo telefono: servono a te per ricordare. Ne parliamo alla prossima visita.</p>`; }
 function olToday(){ const O=A.P.ol; if(!O||!O.it.length) return ''; const n=Math.floor(Date.now()/864e5), it=O.it[n%O.it.length], today=(new Date().getDay()+6)%7, done=olDone(it[0]).includes(today);
-  return `<section class="card olday" style="${ojVars()}"><span class="eyebrow">Oltre il peso · il passo di oggi${A.P.oj?` · tappa ${A.P.oj.st}: ${esc(A.P.oj.S[A.P.oj.st-1][0])}`:''}</span><h2>${esc(it[1])}</h2>${it[2]?`<p class="small">${esc(it[2])}</p>`:''}<div class="row"><button class="btn ${done?'ghost':'primary'}" data-olk="${esc(it[0])}" data-old="${today}">${done?'✓ Fatto oggi':'L’ho provato oggi'}</button><button class="btn ghost" data-go="piano" data-ol-open>Tutti i passi</button></div></section>`; }
-document.addEventListener('click',e=>{ const b=e.target.closest('[data-olk]'); if(b){ e.preventDefault(); olToggle(b.dataset.olk,+b.dataset.old); render(); return; } const o=e.target.closest('[data-ol-open]'); if(o){ A.psub='oltre'; } },true);
+  return `<section class="card olday" style="${ojVars()}"><span class="eyebrow">Oltre il peso · il passo di oggi${A.P.oj?` · tappa ${A.P.oj.st}: ${esc(A.P.oj.S[A.P.oj.st-1][0])}`:''}</span><h2>${esc(it[1])}</h2>${it[2]?`<p class="small">${esc(it[2])}</p>`:''}<div class="row"><button class="btn ${done?'ghost':'primary'}" data-olk="${esc(it[0])}" data-old="${today}">${done?'✓ Fatto oggi':'L’ho provato oggi'}</button><button class="btn ghost" data-go="visite" data-ol-open>Tutti i passi</button></div></section>`; }
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-olk]'); if(b){ e.preventDefault(); olToggle(b.dataset.olk,+b.dataset.old); render(); return; } const o=e.target.closest('[data-ol-open]'); if(o){ A.vsub='oltre'; } },true);
 /* ---- Oltre il peso: il percorso a tappe (dalla cartella). Il colore della tappa guida la pagina; l'umore di oggi (scelto qui o dal diario) la tinge appena */
 const OJ_PLUT=[['gioia','#E9B824',['serenità','calma','gioia','estasi']],['fiducia','#8DBF4E',['accettazione','fiducia','ammirazione']],['paura','#4E9E68',['apprensione','stress','ansia','paura','terrore']],['sorpresa','#3AAE9E',['distrazione','confusione','sorpresa','stupore']],['tristezza','#5A93CF',['pensierosità','stanchezza','solitudine','tristezza','angoscia']],['disgusto','#9468BC',['noia','avversione','disgusto']],['rabbia','#D9607C',['irritazione','rabbia','collera']],['aspettativa','#EE8A34',['interesse','fretta','aspettativa','vigilanza']]];
 const OJ_MOOD=Object.fromEntries(OJ_PLUT.flatMap(([,c,L])=>L.map(w=>[w,c])));
@@ -578,21 +612,24 @@ function ojHTML(){ const J=A.P.oj; if(!J) return ''; const st=J.st, S=J.S[st-1],
 document.addEventListener('click',e=>{ const m=e.target.closest('[data-ojm]'); if(m){ e.preventDefault(); const cur=ojMoodNow(); LS.set(ojMoodKey(),JSON.stringify({d:ymd(new Date()),m:cur[0]===m.dataset.ojm&&cur[1]==='oggi'?'':m.dataset.ojm})); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   const dm=e.target.closest('[data-ojdemo]'); if(dm&&A.P.demo){ e.preventDefault(); A.P.oj.st=+dm.dataset.ojdemo; render(); return; }
   const s=e.target.closest('[data-ojseen]'); if(s){ e.preventDefault(); LS.set(ojSeenKey(),s.dataset.ojseen); render(); } },true);
-function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc||[]).length, hasM=(A.P.mat||[]).length||(A.P.lib||[]).length;
-  const subs=[['piano','Piano'],...(A.P.ol||A.P.oj?[['oltre','Oltre il peso']]:[]),...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[]),...(A.P.ric?.length?[['ricette','Ricette']]:[]),...(A.P.ls?[['spesa','Spesa']]:[]),...(hdOn()?[['allen','Sport']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
+function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc||[]).length, hasM=(A.P.mat||[]).length||(A.P.lib||[]).length||(A.P.news||[]).length, hasI=(A.P.sup||[]).length||(A.P.int||[]).length;
+  const subs=[['piano','Piano'],...(A.P.ric?.length?[['ricette','Ricette']]:[]),...(A.P.ls?[['spesa','Spesa']]:[]),...(hasI?[['integr','Integratori']]:[]),...(hasC?[['consigli','Consigli']]:[]),...(hasM?[['mat','Materiali']]:[])]; if(!subs.some(x=>x[0]===A.psub)) A.psub='piano';
   const seg=subs.length>1?`<div class="seg" role="tablist">${subs.map(([k,l])=>`<button role="tab" data-psub="${k}" aria-selected="${A.psub===k}">${l}</button>`).join('')}</div>`:'';
-  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):A.psub==='consigli'?'Consigli':A.psub==='oltre'?'Oltre il peso':A.psub==='allen'?'Allenamento':A.psub==='spesa'?'Lista della spesa':A.psub==='ricette'?'Ricette':'Materiali')}</h1>`)+seg;
+  const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):(subs.find(x=>x[0]===A.psub)||['',''])[1].replace('Spesa','Lista della spesa'))}</h1>`)+seg;
   if(A.psub==='consigli') return `${top}${(A.P.edu||[]).length?`<section class="card tight">${A.P.edu.map(t=>`<details class="tip2"><summary>${esc(t[0])}</summary><p class="small">${esc(t[1])}</p></details>`).join('')}</section>`:''}${edocCard()}`;
-  if(A.psub==='oltre') return `${top}<div class="ojwrap" style="${ojVars()}">${ojHTML()}${olHTML()}</div>`;
-  if(A.psub==='mat') return `${top}${matCard()}${libCard()}`;
+  if(A.psub==='mat') return `${top}${libWeek()}${newsCard()}${matCard()}${libCard()}`;
   if(A.psub==='spesa') return `${top}${spesaHTML()}`;
   if(A.psub==='ricette') return `${top}${ricHTML()}`;
-  if(A.psub==='allen') return `${top}${allenHTML()}`;
+  if(A.psub==='integr') return `${top}${integrBody()}`;
   if(!d.length) return `${top}<section class="card"><p>Il piano non è ancora stato aggiunto.</p></section>`;
-  const dp=dayPlan(A.day);
-  return `${top}
-   ${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
-   <section class="card tight">${dp[1].map((m,i)=>mealHTML(m,A.day+'-'+i,Math.min(A.day,d.length-1))).join('')}</section>
+  const today=(new Date().getDay()+6)%7, wk=d.length>1&&A.pview==='sett', changed=Object.keys(mvGet()).length||Object.keys(swGet()).length;
+  const view=d.length>1?`<div class="pview" role="group" aria-label="Vista"><button data-pview="giorno" aria-pressed="${!wk}">Giorno</button><button data-pview="sett" aria-pressed="${wk}">Settimana</button></div>`:'';
+  const body=wk?d.map((x,i)=>{ const dp=dayPlan(i); return `<details class="card tight wday"${i===Math.min(today,d.length-1)?' open':''}><summary><b>${esc(x[0])}</b>${i===today?' <span class="chip">oggi</span>':''}<small>${dp[1].map(m=>esc(m[0])).join(' · ')}</small></summary>${dp[1].map((m,mi)=>mealHTML(m,i+'-'+mi,i)).join('')}</details>`; }).join('')
+    :`${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
+   <section class="card tight">${dayPlan(A.day)[1].map((m,i)=>mealHTML(m,A.day+'-'+i,Math.min(A.day,d.length-1))).join('')}</section>`;
+  return `${top}${view}${body}
+   <p class="small muted pvh">Tocca un alimento con ⇄ per scegliere tra le alternative del Dottore${d.length>1?'; con «⇅ Sposta» scambi un pasto con lo stesso pasto di un altro giorno':''}.</p>
+   ${changed?`<div class="row"><button class="btn ghost sm" data-plreset>Ripristina il piano del Dottore</button></div>`:''}
    ${A.P.pl?.note?noteHTML(A.P.pl.note):''}
    <p class="foot">Grammature a crudo e al netto degli scarti.</p>`; }
 const H4K=()=>'nlp_h4_'+(SID()||'demo'); const H4M={msg:'',err:'',busy:0};
@@ -629,14 +666,14 @@ function ciCardApp(){ const C=A.P.ci; if(!C) return ''; const o=ciSt(), q=(k,L,l
    <div class="row"><button class="btn primary" data-cisend${o.a==null||CIM.busy?' disabled':''}>${CIM.busy?'Invio…':'Invia il check-in'}</button></div>
    ${CIM.msg||CIM.err?`<p class="small ${CIM.err?'err':'muted'}">${esc(CIM.err||CIM.msg)}</p>`:''}
    <p class="small muted">Per domande o dubbi scrivimi per email: il check-in non è un messaggio.</p></section>`; }
-document.addEventListener('click',e=>{ const b=e.target.closest('[data-ci],[data-cid],[data-cisend],[data-ciedit]'); if(!b) return; e.preventDefault(); const o=ciSt();
+document.addEventListener('click',e=>{ if(e.target.closest('[data-ciopen]')){ e.preventDefault(); A.ciOpen=1; const y=window.scrollY; render(); window.scrollTo(0,y); return; } const b=e.target.closest('[data-ci],[data-cid],[data-cisend],[data-ciedit]'); if(!b) return; e.preventDefault(); const o=ciSt();
   if(b.dataset.ciedit!=null){ o.edit=1; ciSave(o); }
   else if(b.dataset.ci){ o[b.dataset.ci]=+b.dataset.v; ciSave(o); }
   else if(b.dataset.cid){ const k=b.dataset.cid; let d=o.d||''; if(k==='n') d=d==='n'?'':'n'; else { d=d.replace('n',''); d=d.includes(k)?d.replace(k,''):(d.length<3?d+k:d); } o.d=d; ciSave(o); }
   else if(b.dataset.cisend!=null){ if(o.a==null) return; CIM.msg=''; CIM.err='';
-    if(A.P.demo){ o.sent=1; delete o.edit; ciSave(o); CIM.msg=''; render(); return; }
+    if(A.P.demo){ o.sent=1; CIM.js=1; delete o.edit; ciSave(o); CIM.msg=''; render(); return; }
     const P={w:o.w,a:String(o.a),e:o.e!=null?String(o.e):'',s:o.s!=null?String(o.s):'',f:o.f!=null?String(o.f):'',d:o.d||''}; if(A.P.ci.w&&o.kg) P.kg=o.kg; if(A.P.ci.m&&o.cm) P.cm=o.cm;
-    CIM.busy=1; render(); rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'ci',p_payload:P}).then(()=>{ o.sent=1; delete o.edit; ciSave(o); }).catch(err=>{ CIM.err=/too_many/.test(err.message||'')?'Hai già inviato molte informazioni oggi: riprova domani.':'Invio non riuscito: riprova tra poco.'; }).finally(()=>{ CIM.busy=0; const y=window.scrollY; render(); window.scrollTo(0,y); }); return; }
+    CIM.busy=1; render(); rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'ci',p_payload:P}).then(()=>{ o.sent=1; CIM.js=1; delete o.edit; ciSave(o); }).catch(err=>{ CIM.err=/too_many/.test(err.message||'')?'Hai già inviato molte informazioni oggi: riprova domani.':'Invio non riuscito: riprova tra poco.'; }).finally(()=>{ CIM.busy=0; const y=window.scrollY; render(); window.scrollTo(0,y); }); return; }
   const y=window.scrollY; render(); window.scrollTo(0,y); },true);
 document.addEventListener('input',e=>{ const t=e.target; if(!t.dataset?.cim) return; const o=ciSt(); o[t.dataset.cim]=t.value.trim().replace(',','.'); ciSave(o); },true);
 /* ---- ricette compatibili con il piano */
@@ -649,7 +686,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-ricf]'); 
 function payCardApp(){ const P=A.P.pay; if(!P||P.r) return ''; const eu=x=>(+x).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
   if(P.st) return `<section class="card payc"><h2>Pagamento · ${esc(P.desc)}</h2><p class="small">${eu(P.tot)} · <span class="chip">pagato</span> Grazie!</p></section>`;
   return `<section class="card payc"><h2>Pagamento · ${esc(P.desc)}</h2><p><b>${eu(P.tot)}</b></p>
-   ${(P.o||[]).map(o=>o.k==='bonifico'?`<div class="payo"><b>Bonifico</b> <span class="small muted">${esc(o.d)}</span><p class="small">IBAN <b>${esc(P.iban)}</b><br>Causale: ${esc(P.desc)}</p></div>`:`<div class="payo"><a class="btn${o.k==='paypal'?' primary':''}" href="${esc(o.u)}" target="_blank" rel="noopener">Paga con ${esc(o.l)}</a><span class="small muted">${esc(o.d)}</span></div>`).join('')}
+   ${(P.o||[]).map(o=>o.k==='bonifico'?`<div class="payo"><b>Bonifico</b> <span class="small muted">${esc(o.d)}</span><p class="small">IBAN <b>${esc(P.iban)}</b><br>Causale: ${esc(P.desc)}</p></div>`:o.k==='paypal'?`<div class="payo ppban"><a class="ppbtn" href="${esc(o.u)}" target="_blank" rel="noopener" aria-label="Paga con PayPal"><span class="ppw"><i>Pay</i><i>Pal</i></span></a><span class="small">${esc(o.d)}</span></div>`:`<div class="payo"><a class="btn" href="${esc(o.u)}" target="_blank" rel="noopener">Paga con ${esc(o.l)}</a><span class="small muted">${esc(o.d)}</span></div>`).join('')}
    <p class="small muted">Lo stato «pagato» lo aggiorno io quando vedo l'incasso: se hai già pagato non serve fare altro.</p></section>`; }
 /* ---- foto del pasto nel diario: restano solo su questo telefono */
 const PHDB=()=>new Promise((ok,ko)=>{ const r=indexedDB.open('nlp_foto',1); r.onupgradeneeded=()=>r.result.createObjectStore('f'); r.onsuccess=()=>ok(r.result); r.onerror=()=>ko(r.error); });
@@ -671,17 +708,32 @@ function chartMs(ms){ const pts=ms.filter(x=>x.w>0); if(pts.length<2) return '';
    <path d="${path} L${xs.at(-1)} ${y(lo)} L${xs[0]} ${y(lo)} Z" fill="color-mix(in srgb, var(--brand) 12%, transparent)"/><path d="${path}" fill="none" stroke="var(--brand)" stroke-width="2.2"/>
    ${pts.map((p,i)=>`<circle cx="${xs[i]}" cy="${y(p.w)}" r="${i===pts.length-1?4.5:3}" fill="${i===pts.length-1?'var(--brand)':'var(--surface)'}" stroke="var(--brand)" stroke-width="2"/><text x="${xs[i]}" y="${H-6}" text-anchor="middle">${new Date(p.d).getDate()} ${MESI[new Date(p.d).getMonth()]}</text>`).join('')}</svg>`; }
 function scrVisite(){ const up=upcoming(), ms=A.P.ms||[], last=ms.at(-1), first=ms[0], dl=(k)=>last&&first&&last[k]!=null&&first[k]!=null&&ms.length>1?last[k]-first[k]:null, f=(x,d=1)=>x==null?'—':x.toLocaleString('it-IT',{maximumFractionDigits:d});
-  return `${head(`<div><div class="eyebrow">Visite e misure</div><h1>Il tuo percorso</h1></div>`)}
+  const subs=[['vis','Visite'],...(last||hrvHTML()?[['and','Andamento']]:[]),...(A.P.ol||A.P.oj?[['oltre','Oltre il peso']]:[]),...(hdOn()?[['allen','Sport']]:[])]; if(!subs.some(x=>x[0]===A.vsub)) A.vsub='vis';
+  const top=head(`<div><div class="eyebrow">Il tuo percorso</div><h1 class="h1s">${esc(subs.find(x=>x[0]===A.vsub)[1])}</h1></div>`)+(subs.length>1?`<div class="seg" role="tablist">${subs.map(([k,l])=>`<button role="tab" data-vsub="${k}" aria-selected="${A.vsub===k}">${l}</button>`).join('')}</div>`:'');
+  if(A.vsub==='oltre') return `${top}<div class="ojwrap" style="${ojVars()}">${ojHTML()}${olHTML()}</div>`;
+  if(A.vsub==='allen') return `${top}${allenHTML()}`;
+  if(A.vsub==='and') return `${top}${last?`<section class="card"><h2>Le tue misure</h2><div class="stats"><div class="stat"><b>${f(last.w)}</b><span>kg oggi</span></div><div class="stat"><b>${dl('w')==null?'—':(dl('w')>0?'+':'')+f(dl('w'))}</b><span>kg dall'inizio</span></div><div class="stat"><b>${last.wc!=null?f(last.wc):'—'}</b><span>cm di vita</span></div></div>${chartMs(ms)}</section>`:''}${hrvHTML()}`;
+  return `${top}
    <section class="card"><div class="top"><h2>In programma</h2>${bkOn()?'<button class="btn sm primary" data-go="prenota">Prenota</button>':''}</div>${bkPend().map(b=>`<div class="vis"><div class="vdate"><b>${new Date(b.s).getDate()}</b><span>${MESI[new Date(b.s).getMonth()]}</span></div><div><div class="mname">${esc(b.t)}</div><div class="small muted">${esc(pendTxt(b))}</div><span class="chip">Richiesta inviata</span></div></div>`).join('')}${up.length?up.map(a=>{ const d=apDate(a); return `<div class="vis"><div class="vdate"><b>${d.getDate()}</b><span>${MESI[d.getMonth()]}</span></div><div><div class="mname">${esc(a.t)}</div><div class="small muted">${esc(d.toLocaleDateString('it-IT',{weekday:'long'}))} ore ${hm(a)} · ${esc(where(a))}</div><div class="row" style="margin-top:6px"><a class="btn sm" href="${gcal(a)}" target="_blank" rel="noopener">Calendario</a></div></div></div>`; }).join(''):bkPend().length?'':'<p class="muted">Nessuna visita in programma.</p>'}${up.length||bkPend().length?`<p class="small muted">Per spostare o annullare una visita <a href="${mailto('Visita','Buongiorno, devo spostare la visita di ')}">scrivi al Dottore</a>.</p>`:''}</section>
-   ${last?`<section class="card"><h2>Le tue misure</h2><div class="stats"><div class="stat"><b>${f(last.w)}</b><span>kg oggi</span></div><div class="stat"><b>${dl('w')==null?'—':(dl('w')>0?'+':'')+f(dl('w'))}</b><span>kg dall'inizio</span></div><div class="stat"><b>${last.wc!=null?f(last.wc):'—'}</b><span>cm di vita</span></div></div>${chartMs(ms)}</section>`:''}
-   ${hrvHTML()}${payCardApp()}
+   ${gmCard()}
    ${invCardApp()}
    ${(A.P.ref||[]).length?`<section class="card"><h2>Referti delle visite</h2>${A.P.ref.map(r=>`<div class="tip"><span class="eyebrow">${esc(new Date(r.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))}</span><span class="small" style="white-space:pre-wrap">${esc(r.x)}</span></div>`).join('')}</section>`:''}
    ${(A.P.past||[]).length?`<section class="card"><h3>Visite già fatte</h3>${A.P.past.map(v=>`<div class="small">${esc(new Date(v.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · ${esc(v.t)}</div>`).join('')}</section>`:''}`; }
+function scrIo(){ const C=A.P.ci, a=AMB(), mo=A.P.mind, q=(A.P.scr||[]).length, hd=hdOn();
+  const go=(k,t,sub)=>`<div class="todo"><span><b>${t}</b><small>${sub}</small></span><button class="btn sm" data-go="${k}">Apri</button></div>`;
+  const tools=[mo?go('diario','Diario della fame','fame prima e dopo, emozioni, foto del pasto'):'',q?go('quest','Questionari',`${(A.P.scr||[]).filter(x=>!scrDone(x)).length||'nessuno'} da compilare`):'',hd?go('salute','La tua settimana','passi, sonno, attività da inviare'):''].join('');
+  return `${head(`<div><div class="eyebrow">Le tue cose</div><h1>Io</h1></div>`)}
+   ${tools?`<section class="card tight"><span class="eyebrow" style="padding-top:10px">Diario e compiti</span>${tools}</section>`:''}
+   ${C&&ciSt().sent?ciCardApp():C?`<section class="card"><h2>Check-in della settimana</h2><p class="small muted">Da fare: lo trovi in <button class="linkb" data-tab="oggi">Oggi</button>.</p></section>`:''}
+   ${payCardApp()}
+   <section class="card ctc"><h2>Contatti</h2><p class="small">Per domande, dubbi o per spostare una visita scrivimi per email: rispondo appena posso.</p>
+     <div class="row"><a class="btn primary" href="${mailto('Domanda','Buongiorno Dottore, ')}">Scrivi al Dottore</a></div>
+     ${(a.sedi||[]).length?`<div class="ctsedi"><p class="ciq">Dove ricevo</p>${a.sedi.map(x=>/online|video/i.test(x[0]+x[1])?`<div class="mat"><span class="matic" aria-hidden="true">●</span><span><b>Online</b><span class="small muted">${esc(x[2])}</span></span></div>`:`<a class="mat" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x[0]+' '+x[1])}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(x[1])} · ${esc(x[0])}</b><span class="small muted">${esc(x[2])}</span></span></a>`).join('')}</div>`:''}</section>
+   ${A.P.demo?'':`<section class="card"><h2>L'app</h2><p class="small">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))}. App del Dott. Federico Spina, biologo nutrizionista: nessuna pubblicità né tracciamento, i tuoi dati vanno solo allo studio.</p><div class="row"><button class="btn ghost" id="logout">Esci da questo telefono</button></div></section>`}`; }
 function invCardApp(){ const L=A.P.inv||[]; if(!L.length) return ''; return `<section class="card"><h2>Professionisti consigliati</h2>${L.map(x=>`<div class="sup"><h3>${esc(x.pro)}</h3><span class="small">${esc(x.why)}</span><span class="small muted">${x.st==='prenotato'?'Prenotato':'Da prenotare'}${x.urg==='alta'?' · da fare presto':''}</span></div>`).join('')}${wa('x')?`<div class="row"><a class="btn" href="${wa('Buongiorno, le scrivo per la visita consigliata dallo specialista: ')}" target="_blank" rel="noopener">Aggiorna il Dottore</a></div>`:''}</section>`; }
-function scrIntegr(){ const s=A.P.sup||[], it=A.P.int||[];
-  return `${head(`<div><div class="eyebrow">Integratori e farmaci</div><h1>Cosa prendere</h1></div>`)}
-   <section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}${x.pr&&/^https:\/\//.test(x.pr.u||'')?`<a class="small prlink" href="${esc(x.pr.u)}" target="_blank" rel="noopener">Prodotto indicato: ${esc(x.pr.n)}${x.pr.b?` (${esc(x.pr.b)})`:''} ↗</a>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}${A.P.supNote&&s.some(x=>x.pr)?`<p class="small muted">${esc(A.P.supNote)}</p>`:''}</section>
+function scrIntegr(){ A.tab='piano'; A.psub='integr'; return scrPiano(); }
+function integrBody(){ const s=A.P.sup||[], it=A.P.int||[];
+  return `<section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}${x.pr&&/^https:\/\//.test(x.pr.u||'')?`<a class="small prlink" href="${esc(x.pr.u)}" target="_blank" rel="noopener">Prodotto indicato: ${esc(x.pr.n)}${x.pr.b?` (${esc(x.pr.b)})`:''} ↗</a>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}${A.P.supNote&&s.some(x=>x.pr)?`<p class="small muted">${esc(A.P.supNote)}</p>`:''}</section>
    ${A.P.shop&&/^https:\/\//.test(A.P.shop.u||'')&&s.length?`<section class="card shopc"><h2>Dove trovarli</h2><p class="small">${esc(A.P.shop.t)}</p><a class="small prlink" href="${esc(A.P.shop.u)}" target="_blank" rel="noopener">${esc(A.P.shop.u.replace(/^https?:\/\/(www\.)?/,''))} ↗</a></section>`:''}
    ${it.length?`<section class="card"><h2>Attenzione con i farmaci</h2>${it.map(x=>`<div class="alert"><b>${esc(x.m)}</b>${x.w?` con ${esc(x.w)}`:''}: ${esc(x.a)}</div>`).join('')}</section>`:''}
    <p class="foot">Non iniziare né sospendere farmaci senza il tuo medico. Per dubbi su un nuovo integratore chiedi prima al Dottore.</p>`; }
@@ -905,15 +957,15 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
     try{ render(); }catch(e){ console.warn('render',e); A.P=null; LS.del('nlp_pin'); lockScreen('Il codice è giusto, ma l\'app non riesce a leggere il piano: scrivi al Dottore, che ti manderà un aggiornamento.'); } }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
-function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,integr:scrIntegr,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
-  $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:`<p class="foot">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · <button class="btn ghost small" id="logout">Esci</button></p><p class="foot">App del Dott. Federico Spina, biologo nutrizionista · nessuna pubblicità né tracciamento: i tuoi dati vanno solo allo studio.</p>`}</main>
-   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Visite'],['integr','Integratori']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
-   ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}${A.sw?swSheet():''}`;
+function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } if(A.tab==='integr'){ A.tab='piano'; A.psub='integr'; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,io:scrIo,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
+  $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo&&(A.tab==='oggi'||A.tab==='io')?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:''}</main>
+   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Percorso'],['io','Io']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')||(k==='io'&&/^(diario|quest|salute)$/.test(A.tab))?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
+   ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}${A.sw?swSheet():''}${A.mv?mvSheet():''}`;
   if(A.chatOpen) setTimeout(()=>{ const c=$('#chat'); if(c) c.scrollTop=c.scrollHeight; },10); if(A.tab==='diario') phFill(); }
 
 document.addEventListener('click',e=>{ const c=e.target.closest('[data-chat]'); if(!c) return; e.preventDefault(); A.chatOpen=c.dataset.chat==='open'; render(); if(A.chatOpen) setTimeout(()=>$('#q')?.focus({preventScroll:true}),60); },true);
 document.addEventListener('click',e=>{ const l=e.target.closest('[data-pcl]'); if(l){ pcRead(l.dataset.pcl); setTimeout(render,300); } });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&(A.chatOpen||A.sw)){ A.chatOpen=false; A.sw=null; render(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&(A.chatOpen||A.sw||A.mv)){ A.chatOpen=false; A.sw=null; A.mv=null; render(); }
   if(A.sw&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){ const r=A.swReg[A.sw]; if(r){ swSet(swIdx(r.day,r.label,r.sl)+(e.key==='ArrowLeft'?-1:1)); render(); } } });
 document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]'); if(!t) return;
   if(t.dataset.tab){ A.tab=t.dataset.tab; A.chatOpen=false; render(); window.scrollTo(0,0); return; }
@@ -946,6 +998,7 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='mcopy'){ navigator.clipboard?.writeText(A.mout).then(()=>{ t.textContent='Copiato'; mMark(); },()=>{ document.querySelector('textarea.code')?.select(); }); return; }
   if(t.id==='qcopy'){ navigator.clipboard?.writeText(A.out).then(()=>{ t.textContent='Copiato'; },()=>{ const ta=document.querySelector('textarea.code'); ta?.select(); }); return; }
   if(t.dataset.day){ A.day=+t.dataset.day; render(); return; }
+  if(t.dataset.vsub){ A.vsub=t.dataset.vsub; render(); window.scrollTo(0,0); return; }
   if(t.dataset.psub){ A.psub=t.dataset.psub; HD.err=''; HD.msg=''; render(); window.scrollTo(0,0); return; }
   if(t.hasAttribute('data-hdsend')){ hdSend(); return; }
   if(t.hasAttribute('data-hdlink')){ hdLinkSend(); return; }
