@@ -208,7 +208,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(
   if(k==='appMail'&&p?.app) return compose(p,null,{s:`La sua app del percorso · ${A.D.studio.nome}`,b:`Buongiorno ${p.f},\n\necco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.\n\n${A.D.studio.nome}`}); });
 document.addEventListener('input',e=>{ const f=e.target.dataset?.f; if(!f) return; if(f==='q'){ A.q=e.target.value; A.keepY=true; render(); } });
 document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.target.value; });
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&!A.rec&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
 if(A.key){ A.lastLoad=Date.now(); A.busy='load'; render(); load(false); } else render();
 </script>
 <script src="rec.js"></script>

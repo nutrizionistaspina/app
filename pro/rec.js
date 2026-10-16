@@ -56,13 +56,33 @@ async function recStart() { const r = A.rec; if (!r.cons) return toast('Prima co
     for (let i = 0; i < outN; i++) { const p = frac + i * ratio, k = Math.floor(p), t = p - k; out[i] = x[k] * (1 - t) + (x[k + 1] ?? x[k]) * t; }
     frac = frac + outN * ratio - x.length; recPush(out); if (RC.n - (RC.lastN || 0) >= SR16 || RC.n < (RC.lastN || 0)) { RC.lastN = RC.n; recCut(false); } };
   RC.src.connect(RC.proc); RC.proc.connect(RC.ctx.destination);
+  RC.stream.getAudioTracks()[0].onmute = () => { if (A.rec?.st === 'rec') { A.rec.warn = 'Il microfono è in pausa (telefonata, Siri o un\'altra app che usa l\'audio). Riprende da solo quando torna libero.'; render(); } };
+  RC.stream.getAudioTracks()[0].onunmute = () => { if (A.rec) { A.rec.warn = ''; render(); } };
+  RC.ctx.onstatechange = () => { if (RC.ctx && RC.ctx.state !== 'running' && A.rec?.st === 'rec' && document.visibilityState === 'visible') RC.ctx.resume().catch(() => {}); };
   RC.stream.getAudioTracks()[0].onended = () => { if (A.rec?.st === 'rec' || A.rec?.st === 'pause') { A.rec.msg = 'Il microfono si è fermato (schermo bloccato o app in secondo piano): ho tenuto quello che era già registrato.'; recStop(); } };
   r.st = 'rec'; r.started = Date.now() - r.el * 1000; recWake(true); RC.tick = setInterval(() => { if (A.rec?.st === 'rec') { A.rec.el = (Date.now() - A.rec.started) / 1000; recPaint(); } }, 1000); render(); }
 function recPause() { const r = A.rec; if (r.st === 'rec') { r.st = 'pause'; r.el = (Date.now() - r.started) / 1000; } else if (r.st === 'pause') { r.st = 'rec'; r.started = Date.now() - r.el * 1000; } render(); }
 function recHw(off) { try { RC.proc && (RC.proc.onaudioprocess = null, RC.proc.disconnect()); RC.src?.disconnect(); RC.stream?.getTracks().forEach((t) => t.stop()); RC.ctx?.close(); } catch (e) { /* già chiuso */ } RC.proc = RC.src = RC.stream = RC.ctx = null; clearInterval(RC.tick); if (off) { RC.buf = []; RC.n = 0; RC.lastN = 0; } }
 function recStop() { const r = A.rec; if (!r || (r.st !== 'rec' && r.st !== 'pause')) return; if (r.st === 'rec') r.el = (Date.now() - r.started) / 1000; recCut(true); recHw(true); r.st = 'stopping'; render(); recNext(); }
-async function recWake(on) { try { if (on && 'wakeLock' in navigator) { RC.wake = await navigator.wakeLock.request('screen'); } else if (!on && RC.wake) { await RC.wake.release(); RC.wake = null; } } catch (e) { /* non supportato */ } }
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && A.rec?.st === 'rec') recWake(true); });
+/* ---- schermo sempre acceso durante la registrazione: Wake Lock dove c'è, più un video muto in loop (iPhone e iPad più vecchi o app sulla Home) */
+async function recWake(on) {
+  if (on) {
+    try { if ('wakeLock' in navigator && document.visibilityState === 'visible' && !RC.wake) { RC.wake = await navigator.wakeLock.request('screen'); RC.wake.addEventListener?.('release', () => { RC.wake = null; if (A.rec?.st === 'rec' && document.visibilityState === 'visible') recWake(true); recPaint(); }); } } catch (e) { RC.wake = null; }
+    try { if (!RC.vid) { const v = document.createElement('video'); v.src = 'nosleep.mp4'; v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.setAttribute('aria-hidden', 'true'); v.style.cssText = 'position:fixed;width:1px;height:1px;opacity:.01;left:0;bottom:0;pointer-events:none'; document.body.appendChild(v); RC.vid = v; } await RC.vid.play(); } catch (e) { /* il video non è partito */ }
+  } else {
+    try { await RC.wake?.release(); } catch (e) { /* già rilasciato */ } RC.wake = null;
+    try { RC.vid?.pause(); RC.vid?.remove(); } catch (e) { /* già tolto */ } RC.vid = null;
+  }
+  recPaint(); }
+const recAwake = () => !!RC.wake || !!(RC.vid && !RC.vid.paused);
+/* ---- app in secondo piano: il microfono si ferma. Segno il buco nella trascrizione e riprendo appena torni */
+function recGap(sec) { const r = A.rec; if (!r || sec < 2) return; r.q.push({ i: r.q.length, t0: r.pos / SR16, done: true, sent: true, text: `— interruzione di circa ${recFmt(sec)}: app in secondo piano o schermo bloccato, questa parte probabilmente non è registrata —` }); recRebuild(); recSaveDraft(); }
+document.addEventListener('visibilitychange', async () => { const r = A.rec; if (!r || !['rec', 'pause'].includes(r.st)) return;
+  if (document.visibilityState === 'hidden') { RC.hidAt = Date.now(); return; }
+  const gap = RC.hidAt ? (Date.now() - RC.hidAt) / 1000 : 0; RC.hidAt = 0;
+  try { if (RC.ctx && RC.ctx.state !== 'running') await RC.ctx.resume(); } catch (e) { /* riprovo al prossimo tocco */ }
+  if (r.st === 'rec') { recWake(true); if (gap >= 2) { recGap(gap); r.warn = `L'app è rimasta in secondo piano per ${recFmt(gap)}: in quel tempo il microfono era fermo. Ho ripreso a registrare.`; } }
+  render(); });
 window.addEventListener('beforeunload', (e) => { if (A.rec && ['rec', 'pause', 'stopping'].includes(A.rec.st)) { e.preventDefault(); e.returnValue = ''; } });
 /* ---- invio a NutriLab (cifrato) */
 async function recSend() { const r = A.rec, text = String(r.text || '').trim(); if (!text) return toast('La trascrizione è vuota.'); if (RC.sending) return; RC.sending = true; render();
@@ -87,8 +107,9 @@ function recView() { const r = A.rec, live = r.st === 'rec' || r.st === 'pause',
     <p class="note">La prima volta il modello si scarica (Veloce circa 100 MB, Più precisa circa 300 MB) e poi resta sul dispositivo. Meglio farlo con il Wi-Fi, prima della visita.</p>
     <div class="acts">${RC.ready ? '' : `<button class="btn" data-r="load"${RC.loading ? ' disabled' : ''}>${RC.loading ? 'Preparo… ' + recPct() + '%' : 'Prepara la trascrizione'}</button>`}<button class="btn rose" data-r="start"${r.cons ? '' : ' disabled'}>● REC</button></div>
     ${model}${RC.err ? `<p class="err">${esc(RC.err)}</p>` : ''}${r.msg ? `<p class="err">${esc(r.msg)}</p>` : ''}
-    <p class="note">Tieni lo schermo acceso e l'app aperta durante la visita: se il dispositivo si blocca, il microfono si ferma.</p></div>`;
-  if (live || r.st === 'stopping') return head + `<div class="card" style="text-align:center"><div id="rc-t" style="font:400 44px/1 Georgia,serif;margin:8px 0">${recFmt(r.el)}</div>
+    <div class="rectips"><b>Prima di premere REC</b><ul><li>Lo schermo resta acceso da solo mentre registri. Per sicurezza puoi mettere Blocco automatico su «Mai» (Impostazioni → Schermo e luminosità) e rimetterlo dopo.</li><li>Attiva «Non disturbare» o una Full immersion: una telefonata ferma il microfono.</li><li>Per le visite lunghe collega il caricatore e tieni l'app in primo piano fino a Stop.</li></ul></div></div>`;
+  const fg = live ? `<div class="recfg"><b>Tieni NutriLab Pro aperto e in primo piano fino a ■ Stop.</b> Non bloccare lo schermo, non cambiare app e non rispondere al telefono da questo dispositivo: il microfono si fermerebbe.<span>${recAwake() ? '✓ Schermo sempre acceso: attivo' : '⚠ Schermo sempre acceso non garantito su questo dispositivo: metti Blocco automatico su «Mai» (Impostazioni → Schermo e luminosità).'}</span></div>${r.warn ? `<div class="recwarn">${esc(r.warn)} <button class="btn" data-r="okwarn">Ok</button></div>` : ''}` : '';
+  if (live || r.st === 'stopping') return head + fg + `<div class="card" style="text-align:center"><div id="rc-t" style="font:400 44px/1 Georgia,serif;margin:8px 0">${recFmt(r.el)}</div>
     <p class="small muted" id="rc-s">${r.st === 'pause' ? 'In pausa' : r.st === 'stopping' ? 'Finisco di trascrivere…' : '● Sto registrando'}</p>
     <div class="acts" style="justify-content:center">${live ? `<button class="btn" data-r="pause">${r.st === 'pause' ? 'Riprendi' : 'Pausa'}</button><button class="btn primary" data-r="stop">■ Stop</button>` : ''}</div>
     <p class="small muted" id="rc-q">${RC.ready ? (pend ? `${pend} ${pend === 1 ? 'pezzo' : 'pezzi'} da trascrivere` : 'Trascrizione al passo') : RC.loading ? `Preparo il modello… ${recPct()}% (registro intanto)` : 'Il modello non è pronto: registro intanto, trascrivo dopo.'}</p>${!RC.ready && !RC.loading ? '<button class="btn" data-r="load">Prepara la trascrizione</button>' : ''}${rt > 1.1 ? '<p class="note">Questo dispositivo trascrive più lentamente del parlato: a fine visita servirà qualche minuto in più.</p>' : ''}</div>
@@ -108,8 +129,11 @@ document.addEventListener('click', (e) => { const b = e.target.closest('[data-r]
   if (k === 'open') return recOpen(b.dataset.id, b.dataset.ap); if (k === 'resume') return recResume(); if (k === 'close') return recClose();
   if (k === 'model' && A.rec?.st === 'idle') { if (RC.ready && b.dataset.v !== A.rec.model) { RC.w?.terminate(); RC.w = null; RC.ready = ''; } A.rec.model = b.dataset.v; LS.set('nlpro_recm', b.dataset.v); return render(); }
   if (k === 'load') return recLoad(); if (k === 'start') { recLoad(); return recStart(); } if (k === 'pause') return recPause(); if (k === 'stop') return recStop();
+  if (k === 'okwarn') { if (A.rec) A.rec.warn = ''; return render(); }
   if (k === 'send') return recSend();
   if (k === 'copy') { navigator.clipboard?.writeText(A.rec.text || '').then(() => toast('Copiata.'), () => toast('Copia non riuscita.')); return; }
   if (k === 'del') { if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = 'Confermi? Si cancella tutto'; return; } LS.del('nlpro_txd'); return recClose(true); } });
 document.addEventListener('change', (e) => { const t = e.target; if (t.dataset?.r === 'cons' && A.rec) { A.rec.cons = t.checked; render(); } });
 document.addEventListener('input', (e) => { const t = e.target; if (t.dataset?.r === 'text' && A.rec) { A.rec.text = t.value; clearTimeout(RC.dt); RC.dt = setTimeout(recSaveDraft, 800); } });
+
+document.head.insertAdjacentHTML('beforeend', '<style>.recfg{position:sticky;top:calc(env(safe-area-inset-top) + 64px);z-index:4;background:#B8686A;color:#fff;border-radius:14px;padding:10px 14px;margin:0 0 12px;font-size:14px;line-height:1.4}.recfg span{display:block;margin-top:4px;font-size:13px;opacity:.95}.recwarn{background:color-mix(in srgb,var(--warn) 18%,var(--card));border:1px solid var(--warn);border-radius:14px;padding:10px 14px;margin:0 0 12px;font-size:14px}.recwarn .btn{margin-left:6px;padding:4px 12px}.rectips{background:var(--beige);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:13.5px}.rectips ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}#rc-s{color:#B8686A;font-weight:600}</style>');
