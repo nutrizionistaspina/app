@@ -196,7 +196,7 @@ details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 
 .sum{background:var(--surface-2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
 .field2{display:flex;flex-direction:column;gap:4px}.field2 input{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px;background:var(--surface)}
 .gmpc p{margin:0 0 6px}.gminc{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:4px}.gminc li{display:flex;gap:8px;align-items:baseline}.gminc li.ok span{color:var(--brand,#2e5e45)}.hrvol{margin:.5em 0 0;padding-left:1.3em;display:grid;gap:.7em}.h4chk{display:flex;gap:8px;align-items:center}.h4chk input{width:18px;height:18px;margin:0}.h4stores{display:flex;gap:8px;flex-wrap:wrap;margin:.6em 0}.h4em{display:grid;gap:4px;margin:.8em 0 .6em}.hrvc .err{color:var(--warn,#B4532A)}.hrvg summary{font-weight:600}
-.cic .ciq{margin:.8em 0 .3em;font-weight:600;font-size:15px}.cimis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.cimis label{display:grid;gap:4px}.cic .err,.payc .err{color:var(--warn,#B4532A)}.rict{margin:0 0 10px}.ric summary .chip{margin-left:6px}.ricx{color:var(--muted)}.payo{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:8px 0}.rich{font-size:17px;margin:16px 4px 6px}.phprev{width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin:6px 0}.phthumb{width:72px;height:72px;object-fit:cover;border-radius:8px;margin:4px 0 8px}
+.cic .ciq{margin:.8em 0 .3em;font-weight:600;font-size:15px}.fbs button{flex:1 1 auto;padding:8px 8px;font-size:13.5px}.fbc textarea.in{width:100%;resize:vertical}.cimis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.cimis label{display:grid;gap:4px}.cic .err,.payc .err{color:var(--warn,#B4532A)}.rict{margin:0 0 10px}.ric summary .chip{margin-left:6px}.ricx{color:var(--muted)}.payo{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:8px 0}.rich{font-size:17px;margin:16px 4px 6px}.phprev{width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin:6px 0}.phthumb{width:72px;height:72px;object-fit:cover;border-radius:8px;margin:4px 0 8px}
 
 .mh{flex-wrap:wrap}.mvb{margin-left:auto;border:1px solid var(--line);background:var(--surface);color:var(--brand);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;cursor:pointer}.mvwas{color:var(--muted);font-size:12.5px}
 .pview{display:flex;gap:4px;margin:10px 0;background:var(--surface-2);border-radius:999px;padding:3px;width:max-content}.pview button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;color:var(--muted)}.pview button[aria-pressed="true"]{background:var(--surface);color:var(--ink)}
@@ -410,6 +410,7 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
    ${nextCard()}
    ${todoCard()}
    ${ci?(A.ciOpen||CIM.js||ciSt().a!=null?ciCardApp():`<section class="card tight"><div class="todo"><span><b>Check-in della settimana</b><small>un minuto: com'è andata, energia, sonno, fame</small></span><button class="btn sm primary" data-ciopen>Inizia</button></div></section>`):''}
+   ${fbDue()?fbCardApp():FBM.thanks?'<section class="card tight"><p class="small">Grazie: le risposte sono arrivate al Dottore.</p></section>':''}
    ${dp?`<section class="card"><div class="top"><h2>${nextMeal?'Il prossimo pasto':'Oggi'}</h2><button class="btn ghost" data-go="piano">Tutto il piano</button></div>${(nextMeal?[nextMeal]:meals).map(m=>mealHTML(m,'oggi-'+m[0],Math.min(today,(A.P.pl?.d||[]).length-1))).join('')}</section>`:''}
    ${olToday()}
    ${rvCard()}
@@ -675,6 +676,32 @@ document.addEventListener('click',e=>{ if(e.target.closest('[data-ciopen]')){ e.
     CIM.busy=1; render(); rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'ci',p_payload:P}).then(()=>{ o.sent=1; CIM.js=1; delete o.edit; ciSave(o); }).catch(err=>{ CIM.err=/too_many/.test(err.message||'')?'Hai già inviato molte informazioni oggi: riprova domani.':'Invio non riuscito: riprova tra poco.'; }).finally(()=>{ CIM.busy=0; const y=window.scrollY; render(); window.scrollTo(0,y); }); return; }
   const y=window.scrollY; render(); window.scrollTo(0,y); },true);
 document.addEventListener('input',e=>{ const t=e.target; if(!t.dataset?.cim) return; const o=ciSt(); o[t.dataset.cim]=t.value.trim().replace(',','.'); ciSave(o); },true);
+/* ---- tre domande dopo la consegna del piano: il Dottore misura se il piano si capisce e se l'app serve (una volta per piano, dopo qualche giorno) */
+const FBK=()=>'nlp_fb_'+(SID()||'demo'); const FBM={busy:0,err:'',open:0};
+const FB_S=['Per niente','Poco','Così così','Abbastanza','Molto'];
+function fbSt(){ try{ return JSON.parse(LS.get(FBK())||'{}')||{}; }catch(e){ return {}; } }
+const fbSave=o=>LS.set(FBK(),JSON.stringify(o));
+function fbDue(){ if(!A.P.pl) return false; const o=fbSt(), gen=new Date(A.P.gen||0).getTime(); if(!gen) return false;
+  if(Date.now()-gen<3*864e5) return false; if(o.sent&&o.gen===A.P.gen) return false; if(o.sent&&Date.now()-new Date(o.at).getTime()<30*864e5) return false; return true; }
+function fbCardApp(){ const o=fbSt(); if(o.gen!==A.P.gen){ o.gen=A.P.gen; delete o.sent; delete o.q1; delete o.q2; delete o.t; }
+  if(o.skip===A.P.gen) return '';
+  const q=(k,lab)=>`<p class="ciq">${lab}</p><div class="tags fbs">${FB_S.map((x,i)=>`<button type="button" aria-pressed="${o[k]===i+1}" data-fb="${k}" data-v="${i+1}">${x}</button>`).join('')}</div>`;
+  if(!FBM.open&&o.q1==null) return `<section class="card tight"><div class="todo"><span><b>Due domande sul piano</b><small>un minuto: servono al Dottore per fare meglio</small></span><button class="btn sm primary" data-fbopen>Rispondi</button></div></section>`;
+  return `<section class="card cic fbc"><h2>Due domande sul piano</h2><p class="small muted">Risposte sincere: non cambiano il tuo percorso, aiutano il Dottore a spiegare meglio e a sistemare l'app.</p>
+   ${q('q1','Il piano che hai ricevuto si capisce?')}${q('q2','Questa app ti è utile tra una visita e l\'altra?')}
+   <p class="ciq">Cosa manca o cosa cambieresti? <span class="muted">(facoltativo)</span></p><textarea class="in" rows="2" data-fbt maxlength="400" placeholder="Una riga basta">${esc(o.t||'')}</textarea>
+   <div class="row"><button class="btn primary" data-fbsend${o.q1==null||o.q2==null||FBM.busy?' disabled':''}>${FBM.busy?'Invio…':'Invia'}</button><button class="btn ghost" data-fbskip>Non ora</button></div>
+   ${FBM.err?`<p class="small err">${esc(FBM.err)}</p>`:''}</section>`; }
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-fbopen],[data-fb],[data-fbsend],[data-fbskip]'); if(!b) return; e.preventDefault(); const o=fbSt(); if(o.gen!==A.P.gen){ o.gen=A.P.gen; delete o.sent; }
+  if(b.dataset.fbopen!=null){ FBM.open=1; }
+  else if(b.dataset.fb){ o[b.dataset.fb]=+b.dataset.v; fbSave(o); }
+  else if(b.dataset.fbskip!=null){ o.skip=A.P.gen; fbSave(o); FBM.open=0; }
+  else if(b.dataset.fbsend!=null){ if(o.q1==null||o.q2==null) return; FBM.err='';
+    const done=()=>{ o.sent=1; o.at=new Date().toISOString(); fbSave(o); FBM.open=0; FBM.busy=0; FBM.thanks=1; const y=window.scrollY; render(); window.scrollTo(0,y); };
+    if(A.P.demo||!A.P.tok){ done(); return; }
+    FBM.busy=1; render(); rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'feedback',p_payload:{gen:A.P.gen,pl:String(A.P.pl?.n||'').slice(0,80),q1:o.q1,q2:o.q2,t:String(o.t||'').slice(0,400)}}).then(done).catch(err=>{ FBM.busy=0; FBM.err=/too_many/.test(err.message||'')?'Hai già inviato molte informazioni oggi: riprova domani.':'Invio non riuscito: riprova tra poco.'; const y=window.scrollY; render(); window.scrollTo(0,y); }); return; }
+  const y=window.scrollY; render(); window.scrollTo(0,y); },true);
+document.addEventListener('input',e=>{ const t=e.target; if(t.dataset?.fbt==null) return; const o=fbSt(); o.t=t.value; fbSave(o); },true);
 /* ---- ricette compatibili con il piano */
 function ricHTML(){ const R=A.P.ric||[], ks=[...new Set(R.map(r=>r.t))], f=A.ricF&&ks.includes(A.ricF)?A.ricF:'';
   return `${ks.length>1?`<div class="tags rict"><button type="button" aria-pressed="${!f}" data-ricf="">Tutti i pasti</button>${ks.map(k=>`<button type="button" aria-pressed="${f===k}" data-ricf="${esc(k)}">${esc(k)}</button>`).join('')}</div>`:''}
