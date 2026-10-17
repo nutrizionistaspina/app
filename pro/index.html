@@ -116,7 +116,8 @@ async function load(manual){ A.busy='load'; if(manual) render();
   if(!blob){ A.D=null; return render(); }
   const k=savedK(); if(!k){ A.blob=blob; return lockScreen(); }
   try{ A.D=await openPack(blob,b64d(k)); A.blob=blob; }catch(e){ LS.del('nlpro_k'); A.blob=blob; return lockScreen('La chiave è cambiata: inserisci di nuovo la password.'); }
-  render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); }
+  if(A.inbox&&!A.inbox.busy&&Date.now()-(A.inbox.at||0)>5*60e3) A.inbox=null;
+  render(); if((A.tab==='ml'||A.sel)&&!A.inbox) loadInbox(); }
 async function unlock(pw,rem){ try{ const P=JSON.parse(A.blob), K=await unwrap(P.w,pw); A.D=await openPack(A.blob,K); const s=b64e(K); if(rem) LS.set('nlpro_k',s); else SS.set('nlpro_k',s); render(); }
   catch(e){ lockScreen('Password non corretta.'); } }
 /* ---- utilità */
@@ -147,8 +148,16 @@ function people(){ const q=norm(A.q), L=(A.D.pts||[]).filter(p=>!q||norm(p.n).in
 async function loadInbox(){ A.inbox={busy:1}; render(); try{ const j=await call('inbox'); A.inbox={L:j.L||[],at:Date.now()}; }catch(e){ A.inbox={L:[],err:e.message==='no_mail_token'?'Per vedere la posta di info@ serve il segreto HOSTINGER_MAIL_API_TOKEN in Supabase (vedi NutriLab → App professionista).':'Posta non raggiungibile ('+e.message+').'}; } render(); }
 function mailRow(m){ const p=ptByEm(m.from), d=m.date?new Date(m.date):null;
   return `<button class="mail${m.unseen?' un':''}" ${p?`data-a="pt" data-id="${esc(p.id)}"`:'data-a="none"'}><span class="mh"><span>${p?`<b style="color:var(--ink)">${esc(p.n)}</b>`:esc(m.name||m.from)}</span><span>${d?d.toLocaleDateString('it-IT',{day:'numeric',month:'short'}):''}</span></span><span class="ms">${esc(m.subj||'(senza oggetto)')}</span>${m.att?`<span class="small muted">📎 ${m.att} allegat${m.att>1?'i':'o'}</span>`:''}</button>`; }
+/* posta dal pacchetto: le email che NutriLab ha già letto (Gmail e info@), usate quando la posta dal vivo non è disponibile */
+const packMails=()=>(A.D?.mails?.L||[]).map(m=>({from:(String(m.from||'').match(/<([^>]+)>/)||[])[1]||m.from,name:String(m.from||'').replace(/<.*>/,'').trim(),subj:m.subj,date:m.date,unseen:m.un,src:m.src,snip:m.snip}));
+function siteRows(){ const L=A.D?.site||[]; if(!L.length) return '';
+  const wd=d=>d?new Date(d).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+  return `<div class="day">Dal sito</div>${L.map(x=>{ const p=ptByEm(x.em); return `<button class="mail" ${p?`data-a="pt" data-id="${esc(p.id)}"`:'data-a="none"'}><span class="mh"><span>${p?`<b style="color:var(--ink)">${esc(p.n)}</b>`:esc(x.n||x.em||'senza nome')}</span><span>${esc(wd(x.at))}</span></span><span class="ms">${x.k==='prenotazione'?`Prenotazione${x.bd?` · ${new Date(x.bd+'T12:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'})}${x.bt?' '+String(x.bt).slice(0,5):''}`:''}`:esc(x.info||'Messaggio')}</span>${x.msg?`<span class="mw">${esc(x.msg)}</span>`:''}${x.ph?`<span class="small muted">${esc(x.ph)}</span>`:''}</button>`; }).join('')}`; }
 function inbox(){ const I=A.inbox; if(!I){ setTimeout(loadInbox,0); return '<p class="empty">Carico la posta…</p>'; } if(I.busy) return '<p class="empty">Carico la posta…</p>';
-  return `<p class="note">Casella info@nutrizionistaspina.it · tocca un paziente per aprire la sua scheda.</p>${I.err?`<div class="card small">${esc(I.err)}</div>`:''}${I.L.map(mailRow).join('')||(I.err?'':'<p class="empty">Nessuna email.</p>')}`; }
+  const live=!I.err&&I.L.length, PM=packMails(), usePack=!live&&PM.length, at=A.D?.at?new Date(A.D.at).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+  return `<p class="note">${usePack?`Email lette da NutriLab (Gmail e info@), aggiornate ${esc(at)} · tocca un paziente per aprire la sua scheda.`:'Casella info@nutrizionistaspina.it · tocca un paziente per aprire la sua scheda.'}</p>${I.err&&!usePack?`<div class="card small">${esc(I.err)}</div>`:''}${(live?I.L:PM).map(mailRow).join('')||(I.err||usePack?'':'<p class="empty">Nessuna email.</p>')}${siteRows()}`; }
+function asumCard(p){ const L=p?.asum||[]; if(!L.length) return p?.app?'<div class="card"><h2><span class="lbl">Dall\'app del paziente</span></h2><p class="muted small">Non ha ancora compilato niente nell\'app.</p></div>':'';
+  return `<div class="card"><h2><span class="lbl">Dall'app del paziente</span></h2>${L.map(([k,t])=>`<p class="kv"><b>${esc(k)}</b>${esc(t)}</p>`).join('')}</div>`; }
 /* ---- scheda */
 function planCard(p){ const pl=p.plan; if(!pl) return `<div class="card"><h2><span class="lbl">Piano</span></h2><p class="muted small">Nessun piano ancora.</p></div>`;
   const n=v=>v==null?'–':v, days=pl.full?.d||[], di=Math.min(A.day[p.id]||0,Math.max(0,days.length-1)), dd=days[di];
@@ -172,12 +181,12 @@ function preCard(p,a){ const L=[]; if(a?.note) L.push(['Nota',a.note]); if(a?.pr
   if(p){ for(const x of p.site||[]) L.push(['Dal sito',x.t]); for(const [l,v] of p.form||[]) L.push([l,v]); }
   const brief=p?.brief||[];
   return `<div class="card"><h2><span class="lbl">Prima della chiamata</span></h2>${brief.length?brief.map(x=>`<p class="kv" style="margin:3px 0">${esc(x)}</p>`).join(''):''}${L.map(([l,v])=>`<p class="kv"><b>${esc(l)}</b>${esc(v)}</p>`).join('')}${!brief.length&&!L.length?'<p class="muted small">Nessuna informazione: chiedi motivo, obiettivo, diete già provate, salute e farmaci.</p>':''}</div>`; }
-function mailsOf(em){ const I=A.inbox; if(!I||I.busy||!em) return ''; const L=(I.L||[]).filter(m=>norm(m.from)===em).slice(0,5); return L.length?`<div class="card"><h2><span class="lbl">Email ricevute</span></h2>${L.map(mailRow).join('')}</div>`:''; }
+function mailsOf(em){ const I=A.inbox; if(!em) return ''; const src=I&&!I.busy&&!I.err&&I.L.length?I.L:packMails(); const L=src.filter(m=>norm(m.from)===em).slice(0,5); return L.length?`<div class="card"><h2><span class="lbl">Email ricevute</span></h2>${L.map(mailRow).join('')}</div>`:''; }
 function sheetCard(){ const s=A.sel; const a=s.a?A.D.ap.find(x=>x.id===s.a):null, p=s.p?pt(s.p):(a?.pid?pt(a.pid):null); if(!a&&!p) return '<p class="empty">Non trovato.</p>';
   const name=p?.n||a?.n||'Senza nome', em=p?.em||a?.em, ph=p?.ph||a?.ph, next=A.D.ap.find(x=>(p&&x.pid===p.id)||(a&&x.id===a.id));
   return `<button class="back" data-a="back">‹ Indietro</button><div class="hero"><div class="chips">${prog(p)}</div><h2>${esc(name)}</h2>${next?`<p>${esc(dayLbl(next.s.slice(0,10)))}, ${next.s.slice(11,16)} · ${esc(next.t)}${next.sede?` · ${esc(next.sede)}`:''}</p>`:''}</div>
    <div class="acts">${ph?`<a class="btn primary" href="tel:${esc(ph)}">Chiama</a><a class="btn" href="${esc(wa(ph))}" target="_blank" rel="noopener">WhatsApp</a>`:''}${em?`<button class="btn" data-a="compose" data-id="${esc(p?.id||'')}" data-ap="${esc(a?.id||'')}">Email</button>`:''}</div>
-   ${recCard(p,a)}${preCard(p,a)}${p?planCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
+   ${recCard(p,a)}${preCard(p,a)}${p?asumCard(p):''}${p?planCard(p):''}${sendCard(p,a)}${mailsOf(em)}`; }
 /* ---- disegno */
 function render(){ if(!A.key) return keyScreen(); if(!A.D){ if(A.busy==='load'||!A.blob&&A.busy!=='') return $('#root').innerHTML='<p class="empty">Carico…</p>'; if(A.blob) return lockScreen(); $('#root').innerHTML=`<div class="lock"><h1>Nessun dato</h1><p class="muted">NutriLab non ha ancora preparato il pacchetto: apri NutriLab e premi «Aggiorna adesso».</p><button class="btn" data-a="reload">Riprova</button></div>`; return; }
   const y=window.scrollY, foc=document.activeElement?.dataset?.f, unseen=(A.inbox?.L||[]).filter(m=>m.unseen).length;
@@ -223,7 +232,10 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(
   if(k==='appMail'&&p?.app) return compose(p,null,{s:`La sua app del percorso · ${A.D.studio.nome}`,b:`Buongiorno ${p.f},\n\necco la sua app del percorso: ${p.app.link}\nCodice dell'app: ${p.app.sid}\nPer entrare serve il codice di 6 cifre che le ho dato.\n\n${A.D.studio.nome}`}); });
 document.addEventListener('input',e=>{ const f=e.target.dataset?.f; if(!f) return; if(f==='q'){ A.q=e.target.value; A.keepY=true; render(); } });
 document.addEventListener('change',e=>{ if(e.target.dataset?.f==='bro') A.bro=e.target.value; if(e.target.dataset?.f==='dp') A.dp=e.target.value; });
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&A.D&&!A.rec&&Date.now()-(A.lastLoad||0)>5*60e3){ A.lastLoad=Date.now(); load(false); } });
+/* si rinfresca da sola: quando torni sull'app (dopo 5 minuti) e, se resta aperta, ogni 10 minuti */
+const refresh=min=>{ if(document.visibilityState==='visible'&&A.D&&!A.rec&&A.busy!=='load'&&Date.now()-(A.lastLoad||0)>min*60e3){ A.lastLoad=Date.now(); A.keepY=true; load(false); } };
+document.addEventListener('visibilitychange',()=>refresh(5));
+setInterval(()=>refresh(10),60e3);
 if(A.key){ A.lastLoad=Date.now(); A.busy='load'; render(); load(false); } else render();
 </script>
 <script src="rec.js"></script>
