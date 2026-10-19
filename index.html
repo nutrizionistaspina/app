@@ -699,7 +699,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-fbopen],[
   else if(b.dataset.fbsend!=null){ if(o.q1==null||o.q2==null) return; FBM.err='';
     const done=()=>{ o.sent=1; o.at=new Date().toISOString(); fbSave(o); FBM.open=0; FBM.busy=0; FBM.thanks=1; const y=window.scrollY; render(); window.scrollTo(0,y); };
     if(A.P.demo||!A.P.tok){ done(); return; }
-    FBM.busy=1; render(); rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'feedback',p_payload:{gen:A.P.gen,pl:String(A.P.pl?.n||'').slice(0,80),q1:o.q1,q2:o.q2,t:String(o.t||'').slice(0,400)}}).then(done).catch(err=>{ FBM.busy=0; FBM.err=/too_many/.test(err.message||'')?'Hai già inviato molte informazioni oggi: riprova domani.':'Invio non riuscito: riprova tra poco.'; const y=window.scrollY; render(); window.scrollTo(0,y); }); return; }
+    FBM.busy=1; render(); nlRpc('nl_app_fb_put',{p_id:SID(),p_tok:A.P.tok,p_payload:{gen:A.P.gen,pl:String(A.P.pl?.n||'').slice(0,80),q1:o.q1,q2:o.q2,t:String(o.t||'').slice(0,400)}}).then(done).catch(err=>{ FBM.busy=0; FBM.err=/too_many/.test(err.message||'')?'Hai già inviato molte informazioni oggi: riprova domani.':'Invio non riuscito: riprova tra poco.'; const y=window.scrollY; render(); window.scrollTo(0,y); }); return; }
   const y=window.scrollY; render(); window.scrollTo(0,y); },true);
 document.addEventListener('input',e=>{ const t=e.target; if(t.dataset?.fbt==null) return; const o=fbSt(); o.t=t.value; fbSave(o); },true);
 /* ---- ricette compatibili con il piano */
@@ -781,6 +781,8 @@ const mailto=(sub,body)=>`mailto:${stEmail()}?subject=${encodeURIComponent(sub)}
 const NLB='https://yqmdpduabrkvbsxagwdj.supabase.co', NLK='sb_publishable_qccspkS5RRf7IO2UVjLdxg_QMdBvj2v';
 async function scrPut(code){ const id=SID(); if(!id) return false;
   try{ const r=await fetch(NLB+'/rest/v1/rpc/nl_app_scr_put',{method:'POST',headers:{apikey:NLK,'Content-Type':'application/json'},body:JSON.stringify({p_id:id,p_code:code})}); return r.ok; }catch(e){ return false; } }
+/* chiamate verso l'archivio dello studio (progetto di NutriLab): risposte sul piano */
+async function nlRpc(fn,args){ const r=await fetch(NLB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:NLK,'Content-Type':'application/json'},body:JSON.stringify(args||{})}); if(!r.ok){ let m=''; try{ m=(await r.json()).message||''; }catch(e){} throw new Error(m||('http '+r.status)); } return r.json(); }
 async function rpc(fn,args){ const r=await fetch(SUPA+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
   const t=await r.text(); let j=null; try{ j=JSON.parse(t); }catch(e){} if(!r.ok){ const e=new Error(String(j?.message||'rete')); throw e; } return j; }
 const bkKey=()=>'nlp_bk_'+PID();
