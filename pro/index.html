@@ -42,6 +42,8 @@ nav.tabs button[aria-current]{color:var(--rose)}
 .ap .wh{flex:1;min-width:0}.ap .wh b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ap .wh span{font-size:13px;color:var(--muted)}
 .ap.past{opacity:.6}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.ptiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 12px}.ptile{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;color:inherit;cursor:pointer}.ptile.on{outline:2px solid var(--rose)}.ptile span{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.ptile b{font-size:22px}.ptile b.bad{color:var(--bad,#b5473a)}.ptile b.warn{color:var(--warn)}.ptile b.good{color:var(--ok)}.ptile small{color:var(--muted)}
+.ap.pay-late{border-left:4px solid var(--bad,#b5473a)}.ap.pay-due{border-left:4px solid var(--warn)}.ap.pay-ok{border-left:4px solid var(--ok)}
 .chip{font:600 11px Arial;border-radius:999px;padding:3px 8px;background:var(--beige);color:var(--muted)}
 .chip.rose{background:var(--rose2);color:var(--rose)}.chip.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.chip.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:4px 0 12px}
@@ -95,7 +97,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const b64e=u=>{ let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s); };
-const IC={cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',ppl:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg>',mail:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>',ref:'<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>',lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'};
+const IC={eur:'<svg viewBox="0 0 24 24"><path d="M17 6.5A7 7 0 1 0 17 17.5"/><path d="M4 10h9M4 14h9"/></svg>',cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',ppl:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg>',mail:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>',ref:'<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>',lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'};
 const A={key:'',K:null,D:null,at:'',tab:'ag',sel:null,q:'',inbox:null,ag:{},busy:'',past:false,day:{}};
 /* ---- chiave del dispositivo: arriva una volta dal link di NutriLab (#k=…) e resta sul telefono */
 (function(){ const m=location.hash.match(/k=([A-Za-z0-9]{20,64})/); if(m){ LS.set('nlpro_key',m[1]); history.replaceState(null,'',location.pathname); } A.key=LS.get('nlpro_key')||''; })();
@@ -143,6 +145,16 @@ function agenda(){ const D=A.D, today=ymd(Date.now()); if(!D.ap.length) return '
     const ch=[a.pay?'<span class="chip warn">da pagare</span>':'',/prima/i.test(a.t)?'<span class="chip rose">prima visita</span>':'',/conosc|chiam/i.test(a.t)&&!a.call?'<span class="chip">chiamata</span>':'',p?prog(p):'<span class="chip">non in cartella</span>'].join('');
     h+=`<button class="ap${d<today?' past':''}" data-a="ap" data-id="${esc(a.id)}"><span class="tm">${a.s.slice(11,16)}${a.dur?`<small>${a.dur} min</small>`:''}</span><span class="wh"><b>${esc(a.n||'Senza nome')}</b><span>${esc(a.t)}${a.sede?` · ${esc(a.sede)}`:''}</span><span class="chips">${ch}</span></span></button>`; }
   return h; }
+/* ---- pagamenti (dal pacchetto di NutriLab: visite, pacchetti e percorsi) */
+const eur=v=>(+v||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+function pays(){ const L=A.D.pay||[]; if(!A.D.pay) return '<p class="empty">Apri NutriLab sul computer per aggiornare il pacchetto: l\'elenco dei pagamenti arriva con il prossimo aggiornamento.</p>';
+  const f=A.pf||'open', late=L.filter(x=>x.st==='late'), due=L.filter(x=>x.st==='due'), ok=L.filter(x=>x.st==='ok'), sum=X=>X.reduce((s,x)=>s+(+x.imp||0),0);
+  const V=f==='ok'?ok:f==='late'?late:[...late,...due];
+  const tile=(k,l,X,c)=>`<button class="ptile${f===k?' on':''}" data-a="pf" data-k="${k}"><span>${l}</span><b class="${c}">${X.length}</b><small>${eur(sum(X))}</small></button>`;
+  return `<div class="ptiles">${tile('late','In ritardo',late,late.length?'bad':'')}${tile('open','Da pagare',[...late,...due],late.length+due.length?'warn':'')}${tile('ok','Pagati',ok,'good')}</div>`+
+   (V.map(x=>`<button class="ap pay-${x.st}"${x.pid&&pt(x.pid)?` data-a="pt" data-id="${esc(x.pid)}"`:''}><span class="wh"><b>${esc(x.n||'Senza nome')}</b><span>${esc(x.l)}${x.d?` · ${esc(new Date(x.d).toLocaleDateString('it-IT',{day:'numeric',month:'short'}))}`:''}${x.cod?` · ${esc(x.cod)}`:''}</span>
+     <span class="chips"><span class="chip ${x.st==='ok'?'ok':'warn'}">${x.st==='ok'?'pagato':x.st==='late'?'in ritardo':'da pagare'}</span><span class="chip">${eur(x.imp)}</span>${x.st==='ok'?(x.via?`<span class="chip">${esc(x.via)}</span>`:''):x.entro?`<span class="chip">entro ${esc(new Date(x.entro).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</span>`:''}</span></span></button>`).join('')||`<p class="empty">${f==='ok'?'Nessun pagamento negli ultimi 90 giorni.':'Nessuno deve pagare.'}</p>`)+
+   '<p class="note">Carta e Satispay online risultano pagati da soli; PayPal, bonifico e contanti si segnano in NutriLab.</p>'; }
 function people(){ const q=norm(A.q), L=(A.D.pts||[]).filter(p=>!q||norm(p.n).includes(q)).sort((a,b)=>String(b.lv?.d||'').localeCompare(String(a.lv?.d||''))).slice(0,q?60:30);
   return `<input class="search" type="search" data-f="q" placeholder="Cerca un paziente" value="${esc(A.q)}" aria-label="Cerca un paziente">`+(L.map(p=>`<button class="ap" data-a="pt" data-id="${esc(p.id)}"><span class="wh"><b>${esc(p.n)}</b><span>${p.lv?.d?`ultima visita ${new Date(p.lv.d).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})}`:'nessuna visita'}${p.plan?' · piano':''}</span><span class="chips">${prog(p)}</span></span></button>`).join('')||'<p class="empty">Nessun paziente.</p>'); }
 async function loadInbox(){ A.inbox={busy:1}; render(); try{ const j=await call('inbox'); A.inbox={L:j.L||[],at:Date.now()}; }catch(e){ A.inbox={L:[],err:e.message==='no_mail_token'?'Per vedere la posta di info@ serve il segreto HOSTINGER_MAIL_API_TOKEN in Supabase (vedi NutriLab → App professionista).':'Posta non raggiungibile ('+e.message+').'}; } render(); }
@@ -190,10 +202,10 @@ function sheetCard(){ const s=A.sel; const a=s.a?A.D.ap.find(x=>x.id===s.a):null
 /* ---- disegno */
 function render(){ if(!A.key) return keyScreen(); if(!A.D){ if(A.busy==='load'||!A.blob&&A.busy!=='') return $('#root').innerHTML='<p class="empty">Carico…</p>'; if(A.blob) return lockScreen(); $('#root').innerHTML=`<div class="lock"><h1>Nessun dato</h1><p class="muted">NutriLab non ha ancora preparato il pacchetto: apri NutriLab e premi «Aggiorna adesso».</p><button class="btn" data-a="reload">Riprova</button></div>`; return; }
   const y=window.scrollY, foc=document.activeElement?.dataset?.f, unseen=(A.inbox?.L||[]).filter(m=>m.unseen).length;
-  const title=A.rec?'Registra':A.sel?'':A.tab==='ag'?'Agenda':A.tab==='pz'?'Pazienti':'Posta', sub=A.D.at?`aggiornato ${new Date(A.D.at).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:'';
+  const title=A.rec?'Registra':A.sel?'':A.tab==='ag'?'Agenda':A.tab==='pz'?'Pazienti':A.tab==='pg'?'Pagamenti':'Posta', sub=A.D.at?`aggiornato ${new Date(A.D.at).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:'';
   $('#root').innerHTML=`<header class="top"><h1>${A.rec?'Registra':A.sel?'Scheda':title}<small>${esc(sub)}</small></h1><button class="ib" data-a="reload" aria-label="Aggiorna" title="Aggiorna">${IC.ref}</button><button class="ib" data-a="lock" aria-label="Blocca" title="Blocca">${IC.lock}</button></header>
-   <main>${A.busy==='load'?'<p class="note">Aggiorno…</p>':''}${A.rec?recView():A.sel?(recBanner()+sheetCard()):recBanner()+(A.tab==='ag'?agenda():A.tab==='pz'?people():inbox())}</main>
-   ${A.rec?'':`<nav class="tabs">`}${A.rec?'':[['ag','Agenda',IC.cal],['pz','Pazienti',IC.ppl],['ml','Posta',IC.mail]].map(([k,l,i])=>`<button data-a="tab" data-k="${k}"${!A.sel&&A.tab===k?' aria-current="page"':''}>${i}<span>${l}</span>${k==='ml'&&unseen?`<span class="badge">${unseen}</span>`:''}</button>`).join('')}${A.rec?'':'</nav>'}`;
+   <main>${A.busy==='load'?'<p class="note">Aggiorno…</p>':''}${A.rec?recView():A.sel?(recBanner()+sheetCard()):recBanner()+(A.tab==='ag'?agenda():A.tab==='pz'?people():A.tab==='pg'?pays():inbox())}</main>
+   ${A.rec?'':`<nav class="tabs">`}${A.rec?'':[['ag','Agenda',IC.cal],['pz','Pazienti',IC.ppl],['pg','Pagamenti',IC.eur],['ml','Posta',IC.mail]].map(([k,l,i])=>`<button data-a="tab" data-k="${k}"${!A.sel&&A.tab===k?' aria-current="page"':''}>${i}<span>${l}</span>${k==='ml'&&unseen?`<span class="badge">${unseen}</span>`:''}</button>`).join('')}${A.rec?'':'</nav>'}`;
   if(A.keepY) window.scrollTo(0,y); else window.scrollTo(0,0); A.keepY=false;
   if(foc){ const f=document.querySelector(`[data-f="${foc}"]`); if(f){ f.focus(); try{ f.setSelectionRange(f.value.length,f.value.length); }catch(e){} } } }
 /* ---- invii (solo a pazienti in elenco; partono da noreply con risposta a info@) */
@@ -223,6 +235,7 @@ document.addEventListener('submit',e=>{ if(e.target.id==='pwf'){ e.preventDefaul
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(!b||b.tagName==='A') return; const k=b.dataset.a, id=b.dataset.id;
   if(k==='tab'){ if(A.rec) return; A.tab=b.dataset.k; A.sel=null; render(); if(A.tab==='ml'&&!A.inbox) loadInbox(); return; }
   if(k==='ap'){ A.sel={a:id}; if(!A.inbox) loadInbox(); return render(); } if(k==='pt'){ A.sel={p:id}; if(!A.inbox) loadInbox(); return render(); } if(k==='back'){ A.sel=null; return render(); }
+  if(k==='pf'){ A.pf=b.dataset.k; A.keepY=true; return render(); }
   if(k==='past'){ A.past=true; return render(); } if(k==='reload'){ A.inbox=null; return load(true); }
   if(k==='lock'){ if(A.rec&&['rec','pause','stopping'].includes(A.rec.st)) return toast('Prima ferma la registrazione.'); A.rec=null; LS.del('nlpro_k'); try{ sessionStorage.removeItem('nlpro_k'); }catch(e){} A.D=null; return lockScreen(); }
   if(k==='day'){ A.day[id]=+b.dataset.i; A.keepY=true; return render(); }
