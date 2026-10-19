@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'none'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://uqpijskisejctcltmpdv.supabase.co; media-src 'self' data: blob:; worker-src 'self' blob:; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'none'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://uqpijskisejctcltmpdv.supabase.co https://yqmdpduabrkvbsxagwdj.supabase.co; media-src 'self' data: blob:; worker-src 'self' blob:; form-action 'self'">
 <meta name="author" content="Dott. Federico Spina, biologo nutrizionista">
 <meta name="copyright" content="© 2026 Dott. Federico Spina, biologo nutrizionista">
 
@@ -534,7 +534,7 @@ function scrQuest(){ const L=A.P.scr||[]; const q=A.q&&L.find(x=>x.k===A.q);
   const all=L.every(scrDone);
   return `${head(`<div><div class="eyebrow">Prima della prossima visita</div><h1>Questionari</h1></div>`)}
    <section class="card">${L.map(x=>{ const a=A.ans[x.k]||{}, n=x.items.filter((_,i)=>a[i]!=null&&a[i]!=='').length; return `<div class="sup"><h3>${esc(x.name)}</h3><span class="small muted">${n===x.items.length?'Completato':`${n} di ${x.items.length} risposte`}</span><div class="row"><button class="btn" data-qopen="${x.k}">${n?'Riprendi':'Inizia'}</button></div></div>`; }).join('')}</section>
-   <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':all?`<p class="small">Le risposte partono come codice cifrato in un messaggio WhatsApp: solo il Dottore può leggerle.</p><div class="row"><button class="btn primary" id="qsend">Prepara il messaggio</button></div>${A.out?`<div class="row"><a class="btn primary" href="${wa(A.out)}" target="_blank" rel="noopener">Apri WhatsApp</a><button class="btn" id="qcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.out)}</textarea>`:''}`:'<p class="small muted">Completa tutti i questionari per inviarli.</p>'}</section>`; }
+   <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':all?(A.qst==='ok'?`<p class="small"><b>Risposte inviate.</b> Arrivano cifrate direttamente al Dottore: solo lui può leggerle. Non serve mandare altro.</p>`:`<p class="small">Le risposte arrivano cifrate direttamente al Dottore: solo lui può leggerle.</p><div class="row"><button class="btn primary" id="qsend"${A.qst==='busy'?' disabled':''}>${A.qst==='busy'?'Invio…':'Invia le risposte'}</button></div>${A.out?`<p class="small">${A.qst==='err'?'L\'invio diretto non è riuscito: mandale con WhatsApp o copia il messaggio.':'Puoi anche mandarle con WhatsApp.'}</p><div class="row"><a class="btn primary" href="${wa(A.out)}" target="_blank" rel="noopener">Apri WhatsApp</a><button class="btn" id="qcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.out)}</textarea>`:''}`):'<p class="small muted">Completa tutti i questionari per inviarli.</p>'}</section>`; }
 
 /* ---- diario della fame e della sazietà (mindful eating): scala 0 molto pieno · 10 fame estrema */
 const MEMO=['calma','fretta','stress','noia','stanchezza','tristezza','solitudine','gioia','rabbia'];
@@ -777,6 +777,10 @@ function chatSheet(){ A.use=usage(); if(!A.chat.length) A.chat.push({b:1,t:A.P.u
 const SID=()=>A.sid||LS.get('nlp_sid')||'';
 const bkOn=()=>!!(A.P?.bk&&(A.P.bk.demo||(SID()&&A.P.bk.tok)));
 const mailto=(sub,body)=>`mailto:${stEmail()}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+/* risposte ai questionari: parte solo il codice cifrato con il PIN dell'app, verso l'archivio dello studio (NutriLab) */
+const NLB='https://yqmdpduabrkvbsxagwdj.supabase.co', NLK='sb_publishable_qccspkS5RRf7IO2UVjLdxg_QMdBvj2v';
+async function scrPut(code){ const id=SID(); if(!id) return false;
+  try{ const r=await fetch(NLB+'/rest/v1/rpc/nl_app_scr_put',{method:'POST',headers:{apikey:NLK,'Content-Type':'application/json'},body:JSON.stringify({p_id:id,p_code:code})}); return r.ok; }catch(e){ return false; } }
 async function rpc(fn,args){ const r=await fetch(SUPA+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
   const t=await r.text(); let j=null; try{ j=JSON.parse(t); }catch(e){} if(!r.ok){ const e=new Error(String(j?.message||'rete')); throw e; } return j; }
 const bkKey=()=>'nlp_bk_'+PID();
@@ -1010,9 +1014,10 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
     if(k==='send'){ const em=$('#bkem'); if(em) BK.em=em.value.trim(); if(!A.P.bk.demo&&!A.P.bk.em&&!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(BK.em)){ BK.err='Scrivi la tua email per ricevere la conferma.'; render(); return; } bkSend(); return; }
     if(k==='done'){ BK.ok=null; A.tab='visite'; render(); window.scrollTo(0,0); return; } return; }
   if(t.dataset.qopen){ A.q=t.dataset.qopen; render(); window.scrollTo(0,0); return; }
-  if(t.dataset.qa!=null){ const k=A.q; (A.ans[k]||={})[t.dataset.qa]=t.dataset.v; A.out=''; saveAns(); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(t.dataset.qa!=null){ const k=A.q; (A.ans[k]||={})[t.dataset.qa]=t.dataset.v; A.out=''; A.qst=''; saveAns(); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.id==='qsend'){ (async()=>{ const L=A.P.scr||[]; const code=await seal({v:1,pz:A.P.pz?.full||'',at:new Date().toISOString(),r:L.map(q=>({k:q.k,a:A.ans[q.k]||{}}))},A.pin);
-      A.out=`Buongiorno, ho compilato i questionari (${L.map(q=>q.name.split(' · ')[0]).join(', ')}). Codice delle risposte per NutriLab: ${code}`; render(); })(); return; }
+      A.out=`Buongiorno, ho compilato i questionari (${L.map(q=>q.name.split(' · ')[0]).join(', ')}). Codice delle risposte per NutriLab: ${code}`;
+      A.qst='busy'; render(); A.qst=await scrPut(code)?'ok':'err'; render(); })(); return; }
   if(t.dataset.mm){ (A.md||=mNew()).m=t.dataset.mm; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.ms){ const d=(A.md||=mNew()), v=+t.dataset.v; d[t.dataset.ms]=d[t.dataset.ms]===v?null:v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.me){ const d=(A.md||=mNew()); d.emo=d.emo.includes(t.dataset.me)?d.emo.filter(x=>x!==t.dataset.me):[...d.emo,t.dataset.me]; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
