@@ -7,9 +7,9 @@ env.backends.onnx.wasm.wasmPaths = new URL('../vendor/tjs/', import.meta.url).hr
 const MODELS = { base: 'onnx-community/whisper-base', small: 'onnx-community/whisper-small' };
 const OPT = { language: 'italian', task: 'transcribe' };
 let asr = null, chain = Promise.resolve();
-async function load(size) {
+async function load(size, nogpu) {
   const id = MODELS[size] || MODELS.base, tries = [];
-  try { if (self.navigator && navigator.gpu && await navigator.gpu.requestAdapter()) tries.push({ device: 'webgpu', dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' } }); } catch (e) { /* niente WebGPU */ }
+  try { if (!nogpu && self.navigator && navigator.gpu && await navigator.gpu.requestAdapter()) tries.push({ device: 'webgpu', dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' } }); } catch (e) { /* niente WebGPU */ }
   tries.push({ device: 'wasm', dtype: 'q8' });
   let last = null;
   for (const o of tries) {
@@ -24,12 +24,12 @@ async function load(size) {
 }
 self.onmessage = (e) => {
   const d = e.data || {};
-  if (d.t === 'load') { chain = chain.then(() => load(d.size)); return; }
+  if (d.t === 'load') { chain = chain.then(() => load(d.size, !!d.nogpu)); return; }
   if (d.t === 'seg') {
     chain = chain.then(async () => {
       if (!asr) { postMessage({ t: 'seg', i: d.i, text: '', err: 'modello non pronto' }); return; }
       const t0 = performance.now();
-      try { const r = await asr(d.audio, { ...OPT, chunk_length_s: 30, stride_length_s: 5 }); postMessage({ t: 'seg', i: d.i, text: String((r && r.text) || '').trim(), ms: performance.now() - t0 }); }
+      try { const a = d.audio instanceof Int16Array ? Float32Array.from(d.audio, (v) => v / 32768) : d.audio; const r = await asr(a, { ...OPT, chunk_length_s: 30, stride_length_s: 5 }); postMessage({ t: 'seg', i: d.i, text: String((r && r.text) || '').trim(), ms: performance.now() - t0 }); }
       catch (err) { postMessage({ t: 'seg', i: d.i, text: '', err: String((err && err.message) || err) }); }
     });
   }
