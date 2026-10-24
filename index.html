@@ -215,6 +215,15 @@ html[data-th][data-theme="dark"]{--brand:var(--thbd);--bg:color-mix(in srgb,var(
 .c8n{display:block;font-size:12px;color:var(--muted);margin-top:1px}.mlist li.c8:not(:has(.swb)){flex-wrap:wrap;row-gap:0}.mlist li.c8:not(:has(.swb))>.ft{flex:1 1 0}.mlist li.c8:not(:has(.swb))>.c8n{flex-basis:100%}.alts{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
 .c8leg summary{display:flex;flex-direction:column;gap:2px;cursor:pointer;padding:10px 0}.c8l{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:6px}.c8l li{display:flex;flex-direction:column;gap:1px;background:color-mix(in srgb,var(--c8) 22%,transparent);border-left:5px solid var(--c8);border-radius:10px;padding:6px 10px}.c8l li.c8off{opacity:.6}
 .invct{display:flex;flex-wrap:wrap;gap:4px 12px}.invct a{color:var(--brand);font-weight:600}
+
+.ldchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}.ldc{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 11px;font:inherit;font-size:13.5px;color:var(--ink);cursor:pointer}.ldc.we{border-style:dashed}.ldc.ok::after{content:' ✓';color:var(--ok)}.ldc.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}.ldc:disabled{opacity:.45;cursor:default}
+.ldf h3{font-size:15px;margin:16px 0 6px}.ldf h3:first-of-type{margin-top:8px}.ldrow{display:flex;flex-wrap:wrap;gap:10px}.ldrow label,.ldnt{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted);min-width:0}.ldrow label.grow{flex:1 1 180px}
+.ldf input,.ldf textarea{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2);color:var(--ink);font:inherit;font-size:16px;min-width:0}.ldf input[type=number]{width:130px}
+.ldq{margin:10px 0 4px;font-size:14px}.ldq small{color:var(--muted);margin-left:4px}.ldsc,.ldchip2{display:flex;flex-wrap:wrap;gap:6px}.ldsc button,.ldchip2 button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-size:14px;cursor:pointer;min-height:38px}
+.ldsc button.on,.ldchip2 button.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}.ldpm{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:6px}.ldpm li{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:14px}
+.ldx{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 6px}.ldadd{display:flex;flex-direction:column;gap:8px;border:1px dashed var(--line);border-radius:12px;padding:10px}.ldadd .btn{align-self:flex-start}
+.ldsteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ldst{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.ldstb{display:inline-flex;align-items:center;gap:10px}.ldstb button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer}.ldstb b{min-width:24px;text-align:center;color:var(--ink);font-size:17px}
+.ldonly{padding-bottom:40px}
 </style>
 
 <div id="root"></div>
@@ -432,6 +441,7 @@ function scrOggi(){ const today=(new Date().getDay()+6)%7, dp=dayPlan(today), no
   const tip=(A.P.edu||[])[new Date().getDate()%Math.max(1,(A.P.edu||[]).length)];
   return `${head(`<div><div class="eyebrow">${esc(now.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}))}</div><h1>Ciao ${esc(A.P.pz?.n||'')}</h1></div>`)}
    ${pcCard()}
+   ${ldOggiCard()}
    ${nextCard()}
    ${todoCard()}
    ${ci?(A.ciOpen||CIM.js||ciSt().a!=null?ciCardApp():`<section class="card tight"><div class="todo"><span><b>Check-in della settimana</b><small>un minuto: com'è andata, energia, sonno, fame</small></span><button class="btn sm primary" data-ciopen>Inizia</button></div></section>`):''}
@@ -797,7 +807,7 @@ function scrVisite(){ const up=upcoming(), ms=A.P.ms||[], last=ms.at(-1), first=
    ${(A.P.past||[]).length?`<section class="card"><h3>Visite già fatte</h3>${A.P.past.map(v=>`<div class="small">${esc(new Date(v.d).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))} · ${esc(v.t)}</div>`).join('')}</section>`:''}`; }
 function scrIo(){ const C=A.P.ci, a=AMB(), mo=A.P.mind, q=(A.P.scr||[]).length, hd=hdOn();
   const go=(k,t,sub)=>`<div class="todo"><span><b>${t}</b><small>${sub}</small></span><button class="btn sm" data-go="${k}">Apri</button></div>`;
-  const tools=[mo?go('diario','Diario della fame','fame prima e dopo, emozioni, foto del pasto'):'',q?go('quest','Questionari',`${(A.P.scr||[]).filter(x=>!scrDone(x)).length||'nessuno'} da compilare`):'',hd?go('salute','La tua settimana','passi, sonno, attività da inviare'):''].join('');
+  const tools=[mo?go('diario','Diario della fame','fame prima e dopo, emozioni, foto del pasto'):'',q?go('quest','Questionari',`${(A.P.scr||[]).filter(x=>!scrDone(x)).length||'nessuno'} da compilare`):'',hd?go('salute','La tua settimana','passi, sonno, attività da inviare'):'',ldOn()?go('ld',esc(A.P.ld.n||'Diario dello stile di vita'),`${Math.min(10,Math.max(7,+A.P.ld.len||10))} giorni, weekend compreso`):''].join('');
   return `${head(`<div><div class="eyebrow">Le tue cose</div><h1>Io</h1></div>`)}
    ${tools?`<section class="card tight"><span class="eyebrow" style="padding-top:10px">Diario e compiti</span>${tools}</section>`:''}
    ${C&&ciSt().sent?ciCardApp():C?`<section class="card"><h2>Check-in della settimana</h2><p class="small muted">Da fare: lo trovi in <button class="linkb" data-tab="oggi">Oggi</button>.</p></section>`:''}
@@ -1039,9 +1049,96 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
     try{ render(); }catch(e){ console.warn('render',e); A.P=null; LS.del('nlp_pin'); lockScreen('Il codice è giusto, ma l\'app non riesce a leggere il piano: scrivi al Dottore, che ti manderà un aggiornamento.'); } }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
-function render(){ if(!A.P) return; try{ thApply(); }catch(e){} if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } if(A.tab==='integr'){ A.tab='piano'; A.psub='integr'; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,io:scrIo,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
+/* ---- diario dello stile di vita: da 7 a 10 giorni con un fine settimana dentro; ogni giornata salvata arriva al Dottore (tipo «ld»).
+   Nell'app del percorso lo trovi in Io e in Oggi; con il link personale (#d/codice/numero) l'app si apre in modalità «solo diario». */
+const LD_MEAL=[['c','Colazione'],['s','Spuntino'],['p','Pranzo'],['m','Merenda'],['n','Cena'],['d','Dopocena'],['f','Fuori pasto']];
+const LD_LOC=[['h','Casa'],['w','Lavoro o scuola'],['f','Fuori'],['v','In viaggio']];
+const LD_DG=['Bene','Un po\' gonfia','Gonfia','Molto gonfia'];
+const LD_NUM={sq:[1,5],wa:[0,30],cf:[0,15],al:[0,20],zb:[0,20],st:[0,80000],mn:[0,900],en:[1,5],sr:[1,5],dg:[0,3],sc:[0,900]}, LD_TXT={um:30,mx:60,nt:400};
+const LDM={busy:0,msg:'',err:'',pk:'',pl:'',pt:'',px:''};
+const ldOn=()=>!!A.P?.ld?.i;
+const ldKey=()=>'nlp_ld_'+A.P.ld.i;
+const ldGet=()=>{ try{ return {days:{},sent:{},...(JSON.parse(LS.get(ldKey())||'{}')||{})}; }catch(e){ return {days:{},sent:{}}; } };
+const ldSet=o=>LS.set(ldKey(),JSON.stringify(o));
+const ldYmd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const ldAdd=(y,n)=>{ const x=new Date(y+'T12:00:00'); x.setDate(x.getDate()+n); return ldYmd(x); };
+const ldToday=()=>ldYmd(new Date());
+const ldLen=()=>Math.min(10,Math.max(7,+A.P.ld.len||10));
+const ldFrom=()=>A.P.ld.from||ldGet().from||'';
+const ldDays=()=>{ const f=ldFrom(); return f?[...Array(ldLen())].map((_,i)=>ldAdd(f,i)):[]; };
+const ldEnd=()=>ldDays().at(-1)||'';
+function ldState(){ const f=ldFrom(); if(!f) return 'start'; const t=ldToday(); if(t<f) return 'wait'; if(t<=ldEnd()) return 'run'; if(t<=ldAdd(ldEnd(),2)) return 'late'; return 'done'; }
+const ldWe=y=>{ const g=new Date(y+'T12:00:00').getDay(); return g===0||g===6; };
+const ldLbl=(y,long)=>new Date(y+'T12:00:00').toLocaleDateString('it-IT',long?{weekday:'long',day:'numeric',month:'long'}:{weekday:'short',day:'numeric'});
+function ldClean(x){ const o={}; if(!x) return o; for(const k of ['sb','sw']) if(/^([01]\d|2[0-3]):[0-5]\d$/.test(x[k]||'')) o[k]=x[k];
+  for(const [k,[a,b]] of Object.entries(LD_NUM)){ const n=parseFloat(String(x[k]??'').replace(',','.')); if(isFinite(n)&&n>=a&&n<=b) o[k]=Math.round(n); }
+  for(const [k,n] of Object.entries(LD_TXT)) if(typeof x[k]==='string'&&x[k].trim()) o[k]=x[k].trim().slice(0,n);
+  if(Array.isArray(x.pm)){ const L=x.pm.filter(m=>m&&/^[cspmndf]$/.test(m.k||'')&&(String(m.x||'').trim()||/^\d\d:\d\d$/.test(m.t||''))).slice(0,12).map(m=>({k:m.k,t:/^([01]\d|2[0-3]):[0-5]\d$/.test(m.t||'')?m.t:'',x:String(m.x||'').trim().slice(0,140),l:/^[hwfv]$/.test(m.l||'')?m.l:''})); if(L.length) o.pm=L; }
+  return o; }
+const ldDraft=day=>{ if(!A.ldDraft||A.ldDraft._d!==day){ const o=ldGet(); A.ldDraft={...(o.days[day]||{}),pm:[...((o.days[day]||{}).pm||[])],_d:day}; } return A.ldDraft; };
+function ldPick(){ const D=ldDays(), t=ldToday(), o=ldGet(); if(A.ldDay&&D.includes(A.ldDay)&&A.ldDay<=t) return A.ldDay; const ok=D.filter(x=>x<=t); return ok.includes(t)?t:(ok.reverse().find(x=>!o.days[x])||ok[0]||D[0]); }
+const ldScale=(k,v,n,lab)=>`<div class="ldsc" role="radiogroup" aria-label="${esc(lab)}">${[...Array(n[1]-n[0]+1)].map((_,i)=>i+n[0]).map(x=>`<button type="button" role="radio" aria-checked="${v===x}" data-ls="${k}" data-v="${x}"${v===x?' class="on"':''}>${k==='dg'?esc(LD_DG[x]):x}</button>`).join('')}</div>`;
+const ldStep=(k,l,v)=>`<div class="ldst"><span>${l}</span><span class="ldstb"><button type="button" data-lstep="${k}" data-d="-1" aria-label="${l}: meno">−</button><b>${v??0}</b><button type="button" data-lstep="${k}" data-d="1" aria-label="${l}: più">+</button></span></div>`;
+function scrLd(){ const st=ldState(), o=ldGet(), D=ldDays(), name=A.P.ld.n||'Diario dello stile di vita', len=ldLen();
+  const top=A.dvOnly?`<div class="top"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>${esc(A.P.st?.n||'Il tuo nutrizionista')}</span></div></div>`:head();
+  let h=`${top}<div><div class="eyebrow">${A.dvOnly?'Il tuo diario':'Le tue cose'}</div><h1>${esc(name)}</h1></div>`;
+  if(st==='start') return h+`<section class="card"><p>Per ${len} giorni, fine settimana compreso, annoti come vanno sonno, pasti e spuntini, bevande, movimento e come ti senti. Bastano un paio di minuti, meglio la sera.</p>
+     <p class="small muted">Non ci sono risposte giuste o sbagliate: al Dottore serve una fotografia fedele delle tue giornate, comprese quelle storte. Ogni giornata salvata arriva solo a lui.</p>
+     <p class="small">Dopo l'inizio il diario dura ${len} giorni esatti, così dentro c'è sempre un sabato e una domenica.</p>
+     <div class="row"><button class="btn primary" data-ld="start" data-v="${ldToday()}">Inizio oggi</button><button class="btn" data-ld="start" data-v="${ldAdd(ldToday(),1)}">Inizio domani</button></div></section>`;
+  if(st==='wait') return h+`<section class="card"><p>Il diario inizia <b>${esc(ldLbl(ldFrom(),true))}</b> e finisce ${esc(ldLbl(ldEnd(),true))}. Ti aspetto qui.</p></section>`;
+  const nd=D.filter(x=>o.days[x]).length;
+  if(st==='done') return h+`<section class="card"><h2>Diario concluso</h2><p>Grazie! Hai compilato ${nd} giorni su ${len}: il Dottore li trova nella tua cartella e ne parlerete alla prossima visita.</p></section>`;
+  const day=ldPick(), e=ldDraft(day), t=ldToday(), n=D.indexOf(t)+1;
+  h+=`<p class="small muted">${st==='late'?`Il diario è finito ${esc(ldLbl(ldEnd(),true))}: puoi ancora completare i giorni mancanti.`:`Giorno ${n} di ${len} · fino a ${esc(ldLbl(ldEnd(),true))} · ${nd} ${nd===1?'giorno compilato':'giorni compilati'}`}</p>
+   <div class="ldchips" role="tablist">${D.map(x=>`<button type="button" class="ldc${x===day?' on':''}${o.days[x]?' ok':''}${ldWe(x)?' we':''}" data-ldday="${x}"${x>t?' disabled':''} aria-selected="${x===day}">${esc(ldLbl(x))}</button>`).join('')}</div>
+   <section class="card ldf"><h2>${esc(ldLbl(day,true))}${ldWe(day)?' <span class="chip">weekend</span>':''}</h2>
+    <h3>Sonno</h3><div class="ldrow"><label>Stanotte a letto alle<input type="time" data-lf="sb" value="${esc(e.sb||'')}"></label><label>Sveglia alle<input type="time" data-lf="sw" value="${esc(e.sw||'')}"></label></div>
+    <p class="ldq">Come hai dormito? <small>1 male · 5 benissimo</small></p>${ldScale('sq',e.sq,LD_NUM.sq,'Come hai dormito')}
+    <h3>Pasti e spuntini</h3>${(e.pm||[]).length?`<ul class="ldpm">${e.pm.map((m,i)=>`<li><span><b>${esc((LD_MEAL.find(x=>x[0]===m.k)||[])[1]||'')}</b>${m.t?' · '+esc(m.t):''}${m.l?' · '+esc(((LD_LOC.find(x=>x[0]===m.l)||[])[1]||'').toLowerCase()):''}<br>${esc(m.x||'')}</span><button type="button" class="ldx" data-lpx="${i}" aria-label="Togli">✕</button></li>`).join('')}</ul>`:'<p class="small muted">Ancora nessun pasto: aggiungili qui sotto, spuntini e bevande comprese.</p>'}
+    <div class="ldadd"><div class="ldchip2">${LD_MEAL.map(([k,l])=>`<button type="button" data-lpk="${k}"${LDM.pk===k?' class="on"':''}>${l}</button>`).join('')}</div>
+     <div class="ldrow"><label>Ora<input type="time" id="ldpt" value="${esc(LDM.pt||'')}"></label><label class="grow">Cosa hai mangiato e bevuto<input id="ldpx" maxlength="140" autocomplete="off" enterkeyhint="done" value="${esc(LDM.px||'')}"></label></div>
+     <div class="ldchip2">${LD_LOC.map(([k,l])=>`<button type="button" data-lpl="${k}"${LDM.pl===k?' class="on"':''}>${l}</button>`).join('')}</div>
+     <button type="button" class="btn" data-ld="addpm"${LDM.pk?'':' disabled'}>Aggiungi</button></div>
+    <h3>Bevande</h3><div class="ldsteps">${ldStep('wa','Acqua (bicchieri)',e.wa)}${ldStep('cf','Caffè',e.cf)}${ldStep('al','Alcol (bicchieri)',e.al)}${ldStep('zb','Bibite zuccherate',e.zb)}</div>
+    <h3>Movimento</h3><div class="ldrow"><label>Passi<input type="number" inputmode="numeric" min="0" max="80000" data-lf="st" value="${e.st??''}"></label><label>Attività (minuti)<input type="number" inputmode="numeric" min="0" max="900" data-lf="mn" value="${e.mn??''}"></label><label class="grow">Che attività<input data-lf="mx" maxlength="60" value="${esc(e.mx||'')}"></label></div>
+    <h3>Come stai</h3><p class="ldq">Energia <small>1 a terra · 5 piena</small></p>${ldScale('en',e.en,LD_NUM.en,'Energia')}<p class="ldq">Stress <small>1 tranquillo · 5 al massimo</small></p>${ldScale('sr',e.sr,LD_NUM.sr,'Stress')}
+    <p class="ldq">Pancia</p>${ldScale('dg',e.dg,LD_NUM.dg,'Pancia')}
+    <div class="ldrow"><label class="grow">Una parola per la giornata<input data-lf="um" maxlength="30" value="${esc(e.um||'')}"></label><label>Schermi dopo le 21 (minuti)<input type="number" inputmode="numeric" min="0" max="900" data-lf="sc" value="${e.sc??''}"></label></div>
+    <label class="ldnt">Note: imprevisti, cene fuori, lavoro, sport<textarea rows="3" data-lf="nt" maxlength="400">${esc(e.nt||'')}</textarea></label>
+    ${LDM.err?`<p class="err">${esc(LDM.err)}</p>`:LDM.msg?`<p class="small" role="status">${esc(LDM.msg)}</p>`:''}
+    <div class="row"><button class="btn primary" data-ld="save"${LDM.busy?' disabled':''}>${LDM.busy?'Invio…':o.days[day]?'Aggiorna la giornata':'Salva la giornata'}</button></div></section>`;
+  return h; }
+function ldPmAdd(d){ const tt=LDM.pt||'', xx=(LDM.px||'').trim(); if(!LDM.pk||(!xx&&!tt)) return false; d.pm=[...(d.pm||[]),{k:LDM.pk,t:tt,x:xx,l:LDM.pl}].sort((a,b)=>(a.t||'99').localeCompare(b.t||'99')); LDM.pk=''; LDM.pl=''; LDM.pt=''; LDM.px=''; return true; }
+function ldSave(){ const day=A.ldDraft?._d; if(!day) return; if(!LDM.pk&&(LDM.px||'').trim()){ LDM.err='Hai scritto un pasto senza dire quale: scegli Colazione, Pranzo… e tocca Aggiungi, oppure svuota il campo.'; LDM.msg=''; const y=window.scrollY; render(); window.scrollTo(0,y); return; } ldPmAdd(A.ldDraft); const {_d,...x}=A.ldDraft, c=ldClean(x); if(!Object.keys(c).length){ LDM.err='Scrivi almeno qualcosa della giornata.'; LDM.msg=''; return render(); }
+  const o=ldGet(); o.days[day]=c; ldSet(o); LDM.err=''; if(A.P.demo||!A.P.tok){ LDM.msg='Salvata sul telefono (esempio: non viene inviata).'; return render(); }
+  LDM.busy=1; render(); rpc('nl_app_data_add',{p_id:SID(),p_tok:A.P.tok,p_kind:'ld',p_payload:{i:A.P.ld.i,d:day,f:ldFrom(),l:ldLen(),x:c}}).then(()=>{ const o2=ldGet(); o2.sent[day]=1; ldSet(o2); LDM.msg='Salvata e inviata al Dottore. Grazie!'; })
+   .catch(err=>{ LDM.err=/too_many/.test(err.message||'')?'Salvata sul telefono. Oggi hai già inviato molte volte: riprova domani.':'Salvata sul telefono, ma l\'invio non è riuscito: riprova tra poco.'; }).finally(()=>{ LDM.busy=0; const y=window.scrollY; render(); window.scrollTo(0,y); }); }
+function ldOggiCard(){ if(!ldOn()) return ''; const st=ldState(), o=ldGet(), t=ldToday(), name=A.P.ld.n||'Diario dello stile di vita';
+  if(st==='done') return ''; const sub=st==='start'?`${ldLen()} giorni, weekend compreso: inizia quando vuoi`:st==='wait'?`inizia ${ldLbl(ldFrom(),true)}`:o.days[t]?'oggi fatto ✓ · puoi aggiornarlo':'compila la giornata di oggi';
+  return `<section class="card tight"><div class="todo"><span><b>${esc(name)}</b><small>${esc(sub)}</small></span><button class="btn sm${st==='run'&&!o.days[t]?' primary':''}" data-go="ld">Apri</button></div></section>`; }
+async function ldBoot(){ const m=decodeURIComponent((location.hash||'').slice(1)).match(/^d\/([a-z2-9]{8})\/(\d{6})$/i); if(!m) return false;
+  const sid=m[1].toLowerCase(), pin=m[2]; $('#root').innerHTML='<main class="lock screen"><p class="muted">Apro il diario…</p></main>';
+  try{ const code=await fetchPack(sid), P=await openPack(code,pin); if(P.kind!=='ld'||!P.ld?.i) throw new Error('kind'); A.P=P; A.pin=pin; A.sid=sid; A.dvOnly=true; A.tab='ld'; render(); }
+  catch(e){ $('#root').innerHTML=`<main class="lock screen"><div class="brandmark"><span class="leafdot">${LEAF}</span><span>NutriLab</span></div><h1>Diario non disponibile</h1><p class="muted">${e.message==='nf'?'Il link non è più valido.':e.message==='rete'?'Non riesco a collegarmi: controlla la connessione e riprova.':'Il link non è corretto.'} Scrivi al Dottore, che te ne manderà uno nuovo.</p></main>`; }
+  return true; }
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-ld],[data-ldday],[data-ls],[data-lstep],[data-lpk],[data-lpl],[data-lpx]'); if(!t||!A.P?.ld) return; e.preventDefault(); const y=window.scrollY, ds=t.dataset; const ipt=$('#ldpt'), ipx=$('#ldpx'); if(ipt) LDM.pt=ipt.value; if(ipx) LDM.px=ipx.value;
+  if(ds.ld==='start'){ const o=ldGet(); o.from=ds.v; ldSet(o); A.ldDay=null; render(); window.scrollTo(0,0); return; }
+  if(ds.ldday){ A.ldDay=ds.ldday; A.ldDraft=null; LDM.msg=''; LDM.err=''; render(); window.scrollTo(0,y); return; }
+  const day=ldPick(), d=ldDraft(day);
+  if(ds.ls){ const v=+ds.v; d[ds.ls]=d[ds.ls]===v?undefined:v; }
+  else if(ds.lstep){ d[ds.lstep]=Math.max(LD_NUM[ds.lstep][0],Math.min(LD_NUM[ds.lstep][1],(+d[ds.lstep]||0)+(+ds.d))); }
+  else if(ds.lpk){ LDM.pk=LDM.pk===ds.lpk?'':ds.lpk; }
+  else if(ds.lpl){ LDM.pl=LDM.pl===ds.lpl?'':ds.lpl; }
+  else if(ds.lpx!=null){ d.pm=(d.pm||[]).filter((_,i)=>i!==+ds.lpx); }
+  else if(ds.ld==='addpm'){ if(!ldPmAdd(d)) return; }
+  else if(ds.ld==='save'){ ldSave(); return; }
+  LDM.msg=''; render(); window.scrollTo(0,y); },true);
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.id==='ldpx'&&A.P?.ld){ e.preventDefault(); const b=$('[data-ld=addpm]'); if(b&&!b.disabled) b.click(); } });
+document.addEventListener('input',e=>{ const t=e.target; if((t.id==='ldpt'||t.id==='ldpx')&&A.P?.ld){ LDM[t.id.slice(2)]=t.value; return; } if(!t.dataset?.lf||!A.P?.ld) return; const d=ldDraft(ldPick()); d[t.dataset.lf]=t.value; });
+function render(){ if(!A.P) return; try{ thApply(); }catch(e){} if(A.dvOnly){ $('#root').innerHTML=`<main class="shell screen ldonly" id="main">${scrLd()}</main>`; return; } if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } if(A.tab==='integr'){ A.tab='piano'; A.psub='integr'; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,io:scrIo,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute,ld:ldOn()?scrLd:scrIo}[A.tab]||scrOggi)();
   $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo&&(A.tab==='oggi'||A.tab==='io')?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:''}</main>
-   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Percorso'],['io','Io']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')||(k==='io'&&/^(diario|quest|salute)$/.test(A.tab))?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
+   <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Percorso'],['io','Io']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')||(k==='io'&&/^(diario|quest|salute|ld)$/.test(A.tab))?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
    ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}${A.sw?swSheet():''}${A.mv?mvSheet():''}`;
   if(A.chatOpen) setTimeout(()=>{ const c=$('#chat'); if(c) c.scrollTop=c.scrollHeight; },10); if(A.tab==='diario') phFill(); }
 
@@ -1110,7 +1207,7 @@ document.addEventListener('submit',e=>{ e.preventDefault();
   if(e.target.id==='askf'){ const q=$('#q').value; ask(q); } });
 document.addEventListener('paste',e=>{ if(e.target.id==='pcode') setTimeout(()=>{ const v=(e.target.value||'').match(/p[A-Za-z0-9_-]{60,}/); if(v){ A.code=v[0]; lockScreen(); } },20); });
 
-(async()=>{ A.code=hashCode();
+(async()=>{ if(await ldBoot()) return; A.code=hashCode();
   /* sul dominio dello studio il link porta il codice breve: https://app.nutrizionistaspina.it/#ABCD-EF23 */
   if(!A.code&&HOSTED){ const hs=sidOf(' '+decodeURIComponent((location.hash||'').slice(1))); if(hs){ if(hs!==LS.get('nlp_sid')){ LS.del('nlp_pin'); LS.del('nlp_code'); } A.sid=hs; LS.set('nlp_sid',hs); } }
   const saved=LS.get('nlp_code')||LS.get('nlp_sid'), pin=LS.get('nlp_pin');
