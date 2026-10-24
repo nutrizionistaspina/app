@@ -298,7 +298,7 @@ const upcoming=()=>(A.P.ap||[]).filter(a=>apDate(a)>new Date(Date.now()-36e5)).s
 const longDay=a=>apDate(a).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
 const hm=a=>a.s.slice(11,16);
 const daysTo=a=>{ const d0=new Date(); d0.setHours(0,0,0,0); const d1=apDate(a); d1.setHours(0,0,0,0); return Math.round((d1-d0)/864e5); };
-const where=a=>a.on||a.sd==='Online'?'In videochiamata':[a.str,a.ind].filter(Boolean).join(', ')||a.sd||'';
+const where=a=>a.tel?'Al telefono: la chiama il Dottore, non serve venire in studio':a.on||a.sd==='Online'?'In videochiamata':[a.str,a.ind].filter(Boolean).join(', ')||a.sd||'';
 const waNum=()=>String(A.P.st?.ph||'').replace(/[^\d]/g,'').replace(/^(?!39)(\d{9,10})$/,'39$1');
 const wa=t=>waNum()?`https://wa.me/${waNum()}?text=${encodeURIComponent(t)}`:'';
 /* ---- regole di Ambrogio (manuale dello studio): logistica, costi, cosa portare, canali. Il pacchetto del Dottore può aggiornarle (st.amb) */
