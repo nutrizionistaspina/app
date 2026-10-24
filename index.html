@@ -204,6 +204,17 @@ details.card.tip2{gap:0;padding:4px 16px}details.card.tip2>summary{padding:10px 
 .wday>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;padding:12px 2px}.wday>summary::-webkit-details-marker{display:none}.wday>summary small{flex-basis:100%;color:var(--muted);font-size:12.5px}.pvh{margin:6px 2px}
 .mvlist button{flex-direction:column;align-items:flex-start!important}.mvlist small{margin-left:0!important;color:var(--muted)}.linkb{border:0;background:none;color:var(--brand);font-weight:600;text-decoration:underline;padding:0;cursor:pointer;font:inherit}.ctsedi{margin-top:10px}
 .payo.ppban{display:block}.ppban .ppbtn{width:100%}.ppban{background:#f5f7fa;border:1px solid #dfe5ee;border-radius:14px;padding:12px;color:#1b2b44}.ppbtn{display:flex;align-items:center;justify-content:center;background:#ffc439;border-radius:999px;height:44px;text-decoration:none;margin-bottom:8px}.ppbtn:hover{filter:brightness(.97)}.ppw{font:italic 800 21px/1 Verdana,Arial,sans-serif;letter-spacing:-.5px}.ppw i:first-child{color:#003087}.ppw i:last-child{color:#009cde}
+
+html[data-th]{--brand:var(--thb);--bg:color-mix(in srgb,var(--th) 8%,#F2F5F1);--surface-2:color-mix(in srgb,var(--th) 11%,#E8EEE7);--line:color-mix(in srgb,var(--th) 16%,#D5DFD4);--leaf:var(--th)}
+@media (prefers-color-scheme: dark){ html[data-th]:not([data-theme="light"]){--brand:var(--thbd);--bg:color-mix(in srgb,var(--th) 9%,#0F1612);--surface-2:color-mix(in srgb,var(--th) 13%,#1F2B24);--line:color-mix(in srgb,var(--th) 18%,#2B3A31)}}
+html[data-th][data-theme="dark"]{--brand:var(--thbd);--bg:color-mix(in srgb,var(--th) 9%,#0F1612);--surface-2:color-mix(in srgb,var(--th) 13%,#1F2B24);--line:color-mix(in srgb,var(--th) 18%,#2B3A31)}
+.thsw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}.thb{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 10px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;min-width:0}
+.thb i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--c)}.thb.auto i{background:conic-gradient(#E9B824,#8DBF4E,#4E9E68,#3AAE9E,#5A93CF,#9468BC,#D9607C,#EE8A34,#E9B824)}.thb[aria-checked=true]{outline:2px solid var(--brand);border-color:var(--brand)}.thb span{min-width:0;text-align:left;line-height:1.2}
+.c8-cer{--c8:#D9B96A}.c8-leg{--c8:#B88B5A}.c8-fru{--c8:#F08A5D}.c8-ver{--c8:#6DB36B}.c8-gra{--c8:#B7B33A}.c8-car{--c8:#D9646F}.c8-lat{--c8:#6FA8DC}.c8-uov{--c8:#F2C744}
+.mlist li.c8,.swlist li.c8{background:color-mix(in srgb,var(--c8) 20%,transparent);border-left:4px solid var(--c8);border-radius:10px;padding:4px 8px;margin:4px 0}
+.c8n{display:block;font-size:12px;color:var(--muted);margin-top:1px}.mlist li.c8:not(:has(.swb)){flex-wrap:wrap;row-gap:0}.mlist li.c8:not(:has(.swb))>.ft{flex:1 1 0}.mlist li.c8:not(:has(.swb))>.c8n{flex-basis:100%}.alts{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+.c8leg summary{display:flex;flex-direction:column;gap:2px;cursor:pointer;padding:10px 0}.c8l{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:6px}.c8l li{display:flex;flex-direction:column;gap:1px;background:color-mix(in srgb,var(--c8) 22%,transparent);border-left:5px solid var(--c8);border-radius:10px;padding:6px 10px}.c8l li.c8off{opacity:.6}
+.invct{display:flex;flex-wrap:wrap;gap:4px 12px}.invct a{color:var(--brand);font-weight:600}
 </style>
 
 <div id="root"></div>
@@ -359,6 +370,19 @@ const EMO_GUESS=[[/yogurt|kefir|skyr|latte\b|ricotta|fiocchi di latte/,'🥛'],[
 function guessE(t){ const n=norm(t).replace(/\s+\d.*$/,''); for(const [re,e] of EMO_GUESS) if(re.test(n)) return e; return ''; }
 const splitE=s=>{ s=String(s||''); const m=s.match(EMO_RE); return m?[m[1],s.slice(m[0].length)]:[guessE(s),s]; };
 const bare=s=>splitE(s)[1];
+/* ---- 8 categorie del Piatto: colore di sfondo, legenda, nutrienti prevalenti (g per 100 g) e come sostituire */
+const C8={cer:['Cereali','carboidrati e proteine','Si scambiano tra loro (pasta, riso, pane, farro, patate…) con le grammature delle alternative del piano.'],leg:['Legumi','carboidrati e proteine','Ceci, lenticchie, fagioli, piselli si scambiano tra loro; secchi e in scatola hanno grammature diverse: segui le alternative del piano.'],
+ fru:['Frutta','carboidrati e fibre','Un frutto vale un altro frutto della lista, nella porzione indicata; meglio intero che in succo.'],ver:['Verdure','fibre e carboidrati','Libere tra loro: varia i colori durante la settimana.'],gra:['Grassi da condimento','grassi','Olio extravergine come prima scelta; frutta secca e semi contano qui. Si scambiano a parità di cucchiaini indicati.'],
+ car:['Carni','proteine e grassi','Carne bianca, rossa e pesce si alternano come indicato nel piano: il pesce sta in questa categoria.'],lat:['Latticini','grassi e proteine','Latte, yogurt e formaggi: i formaggi stagionati hanno più grassi, usa le grammature del piano.'],uov:['Uova','proteine e grassi','1 uovo è circa 60 g; si alterna con le altre fonti di proteine come previsto nel piano.']};
+const C8N={cho:'carboidrati',pro:'proteine',fat:'grassi',fib:'fibre'};
+const c8=s=>A.P?.pl?.cat?.[s]||null;
+const c8Cls=s=>{ const c=c8(s); return c?` c8 c8-${c[0]}`:''; };
+const c8Line=s=>{ const c=c8(s); if(!c) return ''; return `<small class="c8n">${esc(C8[c[0]][0])}${(c[1]||[]).length?' · '+c[1].map(([k,v])=>`${C8N[k]} ${v}%`).join(' · '):''}</small>`; };
+function c8Legend(){ if(!A.P?.pl?.cat) return ''; const used=new Set(Object.values(A.P.pl.cat).map(c=>c[0]));
+  return `<details class="card tight c8leg"${LS.get('nlp_c8')==='1'?' open':''}><summary><b>I colori del piatto</b><span class="small muted">come leggere e sostituire</span></summary>
+   <ul class="c8l">${Object.entries(C8).map(([k,[n,v,t]])=>`<li class="c8 c8-${k}${used.has(k)?'':' c8off'}"><b>${esc(n)}</b><span class="small">prevalgono ${esc(v)}</span><span class="small muted">${esc(t)}</span></li>`).join('')}</ul>
+   <p class="small muted">Sostituisci un alimento solo con uno dello stesso colore: ha gli stessi nutrienti prevalenti. Le percentuali sono i grammi per 100 g di alimento, il valore più alto per primo. Le quantità giuste sono quelle delle alternative del piano (⇄).</p></details>`; }
+document.addEventListener('toggle',e=>{ if(e.target.classList?.contains('c8leg')) LS.set('nlp_c8',e.target.open?'1':'0'); },true);
 const itemH=s=>{ const [e,t]=splitE(s); return `${e?`<span class="fe" aria-hidden="true">${e}</span>`:''}<span class="ft">${esc(t)}</span>`; };
 const swDK=(day,label,main)=>`${day}|${norm(label)}|${norm(bare(main))}`, swAK=(label,main)=>`*|${norm(label)}|${norm(bare(main))}`;
 function swIdx(day,label,sl){ const o=swGet(); const v=o[swDK(day,label,sl[0])]??o[swAK(label,sl[0])]; return v!=null&&v<sl.length?v:0; }
@@ -366,13 +390,13 @@ function mealHTML(m,key,day){ const [label,time,groups]=m; key=key||label; day=d
   return `<div class="meal2${time?'':' nt'}"><div class="mh">${time?`<span class="mtime">${esc(time)}</span>`:''}<b class="mname">${esc(label)}</b>${m[3]!=null?`<small class="mvwas">da ${esc(((A.P.pl?.d||[])[m[3]]||[''])[0].toLowerCase())}</small>`:''}${A.tab==='piano'&&(A.P.pl?.d||[]).length>1?`<button class="mvb" data-mv="${day}|${esc(label)}" aria-label="Sposta ${esc(label)} in un altro giorno">⇅ Sposta</button>`:''}</div>
    ${groups.length>1?`<div class="optc" role="group" aria-label="Opzioni">${groups.map((_,i)=>`<button data-opt="${esc(key)}" data-v="${i}" aria-pressed="${i===oi}">Opzione ${i+1}</button>`).join('')}</div>`:''}
    <ul class="mlist">${g.map((sl,si)=>{ const ix=swIdx(day,label,sl), rk=`${key}|${oi}|${si}`; if(sl.length>1) A.swReg[rk]={day,label,sl};
-     return sl.length>1?`<li><button class="swb${ix?' on':''}" data-sw="${esc(rk)}" aria-label="Sostituisci ${esc(bare(sl[ix]))}">${itemH(sl[ix])}<i aria-hidden="true">⇄</i></button>${ix?`<small class="swwas">al posto di ${esc(bare(sl[0]))}</small>`:''}</li>`:`<li>${itemH(sl[0])}</li>`; }).join('')}</ul></div>`; }
+     return sl.length>1?`<li class="${c8Cls(sl[ix]).trim()}"><button class="swb${ix?' on':''}" data-sw="${esc(rk)}" aria-label="Sostituisci ${esc(bare(sl[ix]))}">${itemH(sl[ix])}<i aria-hidden="true">⇄</i></button>${ix?`<small class="swwas">al posto di ${esc(bare(sl[0]))}</small>`:''}<small class="alts">oppure: ${sl.filter((_,j)=>j!==ix).map(x=>esc(bare(x))).join(' · ')}</small>${c8Line(sl[ix])}</li>`:`<li class="${c8Cls(sl[0]).trim()}">${itemH(sl[0])}${c8Line(sl[0])}</li>`; }).join('')}</ul></div>`; }
 function swSheet(){ const r=A.swReg[A.sw]; if(!r) return ''; const o=swGet(), ix=swIdx(r.day,r.label,r.sl), all=o[swAK(r.label,r.sl[0])]!=null&&o[swDK(r.day,r.label,r.sl[0])]==null, n=r.sl.length;
   const dn=(A.P.pl?.d||[])[r.day]?.[0]||'';
   return `<div class="sheetbg" data-swclose></div><section class="sheet swsheet" role="dialog" aria-modal="true" aria-label="Sostituzioni">
    <div class="sheeth"><b>${esc(r.label)}${dn?` · ${esc(dn)}`:''}</b><button class="btn ghost sm" data-swclose aria-label="Chiudi">✕</button></div>
    <div class="swnav"><button class="swarr" data-swnav="-1" aria-label="Precedente">‹</button><div class="swcur">${splitE(r.sl[ix])[0]?`<span class="swe" aria-hidden="true">${splitE(r.sl[ix])[0]}</span>`:''}<b>${esc(bare(r.sl[ix]))}</b><small>${ix?`al posto di ${esc(bare(r.sl[0]))}`:'scelta del Dottore'}</small><span class="swdots">${r.sl.map((_,i)=>`<i class="${i===ix?'on':''}"></i>`).join('')}</span></div><button class="swarr" data-swnav="1" aria-label="Successivo">›</button></div>
-   <ul class="swlist">${r.sl.map((x,i)=>`<li><button data-swpick="${i}" aria-pressed="${i===ix}">${itemH(x)}${i===0?' <small>del piano</small>':''}</button></li>`).join('')}</ul>
+   <ul class="swlist">${r.sl.map((x,i)=>`<li class="${c8Cls(x).trim()}"><button data-swpick="${i}" aria-pressed="${i===ix}">${itemH(x)}${i===0?' <small>del piano</small>':''}</button>${c8Line(x)}</li>`).join('')}</ul>
    <label class="check"><input type="checkbox" data-swall${all?' checked':''}> Ogni giorno, quando c'è ${esc(bare(r.sl[0]).replace(/\s+\d.*$/,''))} a ${esc(r.label.toLowerCase())}</label>
    <p class="small muted">Sono equivalenti scelti dal Dottore: puoi cambiarli quando vuoi.</p>
    <div class="row"><button class="btn primary" data-swclose>Fatto</button>${ix?'<button class="btn ghost" data-swpick="0">Torna al piano</button>':''}</div></section>`; }
@@ -574,8 +598,9 @@ const LIBK={podcast:['🎧','Podcast'],audiolibro:['📖','Audiolibro'],video:['
 const libHost=u=>{ try{ const h=new URL(u).hostname.replace(/^(www|m|open)\./,''); return /youtu/.test(h)?'Video su YouTube':/spotify/.test(h)?'Contenuto su Spotify':h; }catch(e){ return 'Contenuto consigliato'; } };
 /* i contenuti si aprono su Spotify o YouTube (nessun lettore e nessuna copertina scaricata da terzi: l'app non carica risorse esterne) */
 function libItem(x){ const k=LIBK[x.k]||LIBK.podcast; return `<a class="mat lib" href="${esc(x.u)}" target="_blank" rel="noopener"><span class="libimg libe" aria-hidden="true">${k[0]}</span><span><small class="eyebrow">${k[1]}${x.d?` · ${esc(x.d)}`:''}</small><b>${esc(x.t||libHost(x.u))}</b>${x.a?`<span class="small muted">${esc(x.a)}</span>`:''}${x.n?`<span class="small">${esc(x.n)}</span>`:''}<span class="small libgo">${x.k==='video'?'Guarda':'Ascolta'} ↗</span></span></a>`; }
-function libCard(){ const L=(A.P.lib||[]).filter(x=>/^https:\/\//.test(x.u||'')); if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Da ascoltare e guardare</span>${L.map(libItem).join('')}<p class="small muted">Si apre su Spotify o YouTube.</p></section>`; }
-function libWeek(){ const L=(A.P.lib||[]).filter(x=>/^https:\/\//.test(x.u||'')); if(!L.length) return ''; const w=Math.floor((Date.now()/864e5+3)/7), x=L[w%L.length]; return `<section class="card"><span class="eyebrow">Il consiglio della settimana</span>${libItem(x)}</section>`; }
+const libSorted=()=>(A.P.lib||[]).filter(x=>/^https:\/\//.test(x.u||'')).slice().sort((a,b)=>(+b.s||0)-(+a.s||0));
+function libCard(){ const L=libSorted(); if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Da ascoltare e guardare</span>${L.map(libItem).join('')}<p class="small muted">Si apre su Spotify o YouTube.</p></section>`; }
+function libWeek(){ const L=libSorted(); if(!L.length) return ''; const w=Math.floor((Date.now()/864e5+3)/7), x=L[w%Math.min(3,L.length)]; return `<section class="card"><span class="eyebrow">Il consiglio della settimana</span>${libItem(x)}</section>`; }
 function edocCard(){ const L=A.P.edoc||[]; if(!L.length) return ''; return `<section class="card tight"><span class="eyebrow" style="padding-top:10px">Schede per te</span>${L.map(d=>`<details class="edoc"><summary><b>${esc(d.t)}</b></summary>${d.s.map(([h,x])=>`<h3>${esc(h)}</h3><p class="small" style="white-space:pre-wrap">${esc(x)}</p>`).join('')}</details>`).join('')}</section>`; }
 
 /* ---- Oltre il peso: i piccoli passi scelti in visita, con una spunta per i giorni in cui li hai provati (resta sul telefono) */
@@ -598,6 +623,19 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-olk]'); i
 /* ---- Oltre il peso: il percorso a tappe (dalla cartella). Il colore della tappa guida la pagina; l'umore di oggi (scelto qui o dal diario) la tinge appena */
 const OJ_PLUT=[['gioia','#E9B824',['serenità','calma','gioia','estasi']],['fiducia','#8DBF4E',['accettazione','fiducia','ammirazione']],['paura','#4E9E68',['apprensione','stress','ansia','paura','terrore']],['sorpresa','#3AAE9E',['distrazione','confusione','sorpresa','stupore']],['tristezza','#5A93CF',['pensierosità','stanchezza','solitudine','tristezza','angoscia']],['disgusto','#9468BC',['noia','avversione','disgusto']],['rabbia','#D9607C',['irritazione','rabbia','collera']],['aspettativa','#EE8A34',['interesse','fretta','aspettativa','vigilanza']]];
 const OJ_MOOD=Object.fromEntries(OJ_PLUT.flatMap(([,c,L])=>L.map(w=>[w,c])));
+/* ---- colore dell'app: segue l'umore registrato (oggi o dal diario) oppure lo sceglie la persona */
+const TH_PAL={gioia:['#E9B824','#7A5C00','#F0CC5A','Oro'],fiducia:['#8DBF4E','#3F6E1E','#A8D46F','Verde prato'],paura:['#4E9E68','#2E5E45','#7CC79B','Verde salvia'],sorpresa:['#3AAE9E','#1D6B61','#6FD3C4','Turchese'],
+ tristezza:['#5A93CF','#2F5F92','#8CB7E6','Blu'],disgusto:['#9468BC','#5E3D82','#BC9BDD','Lavanda'],rabbia:['#D9607C','#93324C','#EE93A8','Rosa'],aspettativa:['#EE8A34','#94500F','#F5AE6E','Arancio']};
+const thKey=()=>'nlp_th';
+const thMoodFam=()=>{ try{ const m=ojMoodNow()[0]; return (OJ_PLUT.find(([,,L])=>L.includes(m))||[])[0]||''; }catch(e){ return ''; } };
+function thApply(){ const k=LS.get(thKey())||'auto', fam=k==='auto'?thMoodFam():k, P=TH_PAL[fam], r=document.documentElement;
+  if(!P||(k==='auto'&&!fam)){ delete r.dataset.th; ['--th','--thb','--thbd'].forEach(v=>r.style.removeProperty(v)); return; }
+  r.dataset.th=fam; r.style.setProperty('--th',P[0]); r.style.setProperty('--thb',P[1]); r.style.setProperty('--thbd',P[2]); }
+function thCard(){ const k=LS.get(thKey())||'auto', fam=thMoodFam(), m=(()=>{ try{ return ojMoodNow()[0]; }catch(e){ return ''; } })();
+  return `<section class="card thc"><h2>Colore dell'app</h2><div class="thsw" role="radiogroup" aria-label="Colore dell'app"><button role="radio" class="thb auto" data-thp="auto" aria-checked="${k==='auto'}" style="--c:${TH_PAL[fam]?.[0]||'#4E9E68'}"><i></i><span>Automatico</span></button>${Object.entries(TH_PAL).map(([f,[c,,,l]])=>`<button role="radio" class="thb" data-thp="${f}" aria-checked="${k===f}" style="--c:${c}"><i></i><span>${l}</span></button>`).join('')}</div>
+   <p class="small muted">${k==='auto'?(m?`Segue il tuo umore: oggi «${esc(m)}». Lo scegli in «Come ti senti oggi?» o nel diario della fame.`:'Segue il tuo umore quando lo registri in «Come ti senti oggi?» o nel diario della fame; intanto resta il verde dello studio.'):'Colore scelto da te: resta così finché non torni su «Automatico».'}</p></section>`; }
+document.addEventListener('click',e=>{ const b=e.target.closest('button[data-thp]'); if(!b) return; e.preventDefault(); LS.set(thKey(),b.dataset.thp); thApply(); render(); },true);
+
 const ojMoodKey=()=>'nlp_ojmood_'+PID(), ojSeenKey=()=>'nlp_ojst_'+PID();
 function ojMoodNow(){ const t=ymd(new Date()); try{ const m=JSON.parse(LS.get(ojMoodKey())||'null'); if(m&&m.d===t&&OJ_MOOD[m.m]) return [m.m,'oggi']; }catch(e){}
   const from=Date.now()-3*864e5, L=mLoad().filter(e=>new Date(e.at).getTime()>=from&&(e.emo||[]).some(x=>OJ_MOOD[x])); if(L.length) return [L.at(-1).emo.find(x=>OJ_MOOD[x]),'diario'];
@@ -629,6 +667,7 @@ function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc
   const top=head(`<h1 class="h1s">${esc(A.psub==='piano'?(A.P.pl?.n||'Il tuo piano'):(subs.find(x=>x[0]===A.psub)||['',''])[1].replace('Spesa','Lista della spesa'))}</h1>`)+seg;
   if(A.psub==='consigli') return `${top}${(A.P.edu||[]).length?`<section class="card tight">${A.P.edu.map(t=>`<details class="tip2"><summary>${esc(t[0])}</summary><p class="small">${esc(t[1])}</p></details>`).join('')}</section>`:''}${edocCard()}`;
   if(A.psub==='mat') return `${top}${libWeek()}${newsCard()}${matCard()}${libCard()}`;
+  const c8top=c8Legend();
   if(A.psub==='spesa') return `${top}${spesaHTML()}`;
   if(A.psub==='ricette') return `${top}${ricHTML()}`;
   if(A.psub==='integr') return `${top}${integrBody()}`;
@@ -638,7 +677,7 @@ function scrPiano(){ const d=A.P.pl?.d||[], hasC=(A.P.edu||[]).length||(A.P.edoc
   const body=wk?d.map((x,i)=>{ const dp=dayPlan(i); return `<details class="card tight wday"${i===Math.min(today,d.length-1)?' open':''}><summary><b>${esc(x[0])}</b>${i===today?' <span class="chip">oggi</span>':''}<small>${dp[1].map(m=>esc(m[0])).join(' · ')}</small></summary>${dp[1].map((m,mi)=>mealHTML(m,i+'-'+mi,i)).join('')}</details>`; }).join('')
     :`${d.length>1?`<div class="days" role="group" aria-label="Giorno">${d.map((x,i)=>`<button data-day="${i}" aria-pressed="${i===A.day}">${esc(x[0].slice(0,3))}</button>`).join('')}</div>`:''}
    <section class="card tight">${dayPlan(A.day)[1].map((m,i)=>mealHTML(m,A.day+'-'+i,Math.min(A.day,d.length-1))).join('')}</section>`;
-  return `${top}${view}${body}
+  return `${top}${c8top}${view}${body}
    <p class="small muted pvh">Tocca un alimento con ⇄ per scegliere tra le alternative del Dottore${d.length>1?'; con «⇅ Sposta» scambi un pasto con lo stesso pasto di un altro giorno':''}.</p>
    ${changed?`<div class="row"><button class="btn ghost sm" data-plreset>Ripristina il piano del Dottore</button></div>`:''}
    ${A.P.pl?.note?noteHTML(A.P.pl.note):''}
@@ -763,11 +802,12 @@ function scrIo(){ const C=A.P.ci, a=AMB(), mo=A.P.mind, q=(A.P.scr||[]).length, 
    ${tools?`<section class="card tight"><span class="eyebrow" style="padding-top:10px">Diario e compiti</span>${tools}</section>`:''}
    ${C&&ciSt().sent?ciCardApp():C?`<section class="card"><h2>Check-in della settimana</h2><p class="small muted">Da fare: lo trovi in <button class="linkb" data-tab="oggi">Oggi</button>.</p></section>`:''}
    ${payCardApp()}
+   ${thCard()}
    <section class="card ctc"><h2>Contatti</h2><p class="small">Per domande, dubbi o per spostare una visita scrivimi per email: rispondo appena posso.</p>
      <div class="row"><a class="btn primary" href="${mailto('Domanda','Buongiorno Dottore, ')}">Scrivi al Dottore</a></div>
      ${(a.sedi||[]).length?`<div class="ctsedi"><p class="ciq">Dove ricevo</p>${a.sedi.map(x=>/online|video/i.test(x[0]+x[1])?`<div class="mat"><span class="matic" aria-hidden="true">●</span><span><b>Online</b><span class="small muted">${esc(x[2])}</span></span></div>`:`<a class="mat" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x[0]+' '+x[1])}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(x[1])} · ${esc(x[0])}</b><span class="small muted">${esc(x[2])}</span></span></a>`).join('')}</div>`:''}</section>
    ${A.P.demo?'':`<section class="card"><h2>L'app</h2><p class="small">Aggiornata al ${esc(new Date(A.P.gen).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}))}. App del Dott. Federico Spina, biologo nutrizionista: nessuna pubblicità né tracciamento, i tuoi dati vanno solo allo studio.</p><div class="row"><button class="btn ghost" id="logout">Esci da questo telefono</button></div></section>`}`; }
-function invCardApp(){ const L=A.P.inv||[]; if(!L.length) return ''; return `<section class="card"><h2>Professionisti consigliati</h2>${L.map(x=>`<div class="sup"><h3>${esc(x.pro)}</h3><span class="small">${esc(x.why)}</span><span class="small muted">${x.st==='prenotato'?'Prenotato':'Da prenotare'}${x.urg==='alta'?' · da fare presto':''}</span></div>`).join('')}${wa('x')?`<div class="row"><a class="btn" href="${wa('Buongiorno, le scrivo per la visita consigliata dallo specialista: ')}" target="_blank" rel="noopener">Aggiorna il Dottore</a></div>`:''}</section>`; }
+function invCardApp(){ const L=A.P.inv||[]; if(!L.length) return ''; return `<section class="card"><h2>Professionisti consigliati</h2>${L.map(x=>`<div class="sup"><h3>${esc(x.nm?x.nm+' · '+x.pro:x.pro)}</h3><span class="small">${esc(x.why)}</span>${x.tel||x.em||x.ind?`<span class="small invct">${x.tel?`<a href="tel:${esc(String(x.tel).replace(/[^\d+]/g,''))}">📞 ${esc(x.tel)}</a>`:''}${x.em?`<a href="mailto:${esc(x.em)}">✉ ${esc(x.em)}</a>`:''}${x.ind?`<span>📍 ${esc(x.ind)}</span>`:''}</span>`:''}<span class="small muted">${x.st==='prenotato'?'Prenotato':'Da prenotare'}${x.urg==='alta'?' · da fare presto':''}</span></div>`).join('')}${wa('x')?`<div class="row"><a class="btn" href="${wa('Buongiorno, le scrivo per la visita consigliata dallo specialista: ')}" target="_blank" rel="noopener">Aggiorna il Dottore</a></div>`:''}</section>`; }
 function integrBody(){ const s=A.P.sup||[], it=A.P.int||[];
   return `<section class="card">${s.length?s.map(x=>`<div class="sup"><h3>${esc(x.n)}</h3>${x.d?`<span class="dose">${esc(x.d)}</span>`:''}${x.w?`<span class="small">Quando: ${esc(x.w)}</span>`:''}${x.why?`<span class="small muted">Perché: ${esc(x.why)}</span>`:''}${x.pr&&/^https:\/\//.test(x.pr.u||'')?`<a class="small prlink" href="${esc(x.pr.u)}" target="_blank" rel="noopener">Prodotto indicato: ${esc(x.pr.n)}${x.pr.b?` (${esc(x.pr.b)})`:''} ↗</a>`:''}</div>`).join(''):'<p class="muted">Nessun integratore indicato.</p>'}${A.P.supNote&&s.some(x=>x.pr)?`<p class="small muted">${esc(A.P.supNote)}</p>`:''}</section>
    ${A.P.shop&&/^https:\/\//.test(A.P.shop.u||'')&&s.length?`<section class="card shopc"><h2>Dove trovarli</h2><p class="small">${esc(A.P.shop.t)}</p><a class="small prlink" href="${esc(A.P.shop.u)}" target="_blank" rel="noopener">${esc(A.P.shop.u.replace(/^https?:\/\/(www\.)?/,''))} ↗</a></section>`:''}
@@ -999,7 +1039,7 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
     try{ render(); }catch(e){ console.warn('render',e); A.P=null; LS.del('nlp_pin'); lockScreen('Il codice è giusto, ma l\'app non riesce a leggere il piano: scrivi al Dottore, che ti manderà un aggiornamento.'); } }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
-function render(){ if(!A.P) return; if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } if(A.tab==='integr'){ A.tab='piano'; A.psub='integr'; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,io:scrIo,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
+function render(){ if(!A.P) return; try{ thApply(); }catch(e){} if(A.tab==='chiedi'){ A.tab='oggi'; A.chatOpen=true; } if(A.tab==='integr'){ A.tab='piano'; A.psub='integr'; } const scr=({oggi:scrOggi,piano:scrPiano,visite:scrVisite,io:scrIo,quest:scrQuest,diario:scrDiario,prenota:scrPrenota,salute:scrSalute}[A.tab]||scrOggi)();
   $('#root').innerHTML=`<main class="shell screen" id="main">${scr}${A.P.demo&&(A.tab==='oggi'||A.tab==='io')?`<section class="card"><span class="eyebrow">Questa è un'app di esempio</span><p class="small">Con il link personale del Dottore qui trovi il tuo piano, le tue visite e i tuoi integratori.</p><div class="row"><button class="btn" id="tolock">Ho un link o un codice</button></div></section>`:''}</main>
    <div class="tabs"><nav aria-label="Sezioni">${[['oggi','Oggi'],['piano','Piano'],['visite','Percorso'],['io','Io']].map(([k,l])=>`<button data-tab="${k}"${A.tab===k||(k==='visite'&&A.tab==='prenota')||(k==='io'&&/^(diario|quest|salute)$/.test(A.tab))?' aria-current="page"':''}>${ICON[k]}<span>${l}</span></button>`).join('')}</nav></div>
    ${chatOn()&&!A.chatOpen?`<button class="fab" data-chat="open" aria-label="Apri l'assistente">${ICON.chiedi}</button>`:''}${chatOn()&&A.chatOpen?chatSheet():''}${A.sw?swSheet():''}${A.mv?mvSheet():''}`;
