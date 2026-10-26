@@ -901,7 +901,7 @@ function scrSalute(){ const g=hdGet(), f=HD.f, to=addDays(-1), from=addDays(-7),
    ${isIOS||A.P.demo?`<details class="card tip2"><summary>Dall'iPhone in automatico</summary>${A.P.hd.sc?`<ol class="small steps"><li><a href="${esc(A.P.hd.sc)}" target="_blank" rel="noopener">Aggiungi il comando «Invia a NutriLab»</a></li><li>Quando te lo chiede, incolla questo codice: <button class="btn sm" data-sccopy>Copia il codice</button></li><li>Il comando legge da Salute la settimana e la manda al Dottore: avvialo quando vuoi, o crea un'automazione ogni domenica.</li></ol>`:'<p class="small muted">Il Dottore non ha ancora attivato il comando per iPhone: per ora inserisci i dati qui.</p>'}</details>`:''}
    ${g.last?`<p class="foot">Ultimo invio il ${new Date(g.last).toLocaleDateString('it-IT',{day:'numeric',month:'long'})}</p>`:''}`; }
 function hdSend(){ const f=HD.f, g=hdGet(); const ok=g.ok||$('#hdok')?.checked; if(!ok){ HD.err='Per inviare i dati serve il tuo consenso: spunta la casella.'; render(); return; }
-  const P={from:addDays(-7),to:addDays(-1),src:'app'}; for(const k of ['steps','sleep','act','hr','w']){ let v=String(f[k]??'').replace(/\s/g,''); if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v)) v=v.replace(/\./g,''); v=v.replace(',','.'); if(v!==''&&!isNaN(+v)) P[k]=+v; }
+  const P={from:addDays(-7),to:addDays(-1),src:'app'}; for(const k of ['steps','sleep','act','hr','w',...(A.P?.hd?.nut?['kin','pro','cho','fat','fib','h2o']:[])]){ let v=String(f[k]??'').replace(/\s/g,''); if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v)) v=v.replace(/\./g,''); v=v.replace(',','.'); if(v!==''&&!isNaN(+v)) P[k]=+v; }
   if(Object.keys(P).length<4){ HD.err='Scrivi almeno un valore.'; render(); return; }
   if(A.P.demo){ HD.err=''; HD.msg='Nell\'esempio i dati non partono.'; render(); return; }
   HD.busy='send'; HD.err=''; render();
@@ -1216,6 +1216,7 @@ document.addEventListener('paste',e=>{ if(e.target.id==='pcode') setTimeout(()=>
   else if(A.code||saved) lockScreen(); else pasteScreen();
   try{ const s=await window.claude?.use?.('sample'); if(s){ A.ai=s; if(A.P&&A.tab==='chiedi') render(); } }catch(e){} })();
 </script>
+<script src="fotobf.js"></script>
 
 </body>
 </html>
