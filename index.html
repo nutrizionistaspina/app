@@ -602,7 +602,7 @@ function scrDiario(){ const d=A.md||(A.md=mNew()), L=mLoad();
    <div class="row"><button class="btn primary" id="msave"${d.pre==null&&d.post==null?' disabled':''}>Salva il pasto</button></div>
    <section class="card"><h2>Ultimi 7 giorni</h2>${W.length?`<p class="small">Pasti annotati: <b>${W.length}</b> · fame prima in media <b>${avg(W.filter(e=>e.pre!=null).map(e=>e.pre))}</b> · dopo <b>${avg(W.filter(e=>e.post!=null).map(e=>e.post))}</b> · davanti a uno schermo <b>${W.filter(e=>e.scr).length}</b></p>
      ${W.slice(-8).reverse().map(e=>`<div class="dline"><span>${esc(new Date(e.at).toLocaleDateString('it-IT',{weekday:'short',day:'numeric'}))} · ${esc((MMEAL.find(x=>x[0]===e.m)||['',''])[1])}${e.emo.length?` · ${esc(e.emo.join(', '))}`:''}</span><b>${e.pre??'–'} → ${e.post??'–'}</b></div>${e.ph?`<img class="phthumb" data-phk="${esc(e.ph)}" alt="Foto del pasto">`:''}`).join('')}`:'<p class="small muted">Ancora nessun pasto annotato.</p>'}</section>
-   <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':L.some(e=>!e.sent)?`<p class="small">${L.filter(e=>!e.sent).length} pasti non ancora inviati. Partono come codice cifrato in un messaggio WhatsApp: solo il Dottore può leggerli.</p><div class="row"><button class="btn primary" id="msend">Prepara il messaggio</button></div>${A.mout?`<div class="row"><a class="btn primary" href="${wa(A.mout)}" target="_blank" rel="noopener" id="mwa">Apri WhatsApp</a><button class="btn" id="mcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.mout)}</textarea>`:''}`:'<p class="small muted">Tutto inviato.</p>'}</section>`; }
+   <section class="card"><h2>Invia al Dottore</h2>${A.P.demo?'<p class="small muted">Nell\'esempio l\'invio non è attivo.</p>':L.some(e=>!e.sent)?`<p class="small">${MS.busy?'Invio in corso…':`${L.filter(e=>!e.sent).length} ${L.filter(e=>!e.sent).length===1?'pasto da inviare':'pasti da inviare'}: partono da soli, cifrati, appena c'è la rete. Solo il Dottore può leggerli.`}</p>${MS.busy?'':`<div class="row"><button class="btn${MS.err?' primary':''}" id="msend">Invia ora</button></div>`}${A.mout?`<p class="small">L'invio diretto non è riuscito: puoi mandarli con WhatsApp.</p><div class="row"><a class="btn primary" href="${wa(A.mout)}" target="_blank" rel="noopener" id="mwa">Apri WhatsApp</a><button class="btn" id="mcopy">Copia il messaggio</button></div><textarea class="code" readonly aria-label="Messaggio da inviare">${esc(A.mout)}</textarea>`:''}`:'<p class="small muted">Tutto inviato al Dottore: arriva da solo, non serve mandare altro.</p>'}</section>`; }
 function newsCard(){ const L=(A.P.news||[]).filter(n=>/^https?:\/\//.test(n.u||'')); if(!L.length) return ''; return `<section class="card"><span class="eyebrow">Da leggere</span>${L.map(n=>`<a class="mat" href="${esc(n.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">↗</span><span><b>${esc(n.t)}</b>${n.d?`<span class="small muted">${esc(n.d)}</span>`:''}</span></a>`).join('')}</section>`; }
 function matCard(){ const L=A.P.mat||[]; if(!L.length) return ''; return `<section class="card tight">${L.map(m=>`<a class="mat" href="${esc(m.u)}" target="_blank" rel="noopener"><span class="matic" aria-hidden="true">PDF</span><span><b>${esc(m.t)}</b>${m.d?`<span class="small muted">${esc(m.d)}</span>`:''}</span></a>`).join('')}</section>`; }
 const LIBK={podcast:['🎧','Podcast'],audiolibro:['📖','Audiolibro'],video:['▶','Video']};
@@ -1054,6 +1054,7 @@ async function tryPin(pin,rem){ let code=A.code; const sid=A.code?null:(A.sid||L
   if(sid){ try{ code=await fetchPack(sid); }catch(e){ if(e.message==='nf'){ LS.del('nlp_sid'); pasteScreen('Codice dell\'app non trovato: controlla le 8 lettere e numeri del messaggio.'); return; } code=LS.get('nlp_code'); if(!code){ A.sid=null; pasteScreen('Questo codice breve non funziona ancora da qui: incolla il codice lungo che ti ha mandato il Dottore (inizia con la lettera p).'); return; } } }
   if(!code) code=LS.get('nlp_code'); if(!code){ pasteScreen(); return; }
   try{ const P=await openPack(code,pin); A.P=P; A.pin=pin; migrateKeys(); loadAns(); A.day=(new Date().getDay()+6)%7; LS.set('nlp_code',code); if(sid) LS.set('nlp_sid',sid); if(rem) LS.set('nlp_pin',pin); else LS.del('nlp_pin'); try{ if(location.hash) history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    setTimeout(()=>mSendAuto(false),4000);
     try{ render(); }catch(e){ console.warn('render',e); A.P=null; LS.del('nlp_pin'); lockScreen('Il codice è giusto, ma l\'app non riesce a leggere il piano: scrivi al Dottore, che ti manderà un aggiornamento.'); } }
   catch(e){ lockScreen('Codice non corretto: controlla le 6 cifre.'); } }
 
@@ -1180,9 +1181,8 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.dataset.ms){ const d=(A.md||=mNew()), v=+t.dataset.v; d[t.dataset.ms]=d[t.dataset.ms]===v?null:v; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.me){ const d=(A.md||=mNew()); d.emo=d.emo.includes(t.dataset.me)?d.emo.filter(x=>x!==t.dataset.me):[...d.emo,t.dataset.me]; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if(t.dataset.mx){ const d=(A.md||=mNew()); d[t.dataset.mx]=!d[t.dataset.mx]; const y=window.scrollY; render(); window.scrollTo(0,y); return; }
-  if(t.id==='msave'){ const d=A.md; if(!d||(d.pre==null&&d.post==null)) return; const L=mLoad(); L.push({at:new Date().toISOString(),m:d.m,pre:d.pre,post:d.post,emo:d.emo,scr:d.scr,fr:d.fr,n:(d.n||'').trim().slice(0,200),...(d.phk&&d.phu?{ph:d.phk}:{})}); mSave(L); A.md=mNew(); A.mout=''; render(); window.scrollTo(0,0); return; }
-  if(t.id==='msend'){ (async()=>{ const L=mLoad(), U=L.filter(e=>!e.sent); if(!U.length) return; const code=await seal({v:1,pz:A.P.pz?.full||'',at:new Date().toISOString(),r:[],mind:U.map(({sent,...e})=>e)},A.pin);
-      A.mout=`Buongiorno, le mando il diario della fame (${U.length} pasti). Codice per NutriLab: ${code}`; A.mpend=U.map(e=>e.at); render(); })(); return; }
+  if(t.id==='msave'){ const d=A.md; if(!d||(d.pre==null&&d.post==null)) return; const L=mLoad(); L.push({at:new Date().toISOString(),m:d.m,pre:d.pre,post:d.post,emo:d.emo,scr:d.scr,fr:d.fr,n:(d.n||'').trim().slice(0,200),...(d.phk&&d.phu?{ph:d.phk}:{})}); mSave(L); A.md=mNew(); A.mout=''; render(); window.scrollTo(0,0); setTimeout(()=>mSendAuto(false),1200); return; }
+  if(t.id==='msend'){ mSendAuto(true); return; }
   if(t.id==='mcopy'){ navigator.clipboard?.writeText(A.mout).then(()=>{ t.textContent='Copiato'; mMark(); },()=>{ document.querySelector('textarea.code')?.select(); }); return; }
   if(t.id==='qcopy'){ navigator.clipboard?.writeText(A.out).then(()=>{ t.textContent='Copiato'; },()=>{ const ta=document.querySelector('textarea.code'); ta?.select(); }); return; }
   if(t.dataset.day){ A.day=+t.dataset.day; render(); return; }
@@ -1203,6 +1203,22 @@ document.addEventListener('click',e=>{ const t=e.target.closest('button,[data-q]
   if(t.id==='other'){ wipeLocal(); pasteScreen(); return; }
   if(t.id==='logout'){ LS.del('nlp_pin'); Object.assign(A,{P:null,pin:'',chat:[],ans:{},out:'',q:null}); lockScreen(); return; }
   if(t.id==='usecode'){ const raw=($('#pcode').value||'').trim(), v=raw.match(/p[A-Za-z0-9_-]{60,}/), sid=!v&&sidOf(raw); if(v){ A.code=v[0]; A.sid=null; lockScreen(); } else if(sid){ A.sid=sid; A.code=null; lockScreen(); } else { const c=$('#cerr'); if(c) c.textContent='Non trovo il codice: copia dal messaggio del Dottore la riga lunga che inizia con la lettera p.'; } return; } });
+/* diario della fame: invio automatico (28/10/2026). Come i questionari, i pasti partono cifrati con il PIN dell'app verso
+   l'archivio dello studio (nl_app_inbox) e arrivano da soli in NutriLab: dopo ogni pasto salvato, all'apertura e quando torna la rete.
+   A gruppi di massimo 20 pasti (un codice non supera 20000 caratteri). WhatsApp resta solo se l'invio diretto non riesce. */
+const MS={busy:0,err:0,at:0};
+const mSeal=arr=>seal({v:1,pz:A.P.pz?.full||'',at:new Date().toISOString(),r:[],mind:arr.map(({sent,...e})=>e)},A.pin);
+async function mSendAuto(manual){ if(MS.busy||!A.P||A.P.demo||!SID()||!A.pin) return; const U=mLoad().filter(e=>!e.sent); if(!U.length) return;
+  if(!manual&&Date.now()-MS.at<60e3) return; MS.busy=1; MS.at=Date.now(); let fail=0; mRepaint();
+  const put=async arr=>{ const code=await mSeal(arr); if(code.length>19500&&arr.length>1){ const h=Math.ceil(arr.length/2); return (await put(arr.slice(0,h)))&&(await put(arr.slice(h))); }
+    if(!(await scrPut(code))) return false; const L=mLoad(), ks=new Set(arr.map(e=>e.at)); for(const e of L) if(ks.has(e.at)) e.sent=1; mSave(L); return true; };
+  try{ for(let i=0;i<U.length;i+=20) if(!(await put(U.slice(i,i+20)))){ fail=1; break; } }catch(e){ fail=1; }
+  MS.busy=0; MS.err=fail; A.mout=''; A.mpend=null;
+  if(fail&&manual){ const R=mLoad().filter(e=>!e.sent); if(R.length){ try{ A.mout=`Buongiorno, le mando il diario della fame (${R.length} pasti). Codice per NutriLab: ${await mSeal(R)}`; A.mpend=R.map(e=>e.at); }catch(e){} } }
+  mRepaint(); }
+/* ridisegna solo se non si sta scrivendo in un campo (non toglie la tastiera) */
+function mRepaint(){ const a=document.activeElement; if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return; const y=window.scrollY; try{ render(); }catch(e){} window.scrollTo(0,y); }
+window.addEventListener('online',()=>setTimeout(()=>mSendAuto(false),2000));
 const mMark=()=>{ if(!A.mpend) return; const L=mLoad(); for(const e of L) if(A.mpend.includes(e.at)) e.sent=1; mSave(L); A.mpend=null; };
 document.addEventListener('click',e=>{ if(e.target.closest?.('#mwa')) setTimeout(mMark,300); });
 document.addEventListener('change',e=>{ if(e.target.id==='hdfile') hdUpload(e.target.files?.[0]);
