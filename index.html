@@ -475,9 +475,12 @@ function pcRead(id){ const o=pcSt(); for(const x of A.P.pc?.m||[]){ o.r[x.id]=1;
 /* «Ricorda»: solo indicazioni. Le ricette stanno in «Ricette»; revisione interna e fonti non sono per il paziente */
 const NT_BIB=/\b(PMID|PMCID|DOI|doi\s*:|PubMed|Bibliografia|Riferiment[oi] bibliografic[oi]|Fonti?\s*:|et al\.?)/i, NT_REV=/\brevisione\s+(?:AI|IA|clinica|interna|del piano|automatica)\b|\b(?:revisionat[oa]|rielaborat[oa])\s+(?:da|con|dall['’])\s*(?:AI|IA|Claude|intelligenza)|\bmodifich?e\s+(?:entro|applicate|proposte)\b|±\s*\d+\s*%|\bentro i limiti\b|\bnota per il professionista\b/i, NT_REC=/^\s*(?:ricett[ae])\b/i;
 const NT_CITE=/\s*\((?:[^()]*\b(?:LARN|SINU|EFSA|CREA|OMS|WHO|Ciqual|USDA|PMID|DOI|Nutrients|Lancet|JAMA|BMJ|Cochrane)\b[^()]*|[A-ZÀ-Ý][\wà-ÿ'’-]+(?: et al\.?| e [A-ZÀ-Ý][\wà-ÿ-]+)?,?\s*(?:19|20)\d\d[a-z]?(?:[;,][^()]*)?)\)/g;
+/* una frase è testo di ricetta se comincia col nome della ricetta o la nomina insieme a ingredienti e preparazione; le indicazioni che nominano solo una ricetta («uovocado al massimo 2 volte a settimana») restano */
+const NT_PREP=/\b(ingredient\w*|procediment\w*|preriscald\w*|frull\w*|mescol\w*|impast\w*|inforn\w*|cuoc\w*|padella|pentol\w*|forno a \d|teglia|ciotola|frusta|guarnir\w*)\b/;
+function ntRecTxt(x,T){ const n=norm(x).replace(/^[\s\-•*·–«"“(]*(?:opzione\s*\d+\s*[:–-]?\s*)?/,''); return T.some(r=>n.startsWith(r)||(n.includes(r)&&NT_PREP.test(n))); }
 function noteClean(t){ const T=(A.P?.ric||[]).map(r=>norm(r.n)).filter(x=>x.length>=6), out=[];
   for(const raw of String(t||'').replace(/\r/g,'').split('\n')){ const line=raw.replace(NT_CITE,'').trimEnd(); if(!line.trim()){ out.push(''); continue; } if(NT_REC.test(line)||NT_BIB.test(line.slice(0,40))) continue;
-    const keep=line.split(/(?<=[.!?;])\s+/).filter(x=>!NT_BIB.test(x)&&!NT_REV.test(x)&&!NT_REC.test(x)&&!T.some(r=>norm(x).includes(r)));
+    const keep=line.split(/(?<=[.!?;])\s+/).filter(x=>!NT_BIB.test(x)&&!NT_REV.test(x)&&!NT_REC.test(x)&&!ntRecTxt(x,T));
     if(keep.length) out.push(keep.join(' ').replace(/\s+([.,;:!?])/g,'$1')); }
   return out.join('\n').replace(/\n{3,}/g,'\n\n').trim(); }
 function noteItems(t){ t=noteClean(t); if(!t) return [];
