@@ -1,0 +1,49 @@
+# Ogni giorno copia qui la sitemap del sito nutrizionistaspina.it (pagine pubbliche e articoli del blog),
+# così Google trova da solo gli articoli nuovi. In Search Console è indicata come
+# https://app.nutrizionistaspina.it/sitemap-sito.xml
+name: Sitemap del sito
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: sitemap
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scarica e controlla la sitemap
+        run: python3 .github/scripts/sitemap.py sitemap-sito.xml
+
+      - name: Salva se è cambiata
+        id: salva
+        run: |
+          if git diff --quiet -- sitemap-sito.xml; then
+            echo "Nessuna modifica."
+            echo "cambiata=no" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+            git add sitemap-sito.xml
+            git commit -m "Sitemap del sito aggiornata"
+            git push
+            echo "cambiata=si" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ripubblica la pagina
+        if: steps.salva.outputs.cambiata == 'si'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
