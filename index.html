@@ -225,6 +225,7 @@ html[data-th][data-theme="dark"]{--brand:var(--thbd);--bg:color-mix(in srgb,var(
 .ldsteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ldst{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.ldstb{display:inline-flex;align-items:center;gap:10px}.ldstb button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;cursor:pointer}.ldstb b{min-width:24px;text-align:center;color:var(--ink);font-size:17px}
 .ldonly{padding-bottom:40px}
 .socrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}.socb{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid var(--line,#dfe5df);color:inherit;text-decoration:none;font-weight:600;font-size:14px}.socb svg{flex:none}
+#nlpq{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:60;background:#1B2A22;color:#fff;border-radius:12px;padding:9px 12px;font-size:13.5px;line-height:1.35;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 </style>
 
 <div id="root"></div>
@@ -487,7 +488,7 @@ function noteClean(t){ const T=(A.P?.ric||[]).map(r=>norm(r.n)).filter(x=>x.leng
 function noteItems(t){ t=noteClean(t); if(!t) return [];
   let L=t.split(/\n+/).map(x=>x.replace(/^\s*(?:[-•*·–]|\d+[.)])\s*/,'').trim()).filter(Boolean);
   if(L.length<3) L=L.flatMap(x=>x.length>140?x.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý0-9«"“(])/):[x]).map(x=>x.trim()).filter(Boolean);
-  return L.map(x=>{ const m=x.match(/^([^:.!?]{2,40}):\s+(.+)$/); return m?{h:m[1],x:m[2]}:{h:'',x}; }); }
+  const seen=new Set(); return L.map(x=>{ const m=x.match(/^([^:.!?]{2,40}):\s+(.+)$/); return m?{h:m[1],x:m[2]}:{h:'',x}; }).filter(x=>{ const k=norm(x.x).replace(/[^a-z0-9]+/g,' ').trim(); if(!k||seen.has(k)) return false; seen.add(k); return true; }); }
 function noteHTML(t){ const L=noteItems(t); if(!L.length) return ''; const li=x=>`<li>${x.h?`<b>${esc(x.h)}</b> `:''}${esc(x.x)}</li>`;
   return `<section class="card note2"><h2>Ricorda</h2><ul class="nlist">${L.slice(0,3).map(li).join('')}</ul>${L.length>3?`<details class="nmore"><summary>Mostra tutto <span class="muted">(${L.length-3} in più)</span></summary><ul class="nlist">${L.slice(3).map(li).join('')}</ul></details>`:''}</section>`; }
 /* ---- il percorso in gioco (gentile): tappe, abitudini della settimana, riconoscimenti. Mai il peso. */
@@ -856,8 +857,18 @@ async function scrPut(code){ const id=SID(); if(!id) return false;
   try{ const r=await fetch(NLB+'/rest/v1/rpc/nl_app_scr_put',{method:'POST',headers:{apikey:NLK,'Content-Type':'application/json'},body:JSON.stringify({p_id:id,p_code:code})}); return r.ok; }catch(e){ return false; } }
 /* chiamate verso l'archivio dello studio (progetto di NutriLab): risposte sul piano */
 async function nlRpc(fn,args){ const r=await fetch(NLB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:NLK,'Content-Type':'application/json'},body:JSON.stringify(args||{})}); if(!r.ok){ let m=''; try{ m=(await r.json()).message||''; }catch(e){} throw new Error(m||('http '+r.status)); } return r.json(); }
-async function rpc(fn,args){ const r=await fetch(SUPA+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
+async function rpcNet(fn,args){ let r; try{ r=await fetch(SUPA+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+ANON,'Content-Type':'application/json'},body:JSON.stringify(args||{})}); }catch(e){ const x=new Error('rete'); x.net=1; throw x; }
   const t=await r.text(); let j=null; try{ j=JSON.parse(t); }catch(e){} if(!r.ok){ const e=new Error(String(j?.message||'rete')); throw e; } return j; }
+/* senza rete i dati per il Dottore (diario, check-in, settimana, sostituzioni) restano in coda su questo telefono e partono da soli al ritorno della connessione */
+const QK='nlp_q', qGet=()=>{ try{ const q=JSON.parse(LS.get(QK)||'[]'); return Array.isArray(q)?q:[]; }catch(e){ return []; } }, qSet=q=>{ if(q.length) LS.set(QK,JSON.stringify(q.slice(-200))); else LS.del(QK); qBadge(); };
+function qAdd(fn,args){ const q=qGet(), k=JSON.stringify([fn,args]); if(!q.some(x=>JSON.stringify([x.fn,x.args])===k)) q.push({fn,args,at:new Date().toISOString()}); qSet(q); }
+function qBadge(){ try{ const n=qGet().length; let b=document.getElementById('nlpq'); if(!n){ b?.remove(); return; } if(!b){ b=document.createElement('div'); b.id='nlpq'; b.setAttribute('role','status'); document.body.appendChild(b); } b.textContent=`Senza rete: ${n===1?'1 invio in attesa, parte':n+' invii in attesa, partono'} da soli quando torna la connessione.`; }catch(e){} }
+async function qFlush(){ if(qFlush.busy||navigator.onLine===false) return; const q=qGet(); if(!q.length) return; qFlush.busy=1;
+  try{ while(q.length){ try{ await rpcNet(q[0].fn,q[0].args); q.shift(); }catch(e){ if(e.net) break; q.shift(); } qSet(q); } } finally{ qFlush.busy=0; qBadge(); } }
+async function rpc(fn,args){ if(fn!=='nl_app_data_add') return rpcNet(fn,args);
+  if(navigator.onLine===false){ qAdd(fn,args); return {queued:1}; }
+  try{ return await rpcNet(fn,args); }catch(e){ if(e.net){ qAdd(fn,args); return {queued:1}; } throw e; } }
+window.addEventListener('online',()=>setTimeout(qFlush,1500)); setInterval(qFlush,6e4);
 const bkKey=()=>'nlp_bk_'+PID();
 const bkPend=()=>{ let L=[]; try{ L=JSON.parse(LS.get(bkKey())||'[]')||[]; }catch(e){} const ap=A.P?.ap||[]; return L.filter(b=>new Date(b.s)>new Date()&&!ap.some(a=>a.s===b.s)); };
 const pendTxt=b=>`${new Date(b.s).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})} alle ${b.s.slice(11,16)} · ${b.sd==='Online'?'online':b.sd}`;
@@ -1243,6 +1254,9 @@ document.addEventListener('paste',e=>{ if(e.target.id==='pcode') setTimeout(()=>
   if(!A.code&&saved&&pin){ await tryPin(pin,true); }
   else if(A.code||saved) lockScreen(); else pasteScreen();
   try{ const s=await window.claude?.use?.('sample'); if(s){ A.ai=s; if(A.P&&A.tab==='chiedi') render(); } }catch(e){} })();
+/* app installabile e apribile senza rete: il service worker tiene la pagina e le icone sul telefono (mai i dati del paziente) */
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)) window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+setTimeout(()=>{ qBadge(); qFlush(); },3000);
 </script>
 <script src="fotobf.js"></script>
 
